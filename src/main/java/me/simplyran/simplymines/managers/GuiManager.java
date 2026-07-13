@@ -18,9 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GuiManager {
 
@@ -157,7 +155,158 @@ public class GuiManager {
                 .asGuiItem(event -> openBlocksGUI(player, mine))
         );
 
+        //Setting buttons
+        boolean warnGlobal = mine.isWarnGlobal();
+        boolean warnNear = mine.isWarnNear();
+        boolean teleportPlayers = mine.isTeleportPlayers();
+
+        Material itemMaterial = warnGlobal ? Material.LIME_DYE : Material.RED_DYE;
+        mineGUI.setItem(3, 6,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Warn Global: " + warnGlobal)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleWarnGlobal(mineGUI, mine))
+        );
+
+        itemMaterial = warnNear ? Material.LIME_DYE : Material.RED_DYE;
+        mineGUI.setItem(3, 7,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Warn Near: " + warnNear)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleWarnNear(mineGUI, mine))
+        );
+
+        itemMaterial = teleportPlayers ? Material.LIME_DYE : Material.RED_DYE;
+        mineGUI.setItem(4, 5,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Teleport Players: " + teleportPlayers)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleTeleportPlayers(mineGUI, mine))
+        );
+
+        mineGUI.setItem(4, 6,
+                ItemBuilder.from(Material.REDSTONE_TORCH)
+                        .name(Component.text("Warn Seconds Editor")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> openWarnSecondsGUI(player, mine))
+        );
+
+
+
+
         mineGUI.open(player);
+    }
+
+    public void toggleWarnNear(Gui gui, BasicMine mine){
+        boolean newWarnNear = !mine.isWarnNear();
+        mine.setWarnNear(newWarnNear);
+
+        Material itemMaterial = newWarnNear ? Material.LIME_DYE : Material.RED_DYE;
+        gui.setItem(3, 7,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Warn Near: " + newWarnNear)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleWarnNear(gui, mine))
+        );
+
+        gui.update();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+    }
+
+    public void toggleWarnGlobal(Gui gui, BasicMine mine){
+        boolean newWarnGlobal = !mine.isWarnGlobal();
+        mine.setWarnGlobal(newWarnGlobal);
+
+        Material itemMaterial = newWarnGlobal ? Material.LIME_DYE : Material.RED_DYE;
+        gui.setItem(3, 6,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Warn Global: " + newWarnGlobal)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleWarnGlobal(gui, mine))
+        );
+
+        gui.update();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+    }
+
+    public void toggleTeleportPlayers(Gui gui, BasicMine mine){
+        boolean teleportPlayers = !mine.isTeleportPlayers();
+        mine.setTeleportPlayers(teleportPlayers);
+
+        Material itemMaterial = teleportPlayers ? Material.LIME_DYE : Material.RED_DYE;
+        gui.setItem(4, 5,
+                ItemBuilder.from(itemMaterial)
+                        .name(Component.text("Teleport Players: " + teleportPlayers)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> toggleTeleportPlayers(gui, mine))
+        );
+
+        gui.update();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+    }
+
+
+    public void openWarnSecondsGUI(Player player, BasicMine mine){
+        Gui gui = Gui.gui()
+                .rows(3)
+                .title(Component.text("Warn Seconds"))
+                .disableAllInteractions()
+                .create();
+
+        gui.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+        });
+
+        GuiUtils.fillBorder(gui);
+
+        List<Integer> warnSec = mine.getWarnSeconds();
+
+        int[] secondsOptions = {1, 2, 5, 10, 15, 30, 60};
+        int col = 2;
+
+        for (int seconds : secondsOptions) {
+            final int slotCol = col; // capture for the closure below
+            gui.setItem(2, slotCol, createWarnToggleItem(gui, warnSec, seconds, slotCol));
+            col++;
+        }
+
+        gui.open(player);
+    }
+
+    private GuiItem createWarnToggleItem(Gui gui, List<Integer> warnSec, int seconds, int col) {
+        boolean enabled = warnSec.contains(seconds);
+        Material warnToggle = enabled ? Material.LIME_DYE : Material.RED_DYE;
+
+        return ItemBuilder.from(warnToggle)
+                .name(buildWarnName(seconds, enabled))
+                .amount(seconds)
+                .asGuiItem(event -> {
+                    if (warnSec.contains(seconds)) {
+                        warnSec.remove(Integer.valueOf(seconds));
+                    } else {
+                        warnSec.add(seconds);
+                    }
+
+                    gui.setItem(2, col, createWarnToggleItem(gui, warnSec, seconds, col));
+                    gui.update();
+                });
+    }
+    private Component buildWarnName(int seconds, boolean enabled) {
+        return Component.text(seconds + " Warn Seconds: " + enabled)
+                .color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     public void openBlocksGUI(Player player, BasicMine mine) {
@@ -171,6 +320,23 @@ public class GuiManager {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+        });
+
+        gui.setDefaultClickAction(event -> {
+            //If right click remove the block from the mine
+            if (event.getClick().isRightClick()){
+                ItemStack currentItem = event.getCurrentItem();
+                if (currentItem != null && currentItem.getType() != Material.AIR){
+                    mine.removeBlock(ItemUtils.getIDFromItemStack(currentItem));
+
+                    //Open the BlockGUI Again without the block
+                    Bukkit.getScheduler().runTask(plugin, () -> openBlocksGUI(player, mine));
+
+                    //Save the new blocks
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+                }
+
+            }
         });
 
         gui.setPlayerInventoryAction(event ->
@@ -193,7 +359,17 @@ public class GuiManager {
             ItemStack itemNow = ItemUtils.getItemStackFromName(material.getKey());
             gui.addItem(
                     ItemBuilder.from(itemNow)
-                            .asGuiItem(event -> openEditBlockGUI(player, material.getKey(), mine))
+                            .name(itemNow.displayName()
+                                    .color(NamedTextColor.YELLOW)
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                            .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
+                                    .color(NamedTextColor.YELLOW)
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+
+                            .asGuiItem(event -> {
+                                if (event.getClick().isRightClick()) return;
+                                openEditBlockGUI(player, material.getKey(), mine);
+                            })
             );
         }
 
@@ -297,12 +473,29 @@ public class GuiManager {
     }
 
 
-    private void removeChanceToBlock(Gui gui, double timeToRemove, String block, BasicMine mine){
+
+    private void removeChanceToBlock(Gui gui, double timeToRemove, String block, BasicMine mine) {
         double oldPercent = mine.getPercentage(block);
-        double newPercent = oldPercent - timeToRemove < 0 ? 0 : oldPercent - timeToRemove;
+        double newPercent = Math.max(0, oldPercent - timeToRemove);
         mine.setPercentage(block, newPercent);
+        refreshBlockEditItems(gui, block, newPercent, mine);
+    }
 
+    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine) {
+        double oldPercent = mine.getPercentage(block);
+        double totalWithoutCurrent = mine.getTotalPercentage() - oldPercent;
+        double newPercent = oldPercent + timeToAdd;
 
+        if (totalWithoutCurrent + newPercent > 1.0) {
+            newPercent = 1.0 - totalWithoutCurrent;
+        }
+        newPercent = Math.max(0, Math.min(1, newPercent));
+
+        mine.setPercentage(block, newPercent);
+        refreshBlockEditItems(gui, block, newPercent, mine);
+    }
+
+    private void refreshBlockEditItems(Gui gui, String block, double newPercent, BasicMine mine) {
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
                         .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
@@ -310,29 +503,21 @@ public class GuiManager {
                         .asGuiItem()
         );
 
-        gui.update();
-    }
-
-
-    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine) {
-        double oldPercent = mine.getPercentage(block);
-
-        double totalWithoutCurrent = mine.getTotalPercentage() - oldPercent;
-
-        double newPercent = oldPercent + timeToAdd;
-
-        if (totalWithoutCurrent + newPercent > 1.0) {
-            newPercent = 1.0 - totalWithoutCurrent;
+        List<Component> lore = new ArrayList<>();
+        for (Map.Entry<String, Double> materials : mine.getMaterials()) {
+            lore.add(Component.text("   " + materials.getKey() +
+                            ": " + Math.round(materials.getValue() * 100))
+                    .color(NamedTextColor.GOLD)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
         }
 
-        newPercent = Math.max(0, Math.min(1, newPercent));
-
-        mine.setPercentage(block, newPercent);
-
-        gui.setItem(2, 5,
-                ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
-                                .decoration(TextDecoration.ITALIC, false))
+        gui.setItem(1, 5,
+                ItemBuilder.from(Material.WRITABLE_BOOK)
+                        .name(Component.text("All Blocks: ")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.AQUA))
+                        .lore(lore)
                         .asGuiItem()
         );
 

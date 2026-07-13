@@ -202,13 +202,14 @@ public class BasicMine implements IMine {
         this.resetTime = resetTime;
     }
 
-    public double getPercentage(String block){
+    public double getPercentage(@NotNull String block){
         Double per = materials.get(block);
         return per == null ? 0 : per;
     }
 
 
-    public void setPercentage(String block, double percentage){
+    public void setPercentage(@NotNull String block,
+                              double percentage){
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
         materials.put(block, Math.round(percentage * 100.0) / 100.0);
@@ -224,6 +225,11 @@ public class BasicMine implements IMine {
 
     public Set<Map.Entry<String, Double>> getMaterials(){
         return materials.entrySet();
+    }
+
+    public void removeBlock(@NotNull String block){
+        materials.remove(block);
+        blockCahce.remove(block);
     }
 
 }
