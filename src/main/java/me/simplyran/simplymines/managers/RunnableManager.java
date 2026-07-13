@@ -2,7 +2,6 @@ package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.utils.JsonUtils;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public class RunnableManager implements Runnable{
@@ -10,7 +9,7 @@ public class RunnableManager implements Runnable{
     private final MineManager mineManager;
     private final SimplyMines plugin;
     private long lastMineSaves = 0;
-    private static int SAVE_MINES_FILES = 1800;
+    private final static int SAVE_MINES_FILES = 1800;
 
     public RunnableManager(@NotNull SimplyMines plugin,
                            @NotNull MineManager mineManager){
@@ -38,7 +37,6 @@ public class RunnableManager implements Runnable{
         });
 
         if (shouldSaveMines) {
-            System.out.println("Saved!");
             lastMineSaves = now;
         }
     }

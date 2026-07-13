@@ -4,7 +4,9 @@ import lombok.Getter;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.utils.ItemUtils;
+import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -19,10 +21,12 @@ public class BasicMine implements IMine {
     private final WorkloadRunnable workloadRunnable;
     private final String name;
     private final BoxedRegion region;
-    @Getter private final Map<String, Double> materials;
+    @Getter
+    private final Map<String, Double> materials;
+    private final Map<String, IBlock> blockCahce;
     private long lastReset;
     private int resetTime;
-    private boolean enabled = true;
+    private boolean enabled;
 
 
     public BasicMine(
@@ -39,6 +43,7 @@ public class BasicMine implements IMine {
         this.materials = new HashMap<>(materials);
         this.resetTime = resetTime;
         this.workloadRunnable = workloadRunnable;
+        this.blockCahce = new HashMap<>();
     }
 
 
@@ -86,14 +91,19 @@ public class BasicMine implements IMine {
             }
         }
 
+        //Create cache if not found
+        for (String blockName : materials.keySet()){
+            blockCahce.putIfAbsent(blockName, ItemUtils.getCustomBlock(blockName));
+        }
+
         // Queue a placement task for every block position in the region
         for (int x = region.getMinX(); x <= region.getMaxX(); x++) {
             for (int y = region.getMinY(); y <= region.getMaxY(); y++) {
                 for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
                     String material = pickMaterial();
-
+                    IBlock block = blockCahce.get(material);
                     workloadRunnable.addWorkload(
-                            ItemUtils.getCustomWorkload(material, new Location(world, x, y,z))
+                            new PlaceableBlock(world.getUID(), x, y,z, block)
                     );
                 }
             }

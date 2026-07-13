@@ -1,7 +1,7 @@
 package me.simplyran.simplymines;
 
-import lombok.Getter;
 import me.simplyran.simplymines.commands.MainCommand;
+import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.RunnableManager;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
@@ -9,12 +9,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SimplyMines extends JavaPlugin {
 
-    @Getter
     private WorkloadRunnable workloadRunnable;
-    @Getter
     private RunnableManager runnableManager;
-    @Getter
     private MineManager mineManager;
+    private GuiManager guiManager;
 
     private int workloadTaskID;
     private int runnableManagerTaskID;
@@ -24,11 +22,15 @@ public final class SimplyMines extends JavaPlugin {
 
         saveDefaultConfig();
 
+
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable();
 
         //Creating MineManager - depending on workloadRunnable
         this.mineManager = new MineManager(this, workloadRunnable);
+
+        //Creating GUIManager
+        this.guiManager = new GuiManager(this, mineManager);
 
         //Creating RunnableManager - depending on mineManager
         this.runnableManager = new RunnableManager(this, mineManager);
@@ -57,7 +59,8 @@ public final class SimplyMines extends JavaPlugin {
     }
 
     private void registerCommand(){
-        this.getCommand("sm").setExecutor(new MainCommand(this));
+        this.getCommand("sm")
+                .setExecutor(new MainCommand(mineManager, guiManager));
 
     }
 

@@ -5,11 +5,10 @@ import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import me.simplyran.simplymines.workload.Workload;
-import me.simplyran.simplymines.workload.impl.ItemsAdderBlock;
-import me.simplyran.simplymines.workload.impl.NexoBlock;
-import me.simplyran.simplymines.workload.impl.PlaceableBlock;
-import org.bukkit.Location;
+import me.simplyran.simplymines.workload.IBlock;
+import me.simplyran.simplymines.workload.blocks.Block;
+import me.simplyran.simplymines.workload.blocks.ItemsAdderBlock;
+import me.simplyran.simplymines.workload.blocks.NexoBlock;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,7 +23,6 @@ public class ItemUtils {
         }
         ItemBuilder nexoItem = NexoItems.itemFromId(name);
         if (nexoItem != null && nexoItem.getFinalItemStack() != null){
-            System.out.println("NEXO ITEM!");
             return nexoItem.getFinalItemStack();
         }
         CustomStack stack = CustomStack.getInstance(name);
@@ -35,38 +33,22 @@ public class ItemUtils {
         return new ItemStack(Material.BARRIER);
     }
 
-    public static Workload getCustomWorkload(String name, Location location){
+    public static IBlock getCustomBlock(String name){
         Material vannilaMaterial = Material.matchMaterial(name);
         if (vannilaMaterial != null){
-            return new PlaceableBlock(location.getWorld().getUID(),
-                    location.getBlockX(),
-                    location.getBlockY(),
-                    location.getBlockZ(),
-                    vannilaMaterial);
+            return new Block(vannilaMaterial);
         }
         if (NexoBlocks.isCustomBlock(name)){
-            return new NexoBlock(location.getWorld().getUID(),
-                    location.getBlockX(),
-                    location.getBlockY(),
-                    location.getBlockZ(),
-                    name);
+            return new NexoBlock(name);
         }
         CustomBlock customBlock = CustomBlock.getInstance(name);
         if(customBlock != null)
         {
-            return new ItemsAdderBlock(location.getWorld().getUID(),
-                    location.getBlockX(),
-                    location.getBlockY(),
-                    location.getBlockZ(),
-                    name);
+            return new ItemsAdderBlock(name);
         }
 
-        return new PlaceableBlock(location.getWorld().getUID(),
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                Material.STONE);
-
+        //Not Found
+        return new Block(Material.STONE);
     }
 
 
