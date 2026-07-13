@@ -15,13 +15,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 public class JsonUtils {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    // Defaults used when loading older mine files that predate these fields
+    private static final List<Integer> DEFAULT_WARN_SECONDS = List.of(30, 15, 5, 3, 2, 1);
+    private static final boolean DEFAULT_WARN_NEAR = true;
+    private static final boolean DEFAULT_WARN_GLOBAL = false;
+    private static final boolean DEFAULT_TELEPORT_PLAYERS = true;
+    private static final int DEFAULT_WARN_DISTANCE = 50;
 
     public static void loadMines(File dataFolder,
                                  WorkloadRunnable workloadRunnable,
@@ -75,13 +84,42 @@ public class JsonUtils {
                     materials.put(entry.getKey(), entry.getValue().getAsDouble());
                 }
 
+                List<Integer> warnSeconds = new ArrayList<>(DEFAULT_WARN_SECONDS);
+                if (json.has("warnSeconds") && json.get("warnSeconds").isJsonArray()) {
+                    warnSeconds = new ArrayList<>();
+                    for (JsonElement element : json.getAsJsonArray("warnSeconds")) {
+                        warnSeconds.add(element.getAsInt());
+                    }
+                }
+
+                boolean warnNear = json.has("warnNear")
+                        ? json.get("warnNear").getAsBoolean()
+                        : DEFAULT_WARN_NEAR;
+
+                boolean warnGlobal = json.has("warnGlobal")
+                        ? json.get("warnGlobal").getAsBoolean()
+                        : DEFAULT_WARN_GLOBAL;
+
+                boolean teleportPlayers = json.has("teleportPlayers")
+                        ? json.get("teleportPlayers").getAsBoolean()
+                        : DEFAULT_TELEPORT_PLAYERS;
+
+                int warnDistance = json.has("warnDistance")
+                        ? json.get("warnDistance").getAsInt()
+                        : DEFAULT_WARN_DISTANCE;
+
                 BasicMine mine = new BasicMine(enabled,
                         mineName,
                         resetTime,
                         corner1,
                         corner2,
                         materials,
-                        workloadRunnable);
+                        workloadRunnable,
+                        warnSeconds,
+                        warnNear,
+                        warnGlobal,
+                        teleportPlayers,
+                        warnDistance);
 
                 mineManager.addMine(mine);
 
@@ -97,13 +135,12 @@ public class JsonUtils {
     public static void saveMine(SimplyMines plugin, IMine mine) {
         JsonObject json;
 
-        switch (mine) {
-            case BasicMine basicMine -> json = serializeBasicMine(basicMine);
-            default -> {
-                plugin.getLogger().warning("Unknown IMine implementation: "
-                        + mine.getClass().getName() + " — cannot save.");
-                return;
-            }
+        if (mine instanceof BasicMine basicMine){
+            json = serializeBasicMine(basicMine);
+        }
+        else {
+            Bukkit.getLogger().severe("ERROR FOUND");
+            return;
         }
 
         File minesFolder = new File(plugin.getDataFolder(), "mines");
@@ -148,7 +185,17 @@ public class JsonUtils {
         }
         json.add("materials", materials);
 
+        JsonArray warnSeconds = new JsonArray();
+        for (Integer second : mine.getWarnSeconds()) {
+            warnSeconds.add(second);
+        }
+        json.add("warnSeconds", warnSeconds);
+
+        json.addProperty("warnNear", mine.isWarnNear());
+        json.addProperty("warnGlobal", mine.isWarnGlobal());
+        json.addProperty("teleportPlayers", mine.isTeleportPlayers());
+        json.addProperty("warnDistance", mine.getWarnDistance());
+
         return json;
     }
 }
-

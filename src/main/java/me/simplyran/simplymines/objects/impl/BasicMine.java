@@ -1,5 +1,7 @@
 package me.simplyran.simplymines.objects.impl;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -13,9 +15,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class BasicMine implements IMine {
@@ -29,6 +29,14 @@ public class BasicMine implements IMine {
     private int resetTime;
     private boolean enabled;
 
+    //Settings:
+    @Getter private final Set<Integer> warnedSeconds = new HashSet<>();
+    @Getter @Setter private boolean warnNear;
+    @Getter @Setter private boolean warnGlobal;
+    @Getter private final List<Integer> warnSeconds;
+    @Getter @Setter private boolean teleportPlayers;
+    @Getter @Setter private int warnDistance;
+
 
     public BasicMine(
             boolean enabled,
@@ -37,13 +45,25 @@ public class BasicMine implements IMine {
             @NotNull Location corner1,
             @NotNull Location corner2,
             @NotNull Map<String, Double> materials,
-            @NotNull WorkloadRunnable workloadRunnable){
+            @NotNull WorkloadRunnable workloadRunnable,
+            @NotNull List<Integer> warnSeconds,
+            boolean warnNear,
+            boolean warnGlobal,
+            boolean teleportPlayers,
+            int warnDistance
+    ){
         this.enabled = enabled;
         this.name = name;
         this.region = new BoxedRegion(corner1.getWorld(), corner1, corner2);
         this.materials = new HashMap<>(materials);
         this.resetTime = resetTime;
         this.workloadRunnable = workloadRunnable;
+        this.warnSeconds = new ArrayList<>(warnSeconds);
+        this.warnNear = warnNear;
+        this.warnGlobal = warnGlobal;
+        this.teleportPlayers = teleportPlayers;
+        this.warnDistance = warnDistance;
+
 
         blockCahce = new HashMap<>();
         for (String blockName : materials.keySet()){
@@ -91,10 +111,12 @@ public class BasicMine implements IMine {
         // if (!world.isChunkLoaded(region.getCenterX() >> 4, region.getCenterZ() >> 4)) return;
 
         // Evacuate any players standing inside the mine before we bury them
-        for (Player player : world.getPlayers()) {
-            Location loc = player.getLocation();
-            if (region.isInsideRegion(loc)) {
-                player.teleport(loc.clone().add(0, (region.getMaxY() - loc.getBlockY()) + 1, 0));
+        if (teleportPlayers) {
+            for (Player player : world.getPlayers()) {
+                Location loc = player.getLocation();
+                if (region.isInsideRegion(loc)) {
+                    player.teleport(loc.clone().add(0, (region.getMaxY() - loc.getBlockY()) + 1, 0));
+                }
             }
         }
 
@@ -120,6 +142,7 @@ public class BasicMine implements IMine {
         }
 
         lastReset = System.currentTimeMillis();
+        warnedSeconds.clear();
     }
 
     @Override
@@ -188,7 +211,7 @@ public class BasicMine implements IMine {
     public void setPercentage(String block, double percentage){
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        materials.put(block, percentage);
+        materials.put(block, Math.round(percentage * 100.0) / 100.0);
     }
 
     public double getTotalPercentage(){

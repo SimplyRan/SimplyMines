@@ -8,8 +8,6 @@ import me.simplyran.simplymines.managers.RunnableManager;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Objects;
-
 public final class SimplyMines extends JavaPlugin {
 
     private WorkloadRunnable workloadRunnable;
@@ -77,7 +75,7 @@ public final class SimplyMines extends JavaPlugin {
     }
 
     private void registerCommand(){
-        Objects.requireNonNull(this.getCommand("sm"))
+        this.getCommand("sm")
                 .setExecutor(new MainCommand(mineManager, guiManager, workloadRunnable));
 
     }
