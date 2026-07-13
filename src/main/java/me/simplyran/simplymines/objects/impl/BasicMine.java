@@ -44,7 +44,13 @@ public class BasicMine implements IMine {
         this.materials = new HashMap<>(materials);
         this.resetTime = resetTime;
         this.workloadRunnable = workloadRunnable;
-        this.blockCahce = new HashMap<>();
+
+        blockCahce = new HashMap<>();
+        for (String blockName : materials.keySet()){
+            //Put blocks in cache
+            blockCahce.put(blockName, ItemUtils.getCustomBlock(blockName));
+        }
+
     }
 
 
@@ -92,9 +98,10 @@ public class BasicMine implements IMine {
             }
         }
 
-        //Create cache if not found
+        //Reset the cache
         for (String blockName : materials.keySet()){
-            blockCahce.putIfAbsent(blockName, ItemUtils.getCustomBlock(blockName));
+            //Put blocks in cache
+            blockCahce.put(blockName, ItemUtils.getCustomBlock(blockName));
         }
 
         // Queue a placement task for every block position in the region
@@ -182,6 +189,14 @@ public class BasicMine implements IMine {
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
         materials.put(block, percentage);
+    }
+
+    public double getTotalPercentage(){
+        double total = 0;
+        for (double i : materials.values()){
+            total += i;
+        }
+        return total;
     }
 
     public Set<Map.Entry<String, Double>> getMaterials(){

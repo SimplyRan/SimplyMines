@@ -8,6 +8,7 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.impl.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
+import me.simplyran.simplymines.utils.JsonUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -17,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,15 +75,18 @@ public class GuiManager {
                 .disableAllInteractions()
                 .create();
 
+        BasicMine mine = mineManager.getMine(mineName);
+        if (mine == null) {
+            player.closeInventory();
+            return;
+        }
+
         // Go back to main GUI, but only on a genuine player-initiated close
         mineGUI.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            Bukkit.getScheduler().runTask(plugin, () -> openMainGUI(player));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
         });
 
-
-        BasicMine mine = mineManager.getMine(mineName);
-        if (mine == null) return;
 
         GuiUtils.fillBorder(mineGUI);
 
@@ -89,7 +94,7 @@ public class GuiManager {
         updateMineButton(mineGUI, 2, 2, mine);
 
         // Info item
-        mineGUI.setItem(3, 6,
+        mineGUI.setItem(3, 5,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
                         .name(Component.text(mineName + " Info")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -205,6 +210,8 @@ public class GuiManager {
         // Go back to blocks GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+
             Bukkit.getScheduler().runTask(plugin, () -> openBlocksGUI(player, mine));
         });
 
@@ -217,6 +224,24 @@ public class GuiManager {
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
                         .name(Component.text("Block Percent: " + Math.round(percent * 100))
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem()
+        );
+
+        List<Component> lore = new ArrayList<>();
+        for (Map.Entry<String, Double> materials : mine.getMaterials()){
+            lore.add(Component.text("   " + materials.getKey() +
+                    ": " + Math.round(materials.getValue() * 100))
+                    .color(NamedTextColor.GOLD)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
+        }
+
+        gui.setItem(1, 5,
+                ItemBuilder.from(Material.WRITABLE_BOOK)
+                        .name(Component.text("All Blocks: ")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.AQUA))
+                        .lore(lore)
                         .asGuiItem()
         );
 
@@ -284,25 +309,35 @@ public class GuiManager {
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
         );
+
         gui.update();
     }
 
 
-    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine){
+    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine) {
         double oldPercent = mine.getPercentage(block);
-        double newPercent = oldPercent + timeToAdd > 1 ? 1 : oldPercent + timeToAdd;
+
+        double totalWithoutCurrent = mine.getTotalPercentage() - oldPercent;
+
+        double newPercent = oldPercent + timeToAdd;
+
+        if (totalWithoutCurrent + newPercent > 1.0) {
+            newPercent = 1.0 - totalWithoutCurrent;
+        }
+
+        newPercent = Math.max(0, Math.min(1, newPercent));
+
         mine.setPercentage(block, newPercent);
 
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
                         .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                                .decoration(TextDecoration.ITALIC, false))
                         .asGuiItem()
         );
 
         gui.update();
     }
-
 
 
 
@@ -318,6 +353,9 @@ public class GuiManager {
         // Go back to mine GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+
+
             Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
         });
 

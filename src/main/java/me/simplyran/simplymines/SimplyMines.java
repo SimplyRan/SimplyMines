@@ -8,6 +8,8 @@ import me.simplyran.simplymines.managers.RunnableManager;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
+
 public final class SimplyMines extends JavaPlugin {
 
     private WorkloadRunnable workloadRunnable;
@@ -29,7 +31,6 @@ public final class SimplyMines extends JavaPlugin {
 
         checkLoadedTextureManagers();
 
-
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable();
 
@@ -43,19 +44,16 @@ public final class SimplyMines extends JavaPlugin {
         this.runnableManager = new RunnableManager(this, mineManager);
 
 
-
         //Scheduling the workload runnable
         this.workloadTaskID = this.getServer().getScheduler()
-                .scheduleSyncRepeatingTask(this, workloadRunnable, 1, 1);
+                .scheduleSyncRepeatingTask(this, workloadRunnable, 0, 1);
 
         //Scheduling the runnable manager
         this.runnableManagerTaskID = this.getServer().getScheduler()
-                .scheduleSyncRepeatingTask(this, runnableManager, 0, 20);
+                .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
 
 
         registerCommand();
-
-
     }
 
     private void checkLoadedTextureManagers(){
@@ -73,11 +71,14 @@ public final class SimplyMines extends JavaPlugin {
         // Plugin shutdown logic
         //TODO Change to other class
         runnableManager.saveAllMines();
+
+        getServer().getScheduler().cancelTask(workloadTaskID);
+        getServer().getScheduler().cancelTask(runnableManagerTaskID);
     }
 
     private void registerCommand(){
-        this.getCommand("sm")
-                .setExecutor(new MainCommand(mineManager, guiManager));
+        Objects.requireNonNull(this.getCommand("sm"))
+                .setExecutor(new MainCommand(mineManager, guiManager, workloadRunnable));
 
     }
 

@@ -19,9 +19,13 @@ public class MineManager {
         this.workloadRunnable = workloadRunnable;
         mines = new HashMap<>();
 
+
+        //Loading Mines then starting the Workload
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
                 this);
+
+
     }
 
     public void addMine(BasicMine mine){

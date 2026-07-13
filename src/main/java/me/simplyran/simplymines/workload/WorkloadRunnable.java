@@ -13,12 +13,16 @@ public class WorkloadRunnable implements Runnable{
 
     private static final double MAX_MILLIS_PER_TICK = 2.5;
     private static final int MAX_NANOS_PER_TICK = (int) (MAX_MILLIS_PER_TICK*1E6);
-    private final Deque<Workload> workloadDeque = new ArrayDeque<>();
+    private Deque<Workload> workloadDeque = new ArrayDeque<>();
 
     public void addWorkload(Workload workload){
         this.workloadDeque.add(workload);
     }
 
+
+    public void resetWorkloadDeque(){
+        workloadDeque = new ArrayDeque<>();
+    }
 
     @Override
     public void run() {

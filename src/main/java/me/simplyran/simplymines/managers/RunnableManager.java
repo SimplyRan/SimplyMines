@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.managers;
 
+import lombok.Setter;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +10,7 @@ public class RunnableManager implements Runnable{
     private final MineManager mineManager;
     private final SimplyMines plugin;
     private long lastMineSaves = 0;
-    private final static int SAVE_MINES_FILES = 1800;
+    @Setter private static int SAVE_MINES_FILES = 1800;
 
     public RunnableManager(@NotNull SimplyMines plugin,
                            @NotNull MineManager mineManager){

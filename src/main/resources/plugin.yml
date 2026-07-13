@@ -2,7 +2,10 @@ name: SimplyMines
 version: '1'
 main: me.simplyran.simplymines.SimplyMines
 api-version: '1.21'
-
+soft-depend:
+  - Nexo
+  - ItemsAdder
 
 commands:
   sm:
+    description: SimplyMines
