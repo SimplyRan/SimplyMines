@@ -28,7 +28,7 @@ dependencies {
     implementation("dev.triumphteam:triumph-gui:3.1.13")
 
     //Textures Managers
-    compileOnly 'beer.devs:itemsadder-api:4.0.18-beta-10'
+    compileOnly("beer.devs:itemsadder-api:4.0.18-beta-10")
     compileOnly("com.nexomc:nexo:1.25.0")
 
 

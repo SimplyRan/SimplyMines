@@ -73,6 +73,13 @@ public class GuiManager {
                 .disableAllInteractions()
                 .create();
 
+        // Go back to main GUI, but only on a genuine player-initiated close
+        mineGUI.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            Bukkit.getScheduler().runTask(plugin, () -> openMainGUI(player));
+        });
+
+
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) return;
 
@@ -161,6 +168,10 @@ public class GuiManager {
             Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
         });
 
+        gui.setPlayerInventoryAction(event ->
+                openEditBlockGUI(player,
+                        ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine));
+
         GuiUtils.fillRow(gui, 6, Material.WHITE_STAINED_GLASS_PANE);
 
         gui.setItem(6, 3,
@@ -173,8 +184,7 @@ public class GuiManager {
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.next()));
 
-        Map<String, Double> materials = mine.getMaterials();
-        for (Map.Entry<String, Double> material : materials.entrySet()) {
+        for (Map.Entry<String, Double> material : mine.getMaterials()) {
             ItemStack itemNow = ItemUtils.getItemStackFromName(material.getKey());
             gui.addItem(
                     ItemBuilder.from(itemNow)
@@ -200,16 +210,103 @@ public class GuiManager {
 
         GuiUtils.fillBorder(gui);
 
-        double percent = mine.getMaterials().get(block);
+        double percent = mine.getPercentage(block);
+
 
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + percent * 100))
+                        .name(Component.text("Block Percent: " + Math.round(percent * 100))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
         );
 
+
+        gui.setItem(2, 2, ItemBuilder.from(Material.RED_DYE)
+                .amount(10)
+                .name(Component.text("Remove 10%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.RED))
+                .asGuiItem(event -> removeChanceToBlock(gui, 0.1, block, mine)));
+
+        gui.setItem(2, 3, ItemBuilder.from(Material.RED_DYE)
+                .amount(5)
+                .name(Component.text("Remove 5%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.RED))
+                .asGuiItem(event -> removeChanceToBlock(gui, 0.05, block, mine)));
+
+        gui.setItem(2, 4, ItemBuilder.from(Material.RED_DYE)
+                .amount(1)
+                .name(Component.text("Remove 1%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.RED))
+                .asGuiItem(event -> removeChanceToBlock(gui, 0.01, block, mine)));
+
+
+
+
+        gui.setItem(2, 8, ItemBuilder.from(Material.LIME_DYE)
+                .amount(10)
+                .name(Component.text("Add 10%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GREEN))
+                .asGuiItem(event -> addChanceToBlock(gui, 0.1, block, mine)));
+
+        gui.setItem(2, 7, ItemBuilder.from(Material.LIME_DYE)
+                .amount(5)
+                .name(Component.text("Add 5%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GREEN))
+                .asGuiItem(event -> addChanceToBlock(gui, 0.05, block, mine)));
+
+        gui.setItem(2, 6, ItemBuilder.from(Material.LIME_DYE)
+                .amount(1)
+                .name(Component.text("Add 1%")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GREEN))
+                .asGuiItem(event -> addChanceToBlock(gui, 0.01, block, mine)));
+
+
+
         gui.open(player);
     }
+
+
+    private void removeChanceToBlock(Gui gui, double timeToRemove, String block, BasicMine mine){
+        double oldPercent = mine.getPercentage(block);
+        double newPercent = oldPercent - timeToRemove < 0 ? 0 : oldPercent - timeToRemove;
+        mine.setPercentage(block, newPercent);
+
+
+        gui.setItem(2, 5,
+                ItemBuilder.from(ItemUtils.getItemStackFromName(block))
+                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem()
+        );
+        gui.update();
+    }
+
+
+    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine){
+        double oldPercent = mine.getPercentage(block);
+        double newPercent = oldPercent + timeToAdd > 1 ? 1 : oldPercent + timeToAdd;
+        mine.setPercentage(block, newPercent);
+
+        gui.setItem(2, 5,
+                ItemBuilder.from(ItemUtils.getItemStackFromName(block))
+                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem()
+        );
+
+        gui.update();
+    }
+
+
+
+
+
 
     public void openChangeResetTimeGUI(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
@@ -226,68 +323,59 @@ public class GuiManager {
 
         GuiUtils.fillBorder(gui);
 
-        gui.setItem(2, 1, ItemBuilder.from(Material.RED_CONCRETE)
-                .amount(25)
-                .name(Component.text("Remove 25 seconds from Reset Time")
+
+        gui.setItem(2, 2, ItemBuilder.from(Material.RED_DYE)
+                .amount(10)
+                .name(Component.text("Remove 10 seconds from Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeTimeButton(gui, mine, 25)));
+                .asGuiItem(event -> removeTimeButton(gui, mine, 10)));
 
-        gui.setItem(2, 2, ItemBuilder.from(Material.RED_CONCRETE)
-                .amount(20)
-                .name(Component.text("Remove 20 seconds from Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeTimeButton(gui, mine, 20)));
-
-        gui.setItem(2, 3, ItemBuilder.from(Material.RED_CONCRETE)
+        gui.setItem(2, 3, ItemBuilder.from(Material.RED_DYE)
                 .amount(5)
                 .name(Component.text("Remove 5 seconds from Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.RED))
                 .asGuiItem(event -> removeTimeButton(gui, mine, 5)));
 
-        gui.setItem(2, 4, ItemBuilder.from(Material.RED_CONCRETE)
+        gui.setItem(2, 4, ItemBuilder.from(Material.RED_DYE)
                 .amount(1)
                 .name(Component.text("Remove 1 second from Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.RED))
                 .asGuiItem(event -> removeTimeButton(gui, mine, 1)));
 
-        gui.setItem(2, 9, ItemBuilder.from(Material.GREEN_CONCRETE)
-                .amount(25)
-                .name(Component.text("Add 25 seconds to Reset Time")
+
+
+
+        gui.setItem(2, 8, ItemBuilder.from(Material.LIME_DYE)
+                .amount(10)
+                .name(Component.text("Add 10 seconds to Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addTimeButton(gui, mine, 25)));
+                .asGuiItem(event -> addTimeButton(gui, mine, 10)));
 
-        gui.setItem(2, 8, ItemBuilder.from(Material.GREEN_CONCRETE)
-                .amount(20)
-                .name(Component.text("Add 20 seconds to Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addTimeButton(gui, mine, 20)));
-
-        gui.setItem(2, 7, ItemBuilder.from(Material.GREEN_CONCRETE)
+        gui.setItem(2, 7, ItemBuilder.from(Material.LIME_DYE)
                 .amount(5)
                 .name(Component.text("Add 5 seconds to Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.GREEN))
                 .asGuiItem(event -> addTimeButton(gui, mine, 5)));
 
-        gui.setItem(2, 6, ItemBuilder.from(Material.GREEN_CONCRETE)
+        gui.setItem(2, 6, ItemBuilder.from(Material.LIME_DYE)
                 .amount(1)
-                .name(Component.text("Add 1 second to Reset Time")
+                .name(Component.text("Add 1 seconds to Reset Time")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.GREEN))
                 .asGuiItem(event -> addTimeButton(gui, mine, 1)));
 
+
         gui.setItem(2, 5,
-                ItemBuilder.from(Material.REDSTONE)
+                ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Reset Time")
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetTime())
+                        .lore(Component.text(mine.getResetTime()+ "s")
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
@@ -312,12 +400,12 @@ public class GuiManager {
     private void addTimeButton(Gui gui, BasicMine mine, int time) {
         mine.setResetTime(mine.getResetTime() + time);
         gui.setItem(2, 5,
-                ItemBuilder.from(Material.REDSTONE)
+                ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Reset Time")
-                                .color(NamedTextColor.GREEN)
+                                .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetTime())
-                                .color(NamedTextColor.GREEN)
+                        .lore(Component.text(mine.getResetTime()+ "s")
+                                .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
         );
@@ -330,11 +418,11 @@ public class GuiManager {
         int newResetTime = oldResetTime - time > 0 ? oldResetTime - time : 1;
         mine.setResetTime(newResetTime);
         gui.setItem(2, 5,
-                ItemBuilder.from(Material.REDSTONE)
+                ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Reset Time")
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetTime())
+                        .lore(Component.text(mine.getResetTime() + "s")
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
@@ -342,5 +430,6 @@ public class GuiManager {
 
         gui.update();
     }
+
 
 }

@@ -1,5 +1,6 @@
 package me.simplyran.simplymines;
 
+import lombok.Getter;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -14,6 +15,10 @@ public final class SimplyMines extends JavaPlugin {
     private MineManager mineManager;
     private GuiManager guiManager;
 
+    @Getter private static boolean ITEMSADDER_LOADED = false;
+
+    @Getter private static boolean NEXO_LOADED = false;
+
     private int workloadTaskID;
     private int runnableManagerTaskID;
 
@@ -21,6 +26,8 @@ public final class SimplyMines extends JavaPlugin {
     public void onEnable() {
 
         saveDefaultConfig();
+
+        checkLoadedTextureManagers();
 
 
         //Creating WorkloadRunnable
@@ -48,6 +55,16 @@ public final class SimplyMines extends JavaPlugin {
 
         registerCommand();
 
+
+    }
+
+    private void checkLoadedTextureManagers(){
+        if (this.getServer().getPluginManager().getPlugin("ItemsAdder") != null) {
+            ITEMSADDER_LOADED = true;
+        }
+        if (this.getServer().getPluginManager().getPlugin("Nexo") != null) {
+            NEXO_LOADED = true;
+        }
 
     }
 

@@ -9,7 +9,6 @@ import me.simplyran.simplymines.objects.impl.BasicMine;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 
 import java.io.File;
@@ -144,7 +143,7 @@ public class JsonUtils {
         json.add("corner2", c2);
 
         JsonObject materials = new JsonObject();
-        for (Map.Entry<String, Double> entry : mine.getMaterials().entrySet()) {
+        for (Map.Entry<String, Double> entry : mine.getMaterials()) {
             materials.addProperty(entry.getKey(), entry.getValue());
         }
         json.add("materials", materials);

@@ -1,19 +1,21 @@
 package me.simplyran.simplymines.objects.impl;
 
-import lombok.Getter;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import me.simplyran.simplymines.workload.blocks.Block;
 import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 public class BasicMine implements IMine {
@@ -21,7 +23,6 @@ public class BasicMine implements IMine {
     private final WorkloadRunnable workloadRunnable;
     private final String name;
     private final BoxedRegion region;
-    @Getter
     private final Map<String, Double> materials;
     private final Map<String, IBlock> blockCahce;
     private long lastReset;
@@ -102,6 +103,8 @@ public class BasicMine implements IMine {
                 for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
                     String material = pickMaterial();
                     IBlock block = blockCahce.get(material);
+                    if (block == null) block = new Block(Material.AIR);
+
                     workloadRunnable.addWorkload(
                             new PlaceableBlock(world.getUID(), x, y,z, block)
                     );
@@ -167,6 +170,22 @@ public class BasicMine implements IMine {
     @Override
     public void setResetTime(int resetTime){
         this.resetTime = resetTime;
+    }
+
+    public double getPercentage(String block){
+        Double per = materials.get(block);
+        return per == null ? 0 : per;
+    }
+
+
+    public void setPercentage(String block, double percentage){
+        if (percentage < 0) percentage = 0;
+        if (percentage > 1) percentage = 1;
+        materials.put(block, percentage);
+    }
+
+    public Set<Map.Entry<String, Double>> getMaterials(){
+        return materials.entrySet();
     }
 
 }
