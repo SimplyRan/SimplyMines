@@ -19,7 +19,6 @@ public final class SimplyMines extends JavaPlugin {
     private int workloadTaskID;
     private int runnableManagerTaskID;
 
-
     @Override
     public void onEnable() {
 
@@ -29,10 +28,10 @@ public final class SimplyMines extends JavaPlugin {
         this.workloadRunnable = new WorkloadRunnable();
 
         //Creating MineManager - depending on workloadRunnable
-        this.mineManager = new MineManager(this);
+        this.mineManager = new MineManager(this, workloadRunnable);
 
         //Creating RunnableManager - depending on mineManager
-        this.runnableManager = new RunnableManager(mineManager);
+        this.runnableManager = new RunnableManager(this, mineManager);
 
 
 
@@ -53,6 +52,8 @@ public final class SimplyMines extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        //TODO Change to other class
+        runnableManager.saveAllMines();
     }
 
     private void registerCommand(){

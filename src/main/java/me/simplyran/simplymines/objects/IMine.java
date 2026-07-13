@@ -14,12 +14,19 @@ public interface IMine {
     int getResetTime();
 
 
+    void setResetTime(int time);
+
+
     long getLastReset();
 
     void setLastReset(long lastReset);
 
 
     void reset();
+
+    boolean isEnabled();
+
+    void setEnabled(boolean enabled);
 
 
     boolean isInsideMine(Location location);

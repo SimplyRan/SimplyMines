@@ -1,12 +1,11 @@
 package me.simplyran.simplymines.objects.impl;
 
+import lombok.Getter;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.IMine;
+import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
-import me.simplyran.simplymines.workload.impl.PlaceableBlock;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,30 +19,21 @@ public class BasicMine implements IMine {
     private final WorkloadRunnable workloadRunnable;
     private final String name;
     private final BoxedRegion region;
-    private final Map<Material, Double> materials;
+    @Getter private final Map<String, Double> materials;
     private long lastReset;
-    private final int resetTime;
+    private int resetTime;
+    private boolean enabled = true;
+
 
     public BasicMine(
+            boolean enabled,
             @NotNull String name,
             int resetTime,
             @NotNull Location corner1,
             @NotNull Location corner2,
+            @NotNull Map<String, Double> materials,
             @NotNull WorkloadRunnable workloadRunnable){
-        this.name = name;
-        this.region = new BoxedRegion(corner1.getWorld(), corner1, corner2);
-        this.materials = new HashMap<>();
-        this.resetTime = resetTime;
-        this.workloadRunnable = workloadRunnable;
-    }
-
-    public BasicMine(
-            @NotNull String name,
-            int resetTime,
-            @NotNull Location corner1,
-            @NotNull Location corner2,
-            @NotNull Map<Material, Double> materials,
-            @NotNull WorkloadRunnable workloadRunnable){
+        this.enabled = enabled;
         this.name = name;
         this.region = new BoxedRegion(corner1.getWorld(), corner1, corner2);
         this.materials = new HashMap<>(materials);
@@ -52,31 +42,6 @@ public class BasicMine implements IMine {
     }
 
 
-
-    public BasicMine(
-            @NotNull String name,
-            int resetTime,
-            @NotNull BoxedRegion region,
-            @NotNull WorkloadRunnable workloadRunnable){
-        this.name = name;
-        this.region = region;
-        this.materials = new HashMap<>();
-        this.resetTime = resetTime;
-        this.workloadRunnable = workloadRunnable;
-    }
-
-    public BasicMine(
-            @NotNull String name,
-            int resetTime,
-            @NotNull BoxedRegion region,
-            @NotNull Map<Material, Double> materials,
-            @NotNull WorkloadRunnable workloadRunnable){
-        this.name = name;
-        this.region = region;
-        this.materials = new HashMap<>(materials);
-        this.resetTime = resetTime;
-        this.workloadRunnable = workloadRunnable;
-    }
 
 
     @Override
@@ -125,28 +90,40 @@ public class BasicMine implements IMine {
         for (int x = region.getMinX(); x <= region.getMaxX(); x++) {
             for (int y = region.getMinY(); y <= region.getMaxY(); y++) {
                 for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
-                    Material material = pickMaterial();
-                    workloadRunnable.addWorkload(new PlaceableBlock(world.getUID(), x, y, z, material));
+                    String material = pickMaterial();
+
+                    workloadRunnable.addWorkload(
+                            ItemUtils.getCustomWorkload(material, new Location(world, x, y,z))
+                    );
                 }
             }
         }
-        Bukkit.getLogger().info("RESET: %s".formatted(name));
 
         lastReset = System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /**
      * Picks a material for a block position based on the configured weighted probabilities.
      * If there's only one material configured, skips the RNG entirely.
      */
-    private Material pickMaterial() {
+    private String pickMaterial() {
         if (materials.size() == 1) {
             return materials.keySet().iterator().next();
         }
 
         double x = Math.random();
         double cumulativeSum = 0.0d;
-        for (Map.Entry<Material, Double> entry : materials.entrySet()) {
+        for (Map.Entry<String, Double> entry : materials.entrySet()) {
             cumulativeSum += entry.getValue();
             if (cumulativeSum >= x) {
                 return entry.getKey();
@@ -155,13 +132,31 @@ public class BasicMine implements IMine {
 
         // Fallback in case probabilities don't sum to exactly 1.0 (floating point drift,
         // or a misconfigured mine) — avoids leaving the block untouched.
-        return Material.AIR;
+        return "AIR";
     }
 
 
     @Override
     public boolean isInsideMine(Location location) {
         return region.isInsideRegion(location);
+    }
+
+
+    public String getMainMaterial(){
+        double max = 0;
+        String material = "STONE";
+        for (var entry : materials.entrySet()){
+            if (entry.getValue() > max){
+                max = entry.getValue();
+                material = entry.getKey();
+            }
+        }
+        return material;
+    }
+
+    @Override
+    public void setResetTime(int resetTime){
+        this.resetTime = resetTime;
     }
 
 }

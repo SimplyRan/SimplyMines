@@ -1,7 +1,13 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id "io.github.goooler.shadow" version "8.1.8"
 }
+
+shadowJar {
+    relocate("dev.triumphteam.gui", "simplyran.gui")
+}
+
 
 group = 'me.simplyran'
 version = '1'
@@ -12,10 +18,18 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
+    maven{
+        url = "https://repo.nexomc.com/releases"
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    implementation("dev.triumphteam:triumph-gui:3.1.13")
+
+    //Textures Managers
+    compileOnly 'beer.devs:itemsadder-api:4.0.18-beta-10'
+    compileOnly("com.nexomc:nexo:1.25.0")
 
 
     compileOnly 'org.projectlombok:lombok:1.18.30'
