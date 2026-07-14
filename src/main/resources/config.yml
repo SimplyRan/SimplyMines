@@ -80,3 +80,12 @@ messages:
   # Sent only to players near a mine with warn-near enabled when it's about to reset
   # Placeholders: <mine>, <seconds>
   warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"
+
+  # Sent when a console tries to use the Wooden Hoe selection tool
+  only-players-can-tool: "<green>Only players can use tool"
+
+  # /mine tool (or similar) — toggling the selection tool off
+  disabled-tool: "<red>Disabled tool."
+
+  # /mine tool (or similar) — toggling the selection tool on
+  enabled-tool: "<green>Enabled tool."
