@@ -156,14 +156,28 @@ public class GuiManager {
             return;
         }
 
+        mineGUI.setItem(2, 5,
+                ItemBuilder.from(Material.ENDER_PEARL)
+                        .name(Component.text("Teleport To Mine")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.LIGHT_PURPLE))
+                        .asGuiItem(event -> {
+                            event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                            player.teleportAsync(mine.getTeleportLocation());
+                        }));
+
+
         // Go back to main GUI, but only on a genuine player-initiated close
         mineGUI.setCloseGuiAction(event -> {
-            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
+                    || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
             Bukkit.getScheduler().runTask(plugin, () -> openMainGUI(player));
             saveAsync(mine);
         });
 
         GuiUtils.fillBorder(mineGUI);
+
+
 
         mineGUI.setItem(6, 1,
                 ItemBuilder.from(Material.ARROW)

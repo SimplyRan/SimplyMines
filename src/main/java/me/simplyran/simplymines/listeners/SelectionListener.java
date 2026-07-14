@@ -24,8 +24,10 @@ public class SelectionListener implements Listener {
 
     @EventHandler
     public void onSelectEvent(PlayerInteractEvent event){
-        if (event.getPlayer().hasPermission("simplymines.select")){
-            Player player = event.getPlayer();
+        Player player = event.getPlayer();
+        if (player.hasPermission("simplymines.select") && !selectionManager.isToolDisabled(player.getUniqueId())){
+
+
             if (player.getInventory().getItemInMainHand().getType() != Material.WOODEN_HOE) return;
             Block block = event.getClickedBlock();
             if (block == null) return;

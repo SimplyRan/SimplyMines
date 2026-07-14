@@ -78,14 +78,15 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("only-players-can-tool"));
                         break;
                     }
-                    boolean isEnabled = selectionManager.isToolDisabled(player.getUniqueId());
+                    boolean isDisabled = selectionManager.isToolDisabled(player.getUniqueId());
                     selectionManager.toggleTool(player.getUniqueId());
-                    if (isEnabled){
-                        sender.sendMessage(configManager.getMessage("disabled-tool"));
-                    }
-                    else {
+                    if (isDisabled){
                         sender.sendMessage(configManager.getMessage("enabled-tool"));
                     }
+                    else {
+                        sender.sendMessage(configManager.getMessage("disabled-tool"));
+                    }
+                    break;
                 }
                 else {
                     sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
