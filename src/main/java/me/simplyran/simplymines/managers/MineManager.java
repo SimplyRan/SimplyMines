@@ -4,6 +4,7 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.impl.BasicMine;
 import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class MineManager {
                 this);
     }
 
+    @Nullable
     public BasicMine getMine(String name){
         return mines.get(name);
     }

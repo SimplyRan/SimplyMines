@@ -2,6 +2,7 @@ package me.simplyran.simplymines.commands;
 
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
+import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,8 +33,7 @@ public class MainCommand implements CommandExecutor {
         switch (args.length) {
 
             case 0: {
-                if (sender.hasPermission("simplymine.admin")
-                        &&
+                if (sender.hasPermission("simplymine.admin") &&
                         sender instanceof Player player) {
                     guiManager.openMainGUI(player);
                 }
@@ -42,11 +42,34 @@ public class MainCommand implements CommandExecutor {
 
             case 1: {
                 String arg1 = args[0];
-                if (arg1.equalsIgnoreCase("reload")) {
-                    workloadRunnable.resetWorkloadDeque();
-                    mineManager.reloadMines();
+                if (sender.hasPermission("simplymine.reload")){
+                    if (arg1.equalsIgnoreCase("reload")) {
+                        workloadRunnable.resetWorkloadDeque();
+                        mineManager.reloadMines();
+                        //TODO Change to config
+                        sender.sendMessage("Mines and Config have been reloaded!");
+                    }
                 }
                 break;
+            }
+
+            case 2:{
+                String arg1 = args[0];
+                if (arg1.equalsIgnoreCase("reset") && sender.hasPermission("simplymines.reset")){
+                    String mineName = args[1];
+                    IMine mine = mineManager.getMine(mineName);
+                    if (mine != null){
+                        mine.reset();
+                        //TODO Change to config
+                        sender.sendMessage("Mines %s have been reset!".formatted(mineName));
+                    }
+                    else {
+                        //TODO Change to config
+                        sender.sendMessage("Mine %s have not found!".formatted(mineName));
+                    }
+
+                }
+
             }
 
         }
