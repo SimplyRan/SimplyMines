@@ -137,6 +137,17 @@ public class GuiManager {
                                 .color(NamedTextColor.YELLOW))
                         .asGuiItem(event -> openWarnSecondsGUI(player, mine)));
 
+        //Warn Distance item
+        mineGUI.setItem(3, 7,
+                ItemBuilder.from(Material.SPYGLASS)
+                        .name(Component.text("Edit Warn Distance")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> openChangeWarnDistanceGUI(player, mine)));
+
         // Toggle buttons — each owns a distinct slot, no collisions
         new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
                 mine::isEnabled, mine::setEnabled, () -> saveAsync(mine)).render();
@@ -194,6 +205,66 @@ public class GuiManager {
                         .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
                         .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
         );
+    }
+
+    // ---------------------------------------------------------------------
+// Warn distance GUI
+// ---------------------------------------------------------------------
+
+    public void openChangeWarnDistanceGUI(Player player, BasicMine mine) {
+        Gui gui = Gui.gui()
+                .rows(3)
+                .title(Component.text("Change Warn Distance"))
+                .disableAllInteractions()
+                .create();
+
+        // Go back to mine GUI, but only on a genuine player-initiated close
+        gui.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            saveAsync(mine);
+            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+        });
+
+        GuiUtils.fillBorder(gui);
+
+        renderWarnDistanceDisplay(gui, mine);
+
+        // Remove buttons
+        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10 blocks from Warn Distance", NamedTextColor.RED,
+                delta -> adjustWarnDistance(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5 blocks from Warn Distance", NamedTextColor.RED,
+                delta -> adjustWarnDistance(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1 block from Warn Distance", NamedTextColor.RED,
+                delta -> adjustWarnDistance(gui, mine, -delta)).render();
+
+        // Add buttons
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1 block to Warn Distance", NamedTextColor.GREEN,
+                delta -> adjustWarnDistance(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5 blocks to Warn Distance", NamedTextColor.GREEN,
+                delta -> adjustWarnDistance(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10 blocks to Warn Distance", NamedTextColor.GREEN,
+                delta -> adjustWarnDistance(gui, mine, delta)).render();
+
+        gui.open(player);
+    }
+
+    private void adjustWarnDistance(Gui gui, BasicMine mine, int delta) {
+        int newWarnDistance = Math.max(0, mine.getWarnDistance() + delta);
+        mine.setWarnDistance(newWarnDistance);
+        renderWarnDistanceDisplay(gui, mine);
+        gui.update();
+    }
+
+    private void renderWarnDistanceDisplay(Gui gui, BasicMine mine) {
+        gui.setItem(2, 5,
+                ItemBuilder.from(Material.COMPASS)
+                        .name(Component.text("Warn Distance")
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem());
     }
 
     // ---------------------------------------------------------------------
@@ -269,10 +340,11 @@ public class GuiManager {
         });
 
         gui.setPlayerInventoryAction(event -> {
-                    if (event.getCurrentItem().getType().isBlock()){
-                        openEditBlockGUI(player,
-                                ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
-                    }
+            if (event.getCurrentItem() == null) return;
+            if (event.getCurrentItem().getType().isBlock()){
+                openEditBlockGUI(player,
+                        ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
+            }
         }
         );
 
