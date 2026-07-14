@@ -162,6 +162,7 @@ public class GuiManager {
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.LIGHT_PURPLE))
                         .asGuiItem(event -> {
+                            if (mine.getTeleportLocation() == null) return;
                             event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
                             player.teleportAsync(mine.getTeleportLocation());
                         }));

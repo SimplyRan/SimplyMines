@@ -84,8 +84,11 @@ messages:
   # Sent when a console tries to use the Wooden Hoe selection tool
   only-players-can-tool: "<green>Only players can use tool"
 
-  # /mine tool (or similar) — toggling the selection tool off
+  # /mine tool — toggling the selection tool off
   disabled-tool: "<red>Disabled tool."
 
-  # /mine tool (or similar) — toggling the selection tool on
+  # /mine tool — toggling the selection tool on
   enabled-tool: "<green>Enabled tool."
+
+  # /mine tool — no permission to toggle tool
+  no-permission-tool: "<red>no permission to toggle tool."

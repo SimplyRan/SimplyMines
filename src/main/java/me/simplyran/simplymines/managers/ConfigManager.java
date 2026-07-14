@@ -77,6 +77,7 @@ public class ConfigManager {
         config.addDefault("messages.only-players-can-tool", "<green>Only players can use tool");
         config.addDefault("messages.disabled-tool", "<red>Disabled tool.");
         config.addDefault("messages.enabled-tool", "<green>Enabled tool.");
+        config.addDefault("messages.no-permission-tool", "<red>no permission to toggle tool.");
 
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);

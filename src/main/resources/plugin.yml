@@ -8,4 +8,5 @@ soft-depend:
 
 commands:
   sm:
+    permission: simplyran.edit
     description: SimplyMines
