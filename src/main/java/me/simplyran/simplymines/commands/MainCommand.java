@@ -71,7 +71,23 @@ public class MainCommand implements CommandExecutor {
                     mineManager.reloadMines();
                     configManager.reloadConfig();
                     sender.sendMessage(configManager.getMessage("reloaded"));
-                } else {
+                }
+                if (arg1.equalsIgnoreCase("tool")
+                        && sender.hasPermission("simplymines.tool")){
+                    if (!(sender instanceof Player player)){
+                        sender.sendMessage(configManager.getMessage("only-players-can-tool"));
+                        break;
+                    }
+                    boolean isEnabled = selectionManager.isToolDisabled(player.getUniqueId());
+                    selectionManager.toggleTool(player.getUniqueId());
+                    if (isEnabled){
+                        sender.sendMessage(configManager.getMessage("disabled-tool"));
+                    }
+                    else {
+                        sender.sendMessage(configManager.getMessage("enabled-tool"));
+                    }
+                }
+                else {
                     sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
                 }
                 break;

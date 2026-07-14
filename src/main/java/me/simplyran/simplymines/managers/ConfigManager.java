@@ -74,6 +74,10 @@ public class ConfigManager {
         config.addDefault("messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
         config.addDefault("messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
 
+        config.addDefault("messages.only-players-can-tool", "<green>Only players can use tool");
+        config.addDefault("messages.disabled-tool", "<red>Disabled tool.");
+        config.addDefault("messages.enabled-tool", "<green>Enabled tool.");
+
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);
 

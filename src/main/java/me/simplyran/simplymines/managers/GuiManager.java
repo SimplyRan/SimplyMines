@@ -159,8 +159,8 @@ public class GuiManager {
         // Go back to main GUI, but only on a genuine player-initiated close
         mineGUI.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            Bukkit.getScheduler().runTask(plugin, () -> openMainGUI(player));
             saveAsync(mine);
-            openMainGUI(player);
         });
 
         GuiUtils.fillBorder(mineGUI);

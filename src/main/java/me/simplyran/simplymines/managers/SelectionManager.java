@@ -5,17 +5,17 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class SelectionManager {
 
 
     private final Map<UUID, Pair<Location, Location>> cornersMap;
+    private final Set<UUID> toolDisabled;
 
     public SelectionManager(){
         cornersMap = new HashMap<>();
+        toolDisabled = new HashSet<>();
     }
 
     @Nullable
@@ -39,6 +39,16 @@ public class SelectionManager {
             throw new RuntimeException("Corner Position not 1 or 2!");
         }
     }
+
+    public void toggleTool(UUID player){
+        if (toolDisabled.contains(player)) toolDisabled.remove(player);
+        else toolDisabled.add(player);
+    }
+
+    public boolean isToolDisabled(UUID player){
+        return toolDisabled.contains(player);
+    }
+
     public void deleteCorners(UUID uuid){
         cornersMap.remove(uuid);
     }

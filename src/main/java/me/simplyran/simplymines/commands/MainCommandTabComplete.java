@@ -27,7 +27,7 @@ public class MainCommandTabComplete implements TabCompleter {
                                                 @NotNull String label,
                                                 @NotNull String @NotNull [] args) {
 
-        if (args.length <= 1) return List.of("create", "reset", "delete", "disable", "enable", "reload", "teleport", "setteleport", "move");
+        if (args.length <= 1) return List.of("create", "reset", "delete", "disable", "enable", "reload", "teleport", "setteleport", "move", "tool");
         if (args.length == 2){
             String arg1 = args[0];
             if (arg1.equalsIgnoreCase("delete")

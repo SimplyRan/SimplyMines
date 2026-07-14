@@ -119,10 +119,6 @@ public class BasicMine implements IMine {
         World world = region.getWorld();
         if (world == null || materials.isEmpty()) return;
 
-        // Don't reset a chunk nobody can see (assumes BoxedRegion exposes a center/loaded check;
-        // adjust to your actual API, e.g. region.isChunkLoaded())
-        // if (!world.isChunkLoaded(region.getCenterX() >> 4, region.getCenterZ() >> 4)) return;
-
         // Evacuate any players standing inside the mine before we bury them
         if (teleportPlayers) {
             for (Player player : world.getPlayers()) {
