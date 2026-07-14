@@ -5,6 +5,8 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.gui.AdjustButton;
+import me.simplyran.simplymines.gui.ToggleButton;
 import me.simplyran.simplymines.objects.impl.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -25,10 +27,20 @@ public class GuiManager {
     private final SimplyMines plugin;
     private final MineManager mineManager;
 
+    private static final int[] WARN_SECOND_OPTIONS = {1, 2, 5, 10, 15, 30, 60};
+
     public GuiManager(SimplyMines plugin, MineManager mineManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
     }
+
+    private void saveAsync(BasicMine mine) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+    }
+
+    // ---------------------------------------------------------------------
+    // Main GUI
+    // ---------------------------------------------------------------------
 
     public void openMainGUI(Player player) {
         PaginatedGui mainGUI = Gui.paginated()
@@ -39,8 +51,6 @@ public class GuiManager {
                 .create();
 
         GuiUtils.fillRow(mainGUI, 6, Material.WHITE_STAINED_GLASS_PANE);
-
-
 
         mainGUI.setItem(6, 3,
                 ItemBuilder.from(Material.ARROW).name(Component.text("Previous")
@@ -66,6 +76,10 @@ public class GuiManager {
         mainGUI.open(player);
     }
 
+    // ---------------------------------------------------------------------
+    // Mine editor GUI
+    // ---------------------------------------------------------------------
+
     public void openMineGUI(Player player, String mineName) {
         Gui mineGUI = Gui.gui()
                 .title(Component.text("Editing " + mineName))
@@ -82,182 +96,111 @@ public class GuiManager {
         // Go back to main GUI, but only on a genuine player-initiated close
         mineGUI.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+            saveAsync(mine);
         });
-
 
         GuiUtils.fillBorder(mineGUI);
 
-        // Enable/disable toggle button
-        updateMineButton(mineGUI, 2, 2, mine);
-
         // Info item
-        mineGUI.setItem(3, 5,
+        mineGUI.setItem(3, 3,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
                         .name(Component.text(mineName + " Info")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE)
-                        )
-                        .lore(List.of(
-                                Component.text("▸ World: ")
-                                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                        .color(NamedTextColor.GRAY)
-                                        .append(Component.text(mine.getRegion().getWorld().getName())
-                                                .color(NamedTextColor.YELLOW)),
+                                .color(NamedTextColor.WHITE))
+                        .lore(buildMineInfoLore(mine))
+                        .asGuiItem());
 
-                                Component.empty(),
-
-                                Component.text("Corner 1")
-                                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                        .decorate(TextDecoration.BOLD)
-                                        .color(NamedTextColor.GOLD),
-                                Component.text("  X: ")
-                                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                        .color(NamedTextColor.GRAY)
-                                        .append(Component.text(mine.getRegion().getMaxX()).color(NamedTextColor.WHITE))
-                                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
-                                        .append(Component.text(mine.getRegion().getMaxY()).color(NamedTextColor.WHITE))
-                                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
-                                        .append(Component.text(mine.getRegion().getMaxZ()).color(NamedTextColor.WHITE)),
-
-                                Component.empty(),
-
-                                Component.text("Corner 2")
-                                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                        .decorate(TextDecoration.BOLD)
-                                        .color(NamedTextColor.GOLD),
-                                Component.text("  X: ")
-                                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                        .color(NamedTextColor.GRAY)
-                                        .append(Component.text(mine.getRegion().getMinX()).color(NamedTextColor.WHITE))
-                                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
-                                        .append(Component.text(mine.getRegion().getMinY()).color(NamedTextColor.WHITE))
-                                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
-                                        .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
-                        ))
-                        .asGuiItem()
-        );
-
-        mineGUI.setItem(4, 3,
-                ItemBuilder.from(Material.REPEATER)
+        // Edit reset time item
+        mineGUI.setItem(3, 5,
+                ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Edit Reset Time")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getResetTime() + "Seconds")
+                        .lore(Component.text(mine.getResetTime() + " Seconds")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
                         .asGuiItem(event -> openChangeResetTimeGUI(player, mine)));
 
-        mineGUI.setItem(3, 3, ItemBuilder.from(
-                        ItemUtils.getItemStackFromName(mine.getMainMaterial()))
-                .name(Component.text("Edit Blocks")
-                        .color(NamedTextColor.YELLOW)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                .asGuiItem(event -> openBlocksGUI(player, mine))
-        );
+        // Edit blocks item
+        mineGUI.setItem(3, 4,
+                ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
+                        .name(Component.text("Edit Blocks")
+                                .color(NamedTextColor.YELLOW)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem(event -> openBlocksGUI(player, mine)));
 
-        //Setting buttons
-        boolean warnGlobal = mine.isWarnGlobal();
-        boolean warnNear = mine.isWarnNear();
-        boolean teleportPlayers = mine.isTeleportPlayers();
-
-        Material itemMaterial = warnGlobal ? Material.LIME_DYE : Material.RED_DYE;
+        // Edit warn-seconds item
         mineGUI.setItem(3, 6,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Warn Global: " + warnGlobal)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleWarnGlobal(mineGUI, mine))
-        );
-
-        itemMaterial = warnNear ? Material.LIME_DYE : Material.RED_DYE;
-        mineGUI.setItem(3, 7,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Warn Near: " + warnNear)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleWarnNear(mineGUI, mine))
-        );
-
-        itemMaterial = teleportPlayers ? Material.LIME_DYE : Material.RED_DYE;
-        mineGUI.setItem(4, 5,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Teleport Players: " + teleportPlayers)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleTeleportPlayers(mineGUI, mine))
-        );
-
-        mineGUI.setItem(4, 6,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
                         .name(Component.text("Warn Seconds Editor")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> openWarnSecondsGUI(player, mine))
-        );
+                        .asGuiItem(event -> openWarnSecondsGUI(player, mine)));
 
+        // Toggle buttons — each owns a distinct slot, no collisions
+        new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
+                mine::isEnabled, mine::setEnabled, () -> saveAsync(mine)).render();
 
+        new ToggleButton(mineGUI, 4, 4, "Warn Global",
+                mine::isWarnGlobal, mine::setWarnGlobal, () -> saveAsync(mine)).render();
 
+        new ToggleButton(mineGUI, 4, 5, "Warn Near",
+                mine::isWarnNear, mine::setWarnNear, () -> saveAsync(mine)).render();
+
+        new ToggleButton(mineGUI, 4, 6, "Teleport Players",
+                mine::isTeleportPlayers, mine::setTeleportPlayers, () -> saveAsync(mine)).render();
+
+        new ToggleButton(mineGUI, 4, 7, "Use Physics",
+                mine::isUsePhysics, mine::setUsePhysics, () -> saveAsync(mine)).render();
 
         mineGUI.open(player);
     }
 
-    public void toggleWarnNear(Gui gui, BasicMine mine){
-        boolean newWarnNear = !mine.isWarnNear();
-        mine.setWarnNear(newWarnNear);
+    private List<Component> buildMineInfoLore(BasicMine mine) {
+        return List.of(
+                Component.text("▸ World: ")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GRAY)
+                        .append(Component.text(mine.getRegion().getWorld().getName())
+                                .color(NamedTextColor.YELLOW)),
 
-        Material itemMaterial = newWarnNear ? Material.LIME_DYE : Material.RED_DYE;
-        gui.setItem(3, 7,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Warn Near: " + newWarnNear)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleWarnNear(gui, mine))
+                Component.empty(),
+
+                Component.text("Corner 1")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .decorate(TextDecoration.BOLD)
+                        .color(NamedTextColor.GOLD),
+                Component.text("  X: ")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GRAY)
+                        .append(Component.text(mine.getRegion().getMaxX()).color(NamedTextColor.WHITE))
+                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
+                        .append(Component.text(mine.getRegion().getMaxY()).color(NamedTextColor.WHITE))
+                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
+                        .append(Component.text(mine.getRegion().getMaxZ()).color(NamedTextColor.WHITE)),
+
+                Component.empty(),
+
+                Component.text("Corner 2")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .decorate(TextDecoration.BOLD)
+                        .color(NamedTextColor.GOLD),
+                Component.text("  X: ")
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .color(NamedTextColor.GRAY)
+                        .append(Component.text(mine.getRegion().getMinX()).color(NamedTextColor.WHITE))
+                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
+                        .append(Component.text(mine.getRegion().getMinY()).color(NamedTextColor.WHITE))
+                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
+                        .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
         );
-
-        gui.update();
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
     }
 
-    public void toggleWarnGlobal(Gui gui, BasicMine mine){
-        boolean newWarnGlobal = !mine.isWarnGlobal();
-        mine.setWarnGlobal(newWarnGlobal);
+    // ---------------------------------------------------------------------
+    // Warn seconds GUI
+    // ---------------------------------------------------------------------
 
-        Material itemMaterial = newWarnGlobal ? Material.LIME_DYE : Material.RED_DYE;
-        gui.setItem(3, 6,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Warn Global: " + newWarnGlobal)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleWarnGlobal(gui, mine))
-        );
-
-        gui.update();
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
-    }
-
-    public void toggleTeleportPlayers(Gui gui, BasicMine mine){
-        boolean teleportPlayers = !mine.isTeleportPlayers();
-        mine.setTeleportPlayers(teleportPlayers);
-
-        Material itemMaterial = teleportPlayers ? Material.LIME_DYE : Material.RED_DYE;
-        gui.setItem(4, 5,
-                ItemBuilder.from(itemMaterial)
-                        .name(Component.text("Teleport Players: " + teleportPlayers)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> toggleTeleportPlayers(gui, mine))
-        );
-
-        gui.update();
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
-    }
-
-
-    public void openWarnSecondsGUI(Player player, BasicMine mine){
+    public void openWarnSecondsGUI(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
                 .title(Component.text("Warn Seconds"))
@@ -266,49 +209,36 @@ public class GuiManager {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            saveAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
         });
 
         GuiUtils.fillBorder(gui);
 
         List<Integer> warnSec = mine.getWarnSeconds();
 
-        int[] secondsOptions = {1, 2, 5, 10, 15, 30, 60};
         int col = 2;
-
-        for (int seconds : secondsOptions) {
-            final int slotCol = col; // capture for the closure below
-            gui.setItem(2, slotCol, createWarnToggleItem(gui, warnSec, seconds, slotCol));
+        for (int seconds : WARN_SECOND_OPTIONS) {
+            new ToggleButton(gui, 2, col, seconds + " Warn Seconds",
+                    () -> warnSec.contains(seconds),
+                    enabled -> {
+                        if (enabled) {
+                            if (!warnSec.contains(seconds)) warnSec.add(seconds);
+                        } else {
+                            warnSec.remove(Integer.valueOf(seconds));
+                        }
+                    },
+                    null
+            ).render();
             col++;
         }
 
         gui.open(player);
     }
 
-    private GuiItem createWarnToggleItem(Gui gui, List<Integer> warnSec, int seconds, int col) {
-        boolean enabled = warnSec.contains(seconds);
-        Material warnToggle = enabled ? Material.LIME_DYE : Material.RED_DYE;
-
-        return ItemBuilder.from(warnToggle)
-                .name(buildWarnName(seconds, enabled))
-                .amount(seconds)
-                .asGuiItem(event -> {
-                    if (warnSec.contains(seconds)) {
-                        warnSec.remove(Integer.valueOf(seconds));
-                    } else {
-                        warnSec.add(seconds);
-                    }
-
-                    gui.setItem(2, col, createWarnToggleItem(gui, warnSec, seconds, col));
-                    gui.update();
-                });
-    }
-    private Component buildWarnName(int seconds, boolean enabled) {
-        return Component.text(seconds + " Warn Seconds: " + enabled)
-                .color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-    }
+    // ---------------------------------------------------------------------
+    // Blocks GUI
+    // ---------------------------------------------------------------------
 
     public void openBlocksGUI(Player player, BasicMine mine) {
         PaginatedGui gui = Gui.paginated()
@@ -324,27 +254,27 @@ public class GuiManager {
         });
 
         gui.setDefaultClickAction(event -> {
-            //If right click remove the block from the mine
+            // Right click removes the block from the mine
             if (event.getClick().isRightClick()
                     && event.getClickedInventory() != null
-                    && event.getClickedInventory().equals(gui.getInventory())){
+                    && event.getClickedInventory().equals(gui.getInventory())) {
                 ItemStack currentItem = event.getCurrentItem();
-                if (currentItem != null && currentItem.getType() != Material.AIR){
+                if (currentItem != null
+                        && currentItem.getType() != Material.AIR) {
                     mine.removeBlock(ItemUtils.getIDFromItemStack(currentItem));
-
-                    //Open the BlockGUI Again without the block
                     Bukkit.getScheduler().runTask(plugin, () -> openBlocksGUI(player, mine));
-
-                    //Save the new blocks
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+                    saveAsync(mine);
                 }
-
             }
         });
 
-        gui.setPlayerInventoryAction(event ->
-                openEditBlockGUI(player,
-                        ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine));
+        gui.setPlayerInventoryAction(event -> {
+                    if (event.getCurrentItem().getType().isBlock()){
+                        openEditBlockGUI(player,
+                                ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
+                    }
+        }
+        );
 
         GuiUtils.fillRow(gui, 6, Material.WHITE_STAINED_GLASS_PANE);
 
@@ -368,7 +298,6 @@ public class GuiManager {
                             .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
                                     .color(NamedTextColor.YELLOW)
                                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-
                             .asGuiItem(event -> {
                                 if (event.getClick().isRightClick()) return;
                                 openEditBlockGUI(player, material.getKey(), mine);
@@ -378,6 +307,10 @@ public class GuiManager {
 
         gui.open(player);
     }
+
+    // ---------------------------------------------------------------------
+    // Edit block chances GUI
+    // ---------------------------------------------------------------------
 
     public void openEditBlockGUI(Player player, String block, BasicMine mine) {
         Gui gui = Gui.gui()
@@ -389,130 +322,72 @@ public class GuiManager {
         // Go back to blocks GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
-
+            saveAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> openBlocksGUI(player, mine));
         });
 
         GuiUtils.fillBorder(gui);
 
-        double percent = mine.getPercentage(block);
+        renderBlockDisplay(gui, block, mine);
+        renderAllBlocksLore(gui, mine);
 
+        // Remove buttons
+        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10%", NamedTextColor.RED,
+                delta -> adjustBlockChance(gui, block, mine, -delta / 100.0)).render();
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5%", NamedTextColor.RED,
+                delta -> adjustBlockChance(gui, block, mine, -delta / 100.0)).render();
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1%", NamedTextColor.RED,
+                delta -> adjustBlockChance(gui, block, mine, -delta / 100.0)).render();
 
-        gui.setItem(2, 5,
-                ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + Math.round(percent * 100) + "%")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem()
-        );
-
-        List<Component> lore = new ArrayList<>();
-        for (Map.Entry<String, Double> materials : mine.getMaterials()){
-            lore.add(Component.text("   " + materials.getKey() +
-                    ": " + Math.round(materials.getValue() * 100) + "%")
-                    .color(NamedTextColor.GOLD)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-            );
-        }
-
-        gui.setItem(1, 5,
-                ItemBuilder.from(Material.WRITABLE_BOOK)
-                        .name(Component.text("All Blocks: ")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.AQUA))
-                        .lore(lore)
-                        .asGuiItem()
-        );
-
-
-        gui.setItem(2, 2, ItemBuilder.from(Material.RED_DYE)
-                .amount(10)
-                .name(Component.text("Remove 10%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeChanceToBlock(gui, 0.1, block, mine)));
-
-        gui.setItem(2, 3, ItemBuilder.from(Material.RED_DYE)
-                .amount(5)
-                .name(Component.text("Remove 5%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeChanceToBlock(gui, 0.05, block, mine)));
-
-        gui.setItem(2, 4, ItemBuilder.from(Material.RED_DYE)
-                .amount(1)
-                .name(Component.text("Remove 1%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeChanceToBlock(gui, 0.01, block, mine)));
-
-
-
-
-        gui.setItem(2, 8, ItemBuilder.from(Material.LIME_DYE)
-                .amount(10)
-                .name(Component.text("Add 10%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addChanceToBlock(gui, 0.1, block, mine)));
-
-        gui.setItem(2, 7, ItemBuilder.from(Material.LIME_DYE)
-                .amount(5)
-                .name(Component.text("Add 5%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addChanceToBlock(gui, 0.05, block, mine)));
-
-        gui.setItem(2, 6, ItemBuilder.from(Material.LIME_DYE)
-                .amount(1)
-                .name(Component.text("Add 1%")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addChanceToBlock(gui, 0.01, block, mine)));
-
-
+        // Add buttons
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1%", NamedTextColor.GREEN,
+                delta -> adjustBlockChance(gui, block, mine, delta / 100.0)).render();
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5%", NamedTextColor.GREEN,
+                delta -> adjustBlockChance(gui, block, mine, delta / 100.0)).render();
+        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10%", NamedTextColor.GREEN,
+                delta -> adjustBlockChance(gui, block, mine, delta / 100.0)).render();
 
         gui.open(player);
     }
 
-
-
-    private void removeChanceToBlock(Gui gui, double timeToRemove, String block, BasicMine mine) {
+    /** Adds (or subtracts, if negative) `delta` fraction to a block's chance, clamped sanely. */
+    private void adjustBlockChance(Gui gui, String block, BasicMine mine, double delta) {
         double oldPercent = mine.getPercentage(block);
-        double newPercent = Math.max(0, oldPercent - timeToRemove);
-        mine.setPercentage(block, newPercent);
-        refreshBlockEditItems(gui, block, newPercent, mine);
-    }
+        double newPercent;
 
-    private void addChanceToBlock(Gui gui, double timeToAdd, String block, BasicMine mine) {
-        double oldPercent = mine.getPercentage(block);
-        double totalWithoutCurrent = mine.getTotalPercentage() - oldPercent;
-        double newPercent = oldPercent + timeToAdd;
-
-        if (totalWithoutCurrent + newPercent > 1.0) {
-            newPercent = 1.0 - totalWithoutCurrent;
+        if (delta < 0) {
+            newPercent = Math.max(0, oldPercent + delta);
+        } else {
+            double totalWithoutCurrent = mine.getTotalPercentage() - oldPercent;
+            newPercent = oldPercent + delta;
+            if (totalWithoutCurrent + newPercent > 1.0) {
+                newPercent = 1.0 - totalWithoutCurrent;
+            }
+            newPercent = Math.max(0, Math.min(1, newPercent));
         }
-        newPercent = Math.max(0, Math.min(1, newPercent));
 
         mine.setPercentage(block, newPercent);
-        refreshBlockEditItems(gui, block, newPercent, mine);
+        renderBlockDisplay(gui, block, mine);
+        renderAllBlocksLore(gui, mine);
+        gui.update();
     }
 
-    private void refreshBlockEditItems(Gui gui, String block, double newPercent, BasicMine mine) {
+    private void renderBlockDisplay(Gui gui, String block, BasicMine mine) {
+        double percent = mine.getPercentage(block);
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100) + "%")
+                        .name(Component.text("Block Percent: " + Math.round(percent * 100) + "%")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem()
-        );
+                        .asGuiItem());
+    }
 
+    private void renderAllBlocksLore(Gui gui, BasicMine mine) {
         List<Component> lore = new ArrayList<>();
         for (Map.Entry<String, Double> materials : mine.getMaterials()) {
             lore.add(Component.text("   " + materials.getKey() +
                             ": " + Math.round(materials.getValue() * 100) + "%")
                     .color(NamedTextColor.GOLD)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-            );
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
         }
 
         gui.setItem(1, 5,
@@ -521,15 +396,12 @@ public class GuiManager {
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.AQUA))
                         .lore(lore)
-                        .asGuiItem()
-        );
-
-        gui.update();
+                        .asGuiItem());
     }
 
-
-
-
+    // ---------------------------------------------------------------------
+    // Reset time GUI
+    // ---------------------------------------------------------------------
 
     public void openChangeResetTimeGUI(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
@@ -541,109 +413,41 @@ public class GuiManager {
         // Go back to mine GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
-
-
+            saveAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
         });
 
         GuiUtils.fillBorder(gui);
 
+        renderResetTimeDisplay(gui, mine);
 
-        gui.setItem(2, 2, ItemBuilder.from(Material.RED_DYE)
-                .amount(10)
-                .name(Component.text("Remove 10 seconds from Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeTimeButton(gui, mine, 10)));
+        // Remove buttons
+        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10 seconds from Reset Time", NamedTextColor.RED,
+                delta -> adjustResetTime(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5 seconds from Reset Time", NamedTextColor.RED,
+                delta -> adjustResetTime(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1 second from Reset Time", NamedTextColor.RED,
+                delta -> adjustResetTime(gui, mine, -delta)).render();
 
-        gui.setItem(2, 3, ItemBuilder.from(Material.RED_DYE)
-                .amount(5)
-                .name(Component.text("Remove 5 seconds from Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeTimeButton(gui, mine, 5)));
-
-        gui.setItem(2, 4, ItemBuilder.from(Material.RED_DYE)
-                .amount(1)
-                .name(Component.text("Remove 1 second from Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.RED))
-                .asGuiItem(event -> removeTimeButton(gui, mine, 1)));
-
-
-
-
-        gui.setItem(2, 8, ItemBuilder.from(Material.LIME_DYE)
-                .amount(10)
-                .name(Component.text("Add 10 seconds to Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addTimeButton(gui, mine, 10)));
-
-        gui.setItem(2, 7, ItemBuilder.from(Material.LIME_DYE)
-                .amount(5)
-                .name(Component.text("Add 5 seconds to Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addTimeButton(gui, mine, 5)));
-
-        gui.setItem(2, 6, ItemBuilder.from(Material.LIME_DYE)
-                .amount(1)
-                .name(Component.text("Add 1 seconds to Reset Time")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GREEN))
-                .asGuiItem(event -> addTimeButton(gui, mine, 1)));
-
-
-        gui.setItem(2, 5,
-                ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Time")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetTime()+ "s")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem()
-        );
+        // Add buttons
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1 second to Reset Time", NamedTextColor.GREEN,
+                delta -> adjustResetTime(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5 seconds to Reset Time", NamedTextColor.GREEN,
+                delta -> adjustResetTime(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10 seconds to Reset Time", NamedTextColor.GREEN,
+                delta -> adjustResetTime(gui, mine, delta)).render();
 
         gui.open(player);
     }
 
-    private void updateMineButton(Gui mineGUI, int row, int col, BasicMine mine) {
-        Material buttonMaterial = mine.isEnabled() ? Material.LIME_DYE : Material.RED_DYE;
-
-        mineGUI.setItem(row, col, ItemBuilder.from(buttonMaterial)
-                .name(Component.text("Mine Enabled: " + mine.isEnabled())
-                        .color(NamedTextColor.YELLOW)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                .asGuiItem(event -> {
-                    mine.setEnabled(!mine.isEnabled());
-                    updateMineButton(mineGUI, row, col, mine);
-                    mineGUI.update();
-                }));
-    }
-
-    private void addTimeButton(Gui gui, BasicMine mine, int time) {
-        mine.setResetTime(mine.getResetTime() + time);
-        gui.setItem(2, 5,
-                ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Time")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetTime()+ "s")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem()
-        );
-
+    private void adjustResetTime(Gui gui, BasicMine mine, int delta) {
+        int newResetTime = Math.max(1, mine.getResetTime() + delta);
+        mine.setResetTime(newResetTime);
+        renderResetTimeDisplay(gui, mine);
         gui.update();
     }
 
-    private void removeTimeButton(Gui gui, BasicMine mine, int time) {
-        int oldResetTime = mine.getResetTime();
-        int newResetTime = oldResetTime - time > 0 ? oldResetTime - time : 1;
-        mine.setResetTime(newResetTime);
+    private void renderResetTimeDisplay(Gui gui, BasicMine mine) {
         gui.setItem(2, 5,
                 ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Reset Time")
@@ -652,11 +456,6 @@ public class GuiManager {
                         .lore(Component.text(mine.getResetTime() + "s")
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem()
-        );
-
-        gui.update();
+                        .asGuiItem());
     }
-
-
 }

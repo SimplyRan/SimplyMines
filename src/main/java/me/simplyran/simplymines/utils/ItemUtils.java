@@ -42,7 +42,8 @@ public class ItemUtils {
 
     public static IBlock getCustomBlock(String name){
         Material vannilaMaterial = Material.matchMaterial(name);
-        if (vannilaMaterial != null){
+        if (vannilaMaterial != null
+                && vannilaMaterial.isBlock()){
             return new Block(vannilaMaterial);
         }
 

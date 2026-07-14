@@ -2,9 +2,11 @@ package me.simplyran.simplymines;
 
 import lombok.Getter;
 import me.simplyran.simplymines.commands.MainCommand;
+import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.RunnableManager;
+import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,6 +16,7 @@ public final class SimplyMines extends JavaPlugin {
     private RunnableManager runnableManager;
     private MineManager mineManager;
     private GuiManager guiManager;
+    private SelectionManager selectionManager;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
 
@@ -41,6 +44,9 @@ public final class SimplyMines extends JavaPlugin {
         //Creating RunnableManager - depending on mineManager
         this.runnableManager = new RunnableManager(this, mineManager);
 
+        //Creating SelectingManager
+        this.selectionManager = new SelectionManager();
+
 
         //Scheduling the workload runnable
         this.workloadTaskID = this.getServer().getScheduler()
@@ -51,7 +57,8 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
 
 
-        registerCommand();
+        registerListeners();
+        registerCommands();
     }
 
     private void checkLoadedTextureManagers(){
@@ -74,9 +81,17 @@ public final class SimplyMines extends JavaPlugin {
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
     }
 
-    private void registerCommand(){
+    private void registerListeners(){
+        getServer().getPluginManager().registerEvents(
+                new SelectionListener(selectionManager),
+                this);
+
+
+    }
+
+    private void registerCommands(){
         this.getCommand("sm")
-                .setExecutor(new MainCommand(mineManager, guiManager, workloadRunnable));
+                .setExecutor(new MainCommand(mineManager, guiManager, workloadRunnable, selectionManager));
 
     }
 

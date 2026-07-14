@@ -1,0 +1,46 @@
+package me.simplyran.simplymines.managers;
+
+import it.unimi.dsi.fastutil.Pair;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class SelectionManager {
+
+
+    private final Map<UUID, Pair<Location, Location>> cornersMap;
+
+    public SelectionManager(){
+        cornersMap = new HashMap<>();
+    }
+
+    @Nullable
+    public Pair<Location, Location> getCorners(UUID uuid){
+        return cornersMap.get(uuid);
+    }
+
+    public void setCorener(@NotNull UUID uuid,
+                           Location location,
+                           int position) {
+
+        cornersMap.putIfAbsent(uuid, Pair.of(null, null));
+
+        Pair<Location, Location> pair = cornersMap.get(uuid);
+
+        if (position == 1) {
+            cornersMap.put(uuid, Pair.of(location, pair.right()));
+        } else if (position == 2) {
+            cornersMap.put(uuid, Pair.of(pair.left(), location));
+        } else {
+            throw new RuntimeException("Corner Position not 1 or 2!");
+        }
+    }
+    public void deleteCorners(UUID uuid){
+        cornersMap.remove(uuid);
+    }
+
+}

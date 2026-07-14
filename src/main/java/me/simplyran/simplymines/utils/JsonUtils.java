@@ -108,6 +108,8 @@ public class JsonUtils {
                         ? json.get("warnDistance").getAsInt()
                         : DEFAULT_WARN_DISTANCE;
 
+                boolean usePhysics = json.has("usePhysics") && json.get("usePhysics").getAsBoolean();
+
                 BasicMine mine = new BasicMine(enabled,
                         mineName,
                         resetTime,
@@ -119,7 +121,8 @@ public class JsonUtils {
                         warnNear,
                         warnGlobal,
                         teleportPlayers,
-                        warnDistance);
+                        warnDistance,
+                        usePhysics);
 
                 mineManager.addMine(mine);
 
@@ -195,6 +198,7 @@ public class JsonUtils {
         json.addProperty("warnGlobal", mine.isWarnGlobal());
         json.addProperty("teleportPlayers", mine.isTeleportPlayers());
         json.addProperty("warnDistance", mine.getWarnDistance());
+        json.addProperty("usePhysics", mine.isUsePhysics());
 
         return json;
     }

@@ -8,6 +8,7 @@ import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.Block;
+import me.simplyran.simplymines.workload.blocks.NoPhysicsBlock;
 import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,6 +37,7 @@ public class BasicMine implements IMine {
     @Getter private final List<Integer> warnSeconds;
     @Getter @Setter private boolean teleportPlayers;
     @Getter @Setter private int warnDistance;
+    @Getter @Setter private boolean usePhysics;
 
 
     public BasicMine(
@@ -50,7 +52,8 @@ public class BasicMine implements IMine {
             boolean warnNear,
             boolean warnGlobal,
             boolean teleportPlayers,
-            int warnDistance
+            int warnDistance,
+            boolean usePhysics
     ){
         this.enabled = enabled;
         this.name = name;
@@ -63,6 +66,7 @@ public class BasicMine implements IMine {
         this.warnGlobal = warnGlobal;
         this.teleportPlayers = teleportPlayers;
         this.warnDistance = warnDistance;
+        this.usePhysics = usePhysics;
 
 
         blockCahce = new HashMap<>();
@@ -120,10 +124,13 @@ public class BasicMine implements IMine {
             }
         }
 
-        //Reset the cache
         for (String blockName : materials.keySet()){
             //Put blocks in cache
-            blockCahce.put(blockName, ItemUtils.getCustomBlock(blockName));
+            IBlock block = ItemUtils.getCustomBlock(blockName);
+            if (block instanceof Block mcBlock && !usePhysics)
+                block = new NoPhysicsBlock(mcBlock.getMaterial());
+
+            blockCahce.put(blockName, block);
         }
 
         // Queue a placement task for every block position in the region
@@ -156,11 +163,10 @@ public class BasicMine implements IMine {
     }
 
     /**
-     * Picks a material for a block position based on the configured weighted probabilities.
-     * If there's only one material configured, skips the RNG entirely.
+     * Picks a material for a block position based on the configured weighted probabilities. (Missing % is AIR)
      */
     private String pickMaterial() {
-        if (materials.size() == 1) {
+        if (materials.size() == 1 && materials.values().iterator().next() >= 1.0) {
             return materials.keySet().iterator().next();
         }
 
@@ -168,13 +174,12 @@ public class BasicMine implements IMine {
         double cumulativeSum = 0.0d;
         for (Map.Entry<String, Double> entry : materials.entrySet()) {
             cumulativeSum += entry.getValue();
-            if (cumulativeSum >= x) {
+            if (x < cumulativeSum) {
                 return entry.getKey();
             }
         }
 
-        // Fallback in case probabilities don't sum to exactly 1.0 (floating point drift,
-        // or a misconfigured mine) — avoids leaving the block untouched.
+
         return "AIR";
     }
 
