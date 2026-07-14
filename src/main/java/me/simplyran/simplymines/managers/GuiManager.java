@@ -64,10 +64,73 @@ public class GuiManager {
 
         mineManager.getMines().forEach(mine -> {
             String mineName = mine.getName();
+            List<Component> lore = new ArrayList<>();
+
+            lore.add(Component.text("Mine Enabled: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isEnabled())
+                            .color(mine.isEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
+            lore.add(Component.text("Reset Time: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.getResetTime())
+                            .color(NamedTextColor.WHITE))
+            );
+
+            lore.add(Component.text("Warn Global: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isWarnGlobal())
+                            .color(mine.isWarnGlobal() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
+            lore.add(Component.text("Warn Near: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isWarnNear())
+                            .color(mine.isWarnNear() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
+            lore.add(Component.text("Warn Distance: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.getWarnDistance())
+                            .color(NamedTextColor.WHITE))
+            );
+
+            lore.add(Component.text("Teleport Players: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isTeleportPlayers())
+                            .color(mine.isTeleportPlayers() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
+            lore.add(Component.text("Materials: ")
+                    .color(NamedTextColor.BLUE)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
+
+            for (Map.Entry<String, Double> material : mine.getMaterials()) {
+                lore.add(Component.text("   " + material.getKey() + ": ")
+                        .color(NamedTextColor.BLUE)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        .append(Component.text((material.getValue() * 100) + "%")
+                                .color(NamedTextColor.WHITE))
+                );
+            }
+
+
+
+
 
             GuiItem guiItem = ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                     .name(Component.text(mineName)
+                            .color(NamedTextColor.YELLOW)
                             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                    .lore(lore)
                     .asGuiItem(event -> openMineGUI(player, mineName));
 
             mainGUI.addItem(guiItem);
@@ -130,11 +193,29 @@ public class GuiManager {
                         .asGuiItem(event -> openChangeResetTimeGUI(player, mine)));
 
         // Edit blocks item
+        List<Component> loreOfEditBlocks = new ArrayList<>();
+        loreOfEditBlocks.add(Component.text("Materials: ")
+                .color(NamedTextColor.BLUE)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+        );
+
+        for (Map.Entry<String, Double> material : mine.getMaterials()) {
+            loreOfEditBlocks.add(Component.text("   " + material.getKey() + ": ")
+                    .color(NamedTextColor.BLUE)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text((material.getValue() * 100) + "%")
+                            .color(NamedTextColor.WHITE))
+            );
+        }
+
+
+
         mineGUI.setItem(3, 4,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                         .name(Component.text("Edit Blocks")
                                 .color(NamedTextColor.YELLOW)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(loreOfEditBlocks)
                         .asGuiItem(event -> openBlocksGUI(player, mine)));
 
         // Edit warn-seconds item

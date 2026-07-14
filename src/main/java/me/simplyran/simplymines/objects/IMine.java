@@ -6,6 +6,7 @@ public interface IMine {
 
 
     BoxedRegion getRegion();
+    void setRegion(BoxedRegion region);
 
 
     String getName();
@@ -30,6 +31,9 @@ public interface IMine {
 
 
     boolean isInsideMine(Location location);
+
+    Location getTeleportLocation();
+    void setTeleportLocation(Location location);
 
 
 

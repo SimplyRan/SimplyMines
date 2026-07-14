@@ -68,6 +68,9 @@ public class ConfigManager {
         config.addDefault("messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
         config.addDefault("messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
 
+        config.addDefault("messages.no-permission-move", "<red>You do not have permission to move mines.");
+        config.addDefault("messages.mine-moved", "<green>Mine <mine> has been moved!");
+
         config.addDefault("messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
         config.addDefault("messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
 

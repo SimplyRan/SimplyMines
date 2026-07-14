@@ -21,6 +21,7 @@ public final class SimplyMines extends JavaPlugin {
 
     @Getter private static boolean NEXO_LOADED = false;
 
+
     private int workloadTaskID;
     private int runnableManagerTaskID;
 

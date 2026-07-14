@@ -25,9 +25,10 @@ public class BasicMine implements IMine {
 
     private final WorkloadRunnable workloadRunnable;
     private final String name;
-    private final BoxedRegion region;
     private final Map<String, Double> materials;
     private final Map<String, IBlock> blockCahce;
+
+    private BoxedRegion region;
     private long lastReset;
     private int resetTime;
     private boolean enabled;
@@ -40,6 +41,7 @@ public class BasicMine implements IMine {
     @Getter @Setter private boolean teleportPlayers;
     @Getter @Setter private int warnDistance;
     @Getter @Setter private boolean usePhysics;
+    @Getter @Setter private Location teleportLocation;
 
 
     public BasicMine(
@@ -88,6 +90,11 @@ public class BasicMine implements IMine {
     }
 
     @Override
+    public void setRegion(BoxedRegion region) {
+        this.region = region;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -121,7 +128,7 @@ public class BasicMine implements IMine {
             for (Player player : world.getPlayers()) {
                 Location loc = player.getLocation();
                 if (region.isInsideRegion(loc)) {
-                    player.teleport(loc.clone().add(0, (region.getMaxY() - loc.getBlockY()) + 1, 0));
+                    player.teleport(teleportLocation);
                 }
             }
         }

@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 public class ItemUtils {
 
 
-
     public static ItemStack getItemStackFromName(String name){
         Material vannilaMaterial = Material.matchMaterial(name);
         if (vannilaMaterial != null){

@@ -19,7 +19,7 @@ messages:
 
   # Shown when the command is used with an invalid number of arguments
   # Placeholders: <label>
-  usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable] [mine name]"
+  usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]"
 
   # /mine reset <name>
   no-permission-reset: "<red>You do not have permission to reset mines."
@@ -56,6 +56,23 @@ messages:
   no-permission-enable: "<red>You do not have permission to enable mines."
   # Placeholders: <mine>
   mine-enabled: "<green>Enabled <mine>."
+
+  # /mine move <name>
+  no-permission-move: "<red>You do not have permission to move mines."
+  # Placeholders: <mine>
+  mine-moved: "<green>Mine <mine> has been moved."
+
+  # /mine setteleport <name>
+  no-permission-setteleport: "<red>You do not have permission to set mine teleport locations."
+  # Placeholders: <mine>
+  teleport-set: "<green>Teleport location for <mine> has been set to your current position."
+
+  # /mine teleport <name>
+  no-permission-teleport: "<red>You do not have permission to teleport to mines."
+  # Placeholders: <mine>
+  no-teleport-location: "<red>Mine <mine> does not have a teleport location set."
+  # Placeholders: <mine>
+  mine-teleported: "<green>Teleported to <mine>."
 
   # Broadcast server-wide when a mine with warn-global enabled is about to reset
   # Placeholders: <mine>, <seconds>

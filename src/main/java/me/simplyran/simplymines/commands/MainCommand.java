@@ -5,6 +5,7 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
+import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.objects.impl.BasicMine;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
@@ -142,6 +143,28 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("mine-deleted", "%mine%", mineName));
                     }
 
+                } else if (arg1.equalsIgnoreCase("move")) {
+                    if (!sender.hasPermission("simplymines.move")) {
+                        sender.sendMessage(configManager.getMessage("no-permission-move"));
+                        break;
+                    }
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(configManager.getMessage("only-players-create"));
+                        break;
+                    }
+                    IMine mine = mineManager.getMine(mineName);
+                    if (mine == null) {
+                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
+                        break;
+                    }
+                    Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
+                    if (corners == null || corners.first() == null || corners.second() == null) {
+                        sender.sendMessage(configManager.getMessage("no-selection"));
+                        break;
+                    }
+                    mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
+                    sender.sendMessage(configManager.getMessage("mine-moved", "%mine%", mineName));
+
                 } else if (arg1.equalsIgnoreCase("disable")) {
                     if (!sender.hasPermission("simplymines.disable")) {
                         sender.sendMessage(configManager.getMessage("no-permission-disable"));
@@ -168,7 +191,48 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("mine-enabled", "%mine%", mineName));
                     }
 
-                } else {
+                } else if (arg1.equalsIgnoreCase("teleport")) {
+                    if (!sender.hasPermission("simplymines.teleport")) {
+                        sender.sendMessage(configManager.getMessage("no-permission-teleport"));
+                        break;
+                    }
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(configManager.getMessage("only-players-create"));
+                        break;
+                    }
+                    IMine mine = mineManager.getMine(mineName);
+                    if (mine == null) {
+                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
+                        break;
+                    }
+                    Location teleportLocation = mine.getTeleportLocation();
+                    if (teleportLocation == null) {
+                        sender.sendMessage(configManager.getMessage("no-teleport-location", "%mine%", mineName));
+                        break;
+                    }
+                    player.teleport(teleportLocation);
+                    sender.sendMessage(configManager.getMessage("mine-teleported", "%mine%", mineName));
+
+                } else if (arg1.equalsIgnoreCase("setteleport")) {
+                    if (!sender.hasPermission("simplymines.setteleport")) {
+                        sender.sendMessage(configManager.getMessage("no-permission-setteleport"));
+                        break;
+                    }
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(configManager.getMessage("only-players-create"));
+                        break;
+                    }
+                    IMine mine = mineManager.getMine(mineName);
+                    if (mine == null) {
+                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
+                        break;
+                    }
+                    mine.setTeleportLocation(player.getLocation());
+                    sender.sendMessage(configManager.getMessage("teleport-set", "%mine%", mineName));
+
+                }
+
+                else {
                     sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
                 }
                 break;

@@ -112,6 +112,17 @@ public class JsonUtils {
 
                 boolean usePhysics = json.has("usePhysics") && json.get("usePhysics").getAsBoolean();
 
+                Location teleportLocation = null;
+                if (json.has("teleportLocation")) {
+                    JsonObject tp = json.getAsJsonObject("teleportLocation");
+                    teleportLocation = new Location(world,
+                            tp.get("x").getAsDouble(),
+                            tp.get("y").getAsDouble(),
+                            tp.get("z").getAsDouble(),
+                            tp.has("yaw") ? tp.get("yaw").getAsFloat() : 0f,
+                            tp.has("pitch") ? tp.get("pitch").getAsFloat() : 0f);
+                }
+
                 BasicMine mine = new BasicMine(enabled,
                         mineName,
                         resetTime,
@@ -125,6 +136,8 @@ public class JsonUtils {
                         teleportPlayers,
                         warnDistance,
                         usePhysics);
+
+                mine.setTeleportLocation(teleportLocation);
 
                 mineManager.addMine(mine);
 
@@ -201,6 +214,17 @@ public class JsonUtils {
         json.addProperty("teleportPlayers", mine.isTeleportPlayers());
         json.addProperty("warnDistance", mine.getWarnDistance());
         json.addProperty("usePhysics", mine.isUsePhysics());
+
+        Location teleportLocation = mine.getTeleportLocation();
+        if (teleportLocation != null) {
+            JsonObject teleport = new JsonObject();
+            teleport.addProperty("x", teleportLocation.getX());
+            teleport.addProperty("y", teleportLocation.getY());
+            teleport.addProperty("z", teleportLocation.getZ());
+            teleport.addProperty("yaw", teleportLocation.getYaw());
+            teleport.addProperty("pitch", teleportLocation.getPitch());
+            json.add("teleportLocation", teleport);
+        }
 
         return json;
     }
