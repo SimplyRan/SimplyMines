@@ -142,15 +142,16 @@ public class GuiManager {
                 ItemBuilder.from(Material.REPEATER)
                         .name(Component.text("Edit Reset Time")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
-                        .lore(Component.text(mine.getResetTime())
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text(mine.getResetTime() + "Seconds")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                                .color(NamedTextColor.YELLOW))
                         .asGuiItem(event -> openChangeResetTimeGUI(player, mine)));
 
         mineGUI.setItem(3, 3, ItemBuilder.from(
                         ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                 .name(Component.text("Edit Blocks")
+                        .color(NamedTextColor.YELLOW)
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                 .asGuiItem(event -> openBlocksGUI(player, mine))
         );
@@ -400,7 +401,7 @@ public class GuiManager {
 
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + Math.round(percent * 100))
+                        .name(Component.text("Block Percent: " + Math.round(percent * 100) + "%")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
         );
@@ -408,7 +409,7 @@ public class GuiManager {
         List<Component> lore = new ArrayList<>();
         for (Map.Entry<String, Double> materials : mine.getMaterials()){
             lore.add(Component.text("   " + materials.getKey() +
-                    ": " + Math.round(materials.getValue() * 100))
+                    ": " + Math.round(materials.getValue() * 100) + "%")
                     .color(NamedTextColor.GOLD)
                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
             );
@@ -500,7 +501,7 @@ public class GuiManager {
     private void refreshBlockEditItems(Gui gui, String block, double newPercent, BasicMine mine) {
         gui.setItem(2, 5,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100))
+                        .name(Component.text("Block Percent: " + Math.round(newPercent * 100) + "%")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem()
         );
@@ -508,7 +509,7 @@ public class GuiManager {
         List<Component> lore = new ArrayList<>();
         for (Map.Entry<String, Double> materials : mine.getMaterials()) {
             lore.add(Component.text("   " + materials.getKey() +
-                            ": " + Math.round(materials.getValue() * 100))
+                            ": " + Math.round(materials.getValue() * 100) + "%")
                     .color(NamedTextColor.GOLD)
                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
             );
@@ -614,6 +615,7 @@ public class GuiManager {
 
         mineGUI.setItem(row, col, ItemBuilder.from(buttonMaterial)
                 .name(Component.text("Mine Enabled: " + mine.isEnabled())
+                        .color(NamedTextColor.YELLOW)
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                 .asGuiItem(event -> {
                     mine.setEnabled(!mine.isEnabled());
