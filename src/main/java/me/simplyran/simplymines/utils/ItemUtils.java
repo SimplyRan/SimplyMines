@@ -40,6 +40,26 @@ public class ItemUtils {
         return new ItemStack(Material.BARRIER);
     }
 
+    public static boolean isBlock(ItemStack itemStack){
+        Material vannilaMaterial = itemStack.getType();
+        if (vannilaMaterial.isBlock()){
+            return true;
+        }
+
+        if (SimplyMines.isNEXO_LOADED()) {
+            if (NexoBlocks.isCustomBlock(itemStack)) {
+                return true;
+            }
+        }
+
+        if (SimplyMines.isITEMSADDER_LOADED()) {
+            return CustomBlock.isBlock(itemStack);
+        }
+
+        return false;
+
+    }
+
     public static IBlock getCustomBlock(String name){
         Material vannilaMaterial = Material.matchMaterial(name);
         if (vannilaMaterial != null

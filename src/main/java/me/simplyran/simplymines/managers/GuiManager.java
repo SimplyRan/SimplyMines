@@ -97,6 +97,7 @@ public class GuiManager {
         mineGUI.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             saveAsync(mine);
+            openMainGUI(player);
         });
 
         GuiUtils.fillBorder(mineGUI);
@@ -325,8 +326,8 @@ public class GuiManager {
         });
 
         gui.setDefaultClickAction(event -> {
-            // Right click removes the block from the mine
-            if (event.getClick().isRightClick()
+            // Shift Right click removes the block from the mine
+            if (event.getClick().isShiftClick() && event.isRightClick()
                     && event.getClickedInventory() != null
                     && event.getClickedInventory().equals(gui.getInventory())) {
                 ItemStack currentItem = event.getCurrentItem();
@@ -341,7 +342,7 @@ public class GuiManager {
 
         gui.setPlayerInventoryAction(event -> {
             if (event.getCurrentItem() == null) return;
-            if (event.getCurrentItem().getType().isBlock()){
+            if (ItemUtils.isBlock(event.getCurrentItem())){
                 openEditBlockGUI(player,
                         ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
             }

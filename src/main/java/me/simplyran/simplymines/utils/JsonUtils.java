@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -202,4 +204,14 @@ public class JsonUtils {
 
         return json;
     }
+
+    public static void deleteMine(SimplyMines plugin, String mineName) {
+        Path path = Path.of(plugin.getDataFolder() + "/mines/" + mineName + ".json");
+        try {
+            boolean deleted = Files.deleteIfExists(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

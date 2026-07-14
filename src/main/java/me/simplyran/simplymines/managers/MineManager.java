@@ -46,6 +46,11 @@ public class MineManager {
         return mines.get(name);
     }
 
+    public void deleteMine(String name){
+        mines.remove(name);
+        JsonUtils.deleteMine(plugin, name);
+    }
+
     public Collection<BasicMine> getMines(){
         return mines.values();
     }

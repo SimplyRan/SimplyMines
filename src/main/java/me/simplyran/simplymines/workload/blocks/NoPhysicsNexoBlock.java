@@ -2,21 +2,20 @@ package me.simplyran.simplymines.workload.blocks;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import me.simplyran.simplymines.workload.IBlock;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
-public class NexoBlock implements IBlock {
+public class NoPhysicsNexoBlock implements IBlock {
 
-    @Getter private final String blockID;
+    private final String blockID;
 
     @Override
     public void place(@NotNull Location location) {
         BlockData nexoBlockData = NexoBlocks.blockData(blockID);
         if (nexoBlockData == null) return;
-        location.getBlock().setBlockData(nexoBlockData, true);
+        location.getBlock().setBlockData(nexoBlockData, false);
     }
 }

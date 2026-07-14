@@ -8,7 +8,9 @@ import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.Block;
+import me.simplyran.simplymines.workload.blocks.NexoBlock;
 import me.simplyran.simplymines.workload.blocks.NoPhysicsBlock;
+import me.simplyran.simplymines.workload.blocks.NoPhysicsNexoBlock;
 import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -127,8 +129,10 @@ public class BasicMine implements IMine {
         for (String blockName : materials.keySet()){
             //Put blocks in cache
             IBlock block = ItemUtils.getCustomBlock(blockName);
-            if (block instanceof Block mcBlock && !usePhysics)
+            if (!usePhysics && block instanceof Block mcBlock)
                 block = new NoPhysicsBlock(mcBlock.getMaterial());
+            if (!usePhysics && block instanceof NexoBlock nexoBlock )
+                block = new NoPhysicsNexoBlock(nexoBlock.getBlockID());
 
             blockCahce.put(blockName, block);
         }

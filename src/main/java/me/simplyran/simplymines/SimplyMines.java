@@ -2,11 +2,9 @@ package me.simplyran.simplymines;
 
 import lombok.Getter;
 import me.simplyran.simplymines.commands.MainCommand;
+import me.simplyran.simplymines.commands.MainCommandTabComplete;
 import me.simplyran.simplymines.listeners.SelectionListener;
-import me.simplyran.simplymines.managers.GuiManager;
-import me.simplyran.simplymines.managers.MineManager;
-import me.simplyran.simplymines.managers.RunnableManager;
-import me.simplyran.simplymines.managers.SelectionManager;
+import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,6 +15,7 @@ public final class SimplyMines extends JavaPlugin {
     private MineManager mineManager;
     private GuiManager guiManager;
     private SelectionManager selectionManager;
+    private ConfigManager configManager;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
 
@@ -46,6 +45,9 @@ public final class SimplyMines extends JavaPlugin {
 
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
+
+        //Creating ConfigManager
+        this.configManager = new ConfigManager(this);
 
 
         //Scheduling the workload runnable
@@ -91,8 +93,12 @@ public final class SimplyMines extends JavaPlugin {
 
     private void registerCommands(){
         this.getCommand("sm")
-                .setExecutor(new MainCommand(mineManager, guiManager, workloadRunnable, selectionManager));
-
+                .setExecutor(new MainCommand(mineManager,
+                        guiManager,
+                        workloadRunnable,
+                        selectionManager,
+                        configManager));
+        this.getCommand("sm").setTabCompleter(new MainCommandTabComplete(mineManager));
     }
 
 }
