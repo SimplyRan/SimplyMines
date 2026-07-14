@@ -1,7 +1,7 @@
 package me.simplyran.simplymines.listeners;
 
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.SelectionManager;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,11 +15,12 @@ import org.jetbrains.annotations.NotNull;
 public class SelectionListener implements Listener {
 
     private final SelectionManager selectionManager;
+    private final ConfigManager configManager;
 
-    public SelectionListener(@NotNull SelectionManager selectionManager){
+    public SelectionListener(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager){
         this.selectionManager = selectionManager;
+        this.configManager = configManager;
     }
-
 
     @EventHandler
     public void onSelectEvent(PlayerInteractEvent event){
@@ -29,20 +30,22 @@ public class SelectionListener implements Listener {
             Block block = event.getClickedBlock();
             if (block == null) return;
             Location location = block.getLocation();
+
+            String x = String.valueOf(location.getX());
+            String y = String.valueOf(location.getY());
+            String z = String.valueOf(location.getZ());
+
             if (event.getAction().isLeftClick()) {
                 event.setCancelled(true);
                 selectionManager.setCorener(player.getUniqueId(), location, 1);
-                //TODO: Change to config
-                player.sendMessage(Component.text("Selected Corner 1 at "
-                        + location.getX() + " " + location.getY() + " " + location.getZ()));
+                player.sendMessage(configManager.getMessage("selected-corner-1",
+                        "x", x, "y", y, "z", z));
             }
             if (event.getAction().isRightClick()) {
                 event.setCancelled(true);
                 selectionManager.setCorener(player.getUniqueId(), location, 2);
-                //TODO: Change to config
-                player.sendMessage(Component.text("Selected Corner 2 at "
-                        + location.getX() + " " + location.getY() + " " + location.getZ()));
-
+                player.sendMessage(configManager.getMessage("selected-corner-2",
+                        "x", x, "y", y, "z", z));
             }
         }
     }

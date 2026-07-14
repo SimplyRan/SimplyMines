@@ -9,14 +9,17 @@ import org.jetbrains.annotations.NotNull;
 public class RunnableManager implements Runnable{
 
     private final MineManager mineManager;
+    private final ConfigManager configManager;
     private final SimplyMines plugin;
     private long lastMineSaves = 0;
     @Setter private static int SAVE_MINES_FILES = 1800;
 
     public RunnableManager(@NotNull SimplyMines plugin,
-                           @NotNull MineManager mineManager){
+                           @NotNull MineManager mineManager,
+                           @NotNull ConfigManager configManager){
         this.plugin = plugin;
         this.mineManager = mineManager;
+        this.configManager = configManager;
     }
 
 
@@ -35,7 +38,7 @@ public class RunnableManager implements Runnable{
                     mine.setLastReset(now);
                 }
             } else {
-                WarnUtils.checkWarnings(mine, now);
+                WarnUtils.checkWarnings(mine, now, configManager);
             }
 
             if (shouldSaveMines) {

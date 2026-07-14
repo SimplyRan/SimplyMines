@@ -1,9 +1,8 @@
-#
-# Placeholders are written as tags without '%', e.g. <mine>, <input>, <label>.
-# Do not remove these placeholder tags or values won't be substituted.
+#Change ONLY if you know what you are doing
+max_workload: 20000000
+save_mines_seconds: 1800
 
 messages:
-
   # Shown when a console/non-player tries to use a player-only command
   only-players: "<red>Only players can use this command."
 
@@ -36,6 +35,13 @@ messages:
   mine-already-exists: "<red>Mine <mine> already exists."
   no-selection: "<red>No Selection found! Use a Wooden Hoe to select 2 corners."
 
+  # Shown when a player left-clicks a block with a Wooden Hoe to set corner 1
+  # Placeholders: <x>, <y>, <z>
+  selected-corner-1: "<green>Selected Corner 1 at <x>, <y>, <z>"
+  # Shown when a player right-clicks a block with a Wooden Hoe to set corner 2
+  # Placeholders: <x>, <y>, <z>
+  selected-corner-2: "<green>Selected Corner 2 at <x>, <y>, <z>"
+
   # /mine delete <name>
   no-permission-delete: "<red>You do not have permission to delete mines."
   # Placeholders: <mine>
@@ -50,3 +56,10 @@ messages:
   no-permission-enable: "<red>You do not have permission to enable mines."
   # Placeholders: <mine>
   mine-enabled: "<green>Enabled <mine>."
+
+  # Broadcast server-wide when a mine with warn-global enabled is about to reset
+  # Placeholders: <mine>, <seconds>
+  warn-global: "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!"
+  # Sent only to players near a mine with warn-near enabled when it's about to reset
+  # Placeholders: <mine>, <seconds>
+  warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"

@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.workload.WorkloadRunnable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -61,9 +62,24 @@ public class ConfigManager {
 
         config.addDefault("messages.no-permission-enable", "<red>You do not have permission to enable mines.");
         config.addDefault("messages.mine-enabled", "<green>Enabled <mine>.");
+        config.addDefault("messages.no-permission-enable", "<red>You do not have permission to enable mines.");
+        config.addDefault("messages.mine-enabled", "<green>Enabled <mine>.");
+
+        config.addDefault("messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
+        config.addDefault("messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
+
+        config.addDefault("messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
+        config.addDefault("messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
+
+        config.addDefault("max_workload", 20_000_000);
+        config.addDefault("save_mines_seconds", 1800);
+
 
         config.options().copyDefaults(true);
         plugin.saveConfig();
+
+        WorkloadRunnable.setMAX_WORKLOADS(config.getInt("max_workload"));
+        RunnableManager.setSAVE_MINES_FILES(config.getInt("save_mines_seconds"));
 
         for (String key : config.getConfigurationSection("messages").getKeys(false)) {
             messages.put(key, config.getString("messages." + key, ""));

@@ -40,14 +40,15 @@ public final class SimplyMines extends JavaPlugin {
         //Creating GUIManager
         this.guiManager = new GuiManager(this, mineManager);
 
+        //Creating ConfigManager
+        this.configManager = new ConfigManager(this);
+
         //Creating RunnableManager - depending on mineManager
-        this.runnableManager = new RunnableManager(this, mineManager);
+        this.runnableManager = new RunnableManager(this, mineManager, configManager);
 
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
 
-        //Creating ConfigManager
-        this.configManager = new ConfigManager(this);
 
 
         //Scheduling the workload runnable
@@ -85,7 +86,7 @@ public final class SimplyMines extends JavaPlugin {
 
     private void registerListeners(){
         getServer().getPluginManager().registerEvents(
-                new SelectionListener(selectionManager),
+                new SelectionListener(selectionManager, configManager),
                 this);
 
 
