@@ -324,7 +324,9 @@ public class GuiManager {
 
         gui.setDefaultClickAction(event -> {
             //If right click remove the block from the mine
-            if (event.getClick().isRightClick()){
+            if (event.getClick().isRightClick()
+                    && event.getClickedInventory() != null
+                    && event.getClickedInventory().equals(gui.getInventory())){
                 ItemStack currentItem = event.getCurrentItem();
                 if (currentItem != null && currentItem.getType() != Material.AIR){
                     mine.removeBlock(ItemUtils.getIDFromItemStack(currentItem));
