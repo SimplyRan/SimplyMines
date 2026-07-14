@@ -102,6 +102,13 @@ public class GuiManager {
 
         GuiUtils.fillBorder(mineGUI);
 
+        mineGUI.setItem(6, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> openMainGUI(player)));
+
         // Info item
         mineGUI.setItem(3, 3,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
@@ -228,6 +235,13 @@ public class GuiManager {
 
         GuiUtils.fillBorder(gui);
 
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
+
         renderWarnDistanceDisplay(gui, mine);
 
         // Remove buttons
@@ -287,6 +301,13 @@ public class GuiManager {
 
         GuiUtils.fillBorder(gui);
 
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
+
         List<Integer> warnSec = mine.getWarnSeconds();
 
         int col = 2;
@@ -341,15 +362,22 @@ public class GuiManager {
         });
 
         gui.setPlayerInventoryAction(event -> {
-            if (event.getCurrentItem() == null) return;
-            if (ItemUtils.isBlock(event.getCurrentItem())){
-                openEditBlockGUI(player,
-                        ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
-            }
-        }
+                    if (event.getCurrentItem() == null) return;
+                    if (ItemUtils.isBlock(event.getCurrentItem())){
+                        openEditBlockGUI(player,
+                                ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
+                    }
+                }
         );
 
         GuiUtils.fillRow(gui, 6, Material.WHITE_STAINED_GLASS_PANE);
+
+        gui.setItem(6, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
 
         gui.setItem(6, 3,
                 ItemBuilder.from(Material.ARROW).name(Component.text("Previous")
@@ -370,6 +398,9 @@ public class GuiManager {
                                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                             .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
                                     .color(NamedTextColor.YELLOW)
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                                    Component.text("Shift Right Click To Remove")
+                                    .color(NamedTextColor.RED)
                                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                             .asGuiItem(event -> {
                                 if (event.getClick().isRightClick()) return;
@@ -400,6 +431,13 @@ public class GuiManager {
         });
 
         GuiUtils.fillBorder(gui);
+
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
 
         renderBlockDisplay(gui, block, mine);
         renderAllBlocksLore(gui, mine);
@@ -491,6 +529,13 @@ public class GuiManager {
         });
 
         GuiUtils.fillBorder(gui);
+
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
 
         renderResetTimeDisplay(gui, mine);
 
