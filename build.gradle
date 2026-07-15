@@ -21,11 +21,16 @@ repositories {
     maven{
         url = "https://repo.nexomc.com/releases"
     }
+    maven {
+        url = 'https://repo.extendedclip.com/releases/'
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.13")
+
+    compileOnly 'me.clip:placeholderapi:2.12.3'
 
     //Textures Managers
     compileOnly("beer.devs:itemsadder-api:4.0.18-beta-10")

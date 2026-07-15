@@ -5,7 +5,9 @@ import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
 import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.*;
+import me.simplyran.simplymines.placeholders.MinePlaceholder;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SimplyMines extends JavaPlugin {
@@ -61,8 +63,15 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
 
 
+        loadPlaceholders();
         registerListeners();
         registerCommands();
+    }
+
+    private void loadPlaceholders(){
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new MinePlaceholder(mineManager).register();
+        }
     }
 
     private void checkLoadedTextureManagers(){

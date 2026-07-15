@@ -1,12 +1,22 @@
 name: SimplyMines
-version: '1'
+version: '1.0.0'
 main: me.simplyran.simplymines.SimplyMines
 api-version: '1.21'
 soft-depend:
   - Nexo
   - ItemsAdder
+  - PlaceholderAPI
 
 commands:
   sm:
+    aliases:
+      - simplymines
+      - simplymine
     permission: simplyran.edit
     description: SimplyMines
+
+
+permissions:
+  simplyran.edit:
+    description: Allows editing mines
+    default: op
