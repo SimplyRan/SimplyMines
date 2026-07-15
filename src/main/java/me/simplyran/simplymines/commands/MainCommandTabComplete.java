@@ -27,7 +27,7 @@ public class MainCommandTabComplete implements TabCompleter {
                                                 @NotNull String label,
                                                 @NotNull String @NotNull [] args) {
 
-        if (args.length <= 1) return List.of("create", "reset", "delete", "disable", "enable", "reload", "teleport", "setteleport", "move", "tool");
+        if (args.length <= 1) return List.of("create", "reset", "delete", "disable", "enable", "reload", "teleport", "setteleport", "reassign", "tool");
         if (args.length == 2){
             String arg1 = args[0];
             if (arg1.equalsIgnoreCase("delete")
@@ -36,7 +36,7 @@ public class MainCommandTabComplete implements TabCompleter {
                     || arg1.equalsIgnoreCase("reset")
                     || arg1.equalsIgnoreCase("teleport")
                     || arg1.equalsIgnoreCase("setteleport")
-                    || arg1.equalsIgnoreCase("move")
+                    || arg1.equalsIgnoreCase("reassign")
             ){
                 List<String> minesNames = new ArrayList<>();
                 for (BasicMine mine : mineManager.getMines()){

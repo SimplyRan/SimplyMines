@@ -91,6 +91,12 @@ public class MainCommand implements CommandExecutor {
                     }
                     break;
                 }
+                else if (arg1.equalsIgnoreCase("reset") || arg1.equalsIgnoreCase("create") ||
+                        arg1.equalsIgnoreCase("delete") || arg1.equalsIgnoreCase("reassign") ||
+                        arg1.equalsIgnoreCase("disable") || arg1.equalsIgnoreCase("enable") ||
+                        arg1.equalsIgnoreCase("teleport") || arg1.equalsIgnoreCase("setteleport")) {
+                    sender.sendMessage(configManager.getMessage("missing-mine-name", "%sub%", arg1, "%label%", label));
+                }
                 else {
                     sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
                 }
@@ -163,7 +169,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("mine-deleted", "%mine%", mineName));
                     }
 
-                } else if (arg1.equalsIgnoreCase("move")) {
+                } else if (arg1.equalsIgnoreCase("reassign")) {
                     if (!sender.hasPermission("simplymines.move")) {
                         sender.sendMessage(configManager.getMessage("no-permission-move"));
                         break;

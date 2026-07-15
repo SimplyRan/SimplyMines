@@ -58,7 +58,7 @@ public class ConfigManager {
         config.addDefault("messages.mine-deleted", "<green>Mine <mine> has been deleted.");
 
         config.addDefault("messages.no-permission-disable", "<red>You do not have permission to disable mines.");
-        config.addDefault("messages.mine-disabled", "<yellow>Disabled <mine>.");
+        config.addDefault("messages.mine-disabled", "<red>Disabled <mine>.");
 
         config.addDefault("messages.no-permission-enable", "<red>You do not have permission to enable mines.");
         config.addDefault("messages.mine-enabled", "<green>Enabled <mine>.");
@@ -78,6 +78,8 @@ public class ConfigManager {
         config.addDefault("messages.disabled-tool", "<red>Disabled tool.");
         config.addDefault("messages.enabled-tool", "<green>Enabled tool.");
         config.addDefault("messages.no-permission-tool", "<red>no permission to toggle tool.");
+
+        config.addDefault("messages.missing-mine-name", "<red>You need to specify a mine name!");
 
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);

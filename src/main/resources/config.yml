@@ -50,7 +50,7 @@ messages:
   # /mine disable <name>
   no-permission-disable: "<red>You do not have permission to disable mines."
   # Placeholders: <mine>
-  mine-disabled: "<yellow>Disabled <mine>."
+  mine-disabled: "<red>Disabled <mine>."
 
   # /mine enable <name>
   no-permission-enable: "<red>You do not have permission to enable mines."
@@ -85,10 +85,12 @@ messages:
   only-players-can-tool: "<green>Only players can use tool"
 
   # /mine tool — toggling the selection tool off
-  disabled-tool: "<red>Disabled tool."
+  disabled-tool: "<red>Disabled selection tool."
 
   # /mine tool — toggling the selection tool on
-  enabled-tool: "<green>Enabled tool."
+  enabled-tool: "<green>Enabled selection tool."
 
   # /mine tool — no permission to toggle tool
   no-permission-tool: "<red>no permission to toggle tool."
+
+  missing-mine-name: "<red>You need to specify a mine name!"
