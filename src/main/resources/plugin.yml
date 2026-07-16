@@ -6,6 +6,7 @@ soft-depend:
   - Nexo
   - ItemsAdder
   - PlaceholderAPI
+  - CraftEngine
 
 commands:
   sm:

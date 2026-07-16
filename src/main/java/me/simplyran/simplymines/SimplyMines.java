@@ -1,6 +1,7 @@
 package me.simplyran.simplymines;
 
 import lombok.Getter;
+import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
 import me.simplyran.simplymines.listeners.BlockBreakListener;
@@ -67,6 +68,8 @@ public final class SimplyMines extends JavaPlugin {
         loadPlaceholders();
         registerListeners();
         registerCommands();
+
+        registerBStats();
     }
 
     private void loadPlaceholders(){
@@ -93,6 +96,11 @@ public final class SimplyMines extends JavaPlugin {
 
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
+    }
+
+    private void registerBStats(){
+        int pluginId = 32650;
+        Metrics metrics = new Metrics(this, pluginId);
     }
 
     private void registerListeners(){
