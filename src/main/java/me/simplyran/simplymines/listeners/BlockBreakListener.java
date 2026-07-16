@@ -40,8 +40,10 @@ public class BlockBreakListener implements Listener {
 
                 if (!mine.meetsEfficiencyRequirement(tool)) {
                     e.setCancelled(true);
-                    //TODO Change to config
-                    player.sendMessage(configManager.getMessage("higher-efficiency-level", "level", Integer.toString(mine.getMinEfficiency())));
+                    player.sendMessage(
+                            configManager.getMessage("higher-efficiency-level",
+                                    "level",
+                                    Integer.toString(mine.getMinEfficiency())));
                     return;
                 }
 

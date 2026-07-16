@@ -124,7 +124,7 @@ public class MinePlaceholder extends PlaceholderExpansion {
             case "warndistance" -> String.valueOf(mine.getWarnDistance());
             case "blocks_broken" -> String.valueOf(mine.getBlocksBroken());
             case "blocks_count" -> String.valueOf(mine.getRegion().getBlockCount());
-            case "precent_left" -> String.valueOf(Math.round(mine.getPercentageOfMineLeft() * 100));
+            case "precent_left" -> String.valueOf(Math.round(mine.getPercentageOfMineLeft() * 100) /100);
             default -> null;
         };
     }
