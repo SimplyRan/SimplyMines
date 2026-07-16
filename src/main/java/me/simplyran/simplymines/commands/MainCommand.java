@@ -1,13 +1,16 @@
 package me.simplyran.simplymines.commands;
 
 import it.unimi.dsi.fastutil.Pair;
+import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,17 +28,20 @@ public class MainCommand implements CommandExecutor {
     private final WorkloadRunnable workloadRunnable;
     private final SelectionManager selectionManager;
     private final ConfigManager configManager;
+    private final SimplyMines plugin;
 
     public MainCommand(@NotNull MineManager mineManager,
                        @NotNull GuiManager guiManager,
                        @NotNull WorkloadRunnable workloadRunnable,
                        @NotNull SelectionManager selectionManager,
-                       @NotNull ConfigManager configManager) {
+                       @NotNull ConfigManager configManager,
+                       @NotNull SimplyMines plugin) {
         this.mineManager = mineManager;
         this.guiManager = guiManager;
         this.workloadRunnable = workloadRunnable;
         this.selectionManager = selectionManager;
         this.configManager = configManager;
+        this.plugin = plugin;
     }
 
     @Override
@@ -193,6 +199,7 @@ public class MainCommand implements CommandExecutor {
                     }
                     mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
                     sender.sendMessage(configManager.getMessage("mine-moved", "%mine%", mineName));
+                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
 
                 } else if (arg1.equalsIgnoreCase("disable")) {
                     if (!sender.hasPermission("simplymines.disable")) {

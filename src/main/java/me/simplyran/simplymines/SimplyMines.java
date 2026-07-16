@@ -126,7 +126,8 @@ public final class SimplyMines extends JavaPlugin {
                         guiManager,
                         workloadRunnable,
                         selectionManager,
-                        configManager));
+                        configManager,
+                        this));
         this.getCommand("sm").setTabCompleter(new MainCommandTabComplete(mineManager));
     }
 
