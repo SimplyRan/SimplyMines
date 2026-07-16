@@ -32,6 +32,8 @@ public class JsonUtils {
     private static final boolean DEFAULT_WARN_GLOBAL = false;
     private static final boolean DEFAULT_TELEPORT_PLAYERS = true;
     private static final int DEFAULT_WARN_DISTANCE = 50;
+    private static final boolean DEFAULT_RESET_AT_PERCENTAGE_ENABLED = false;
+    private static final double DEFAULT_RESET_AT_PERCENTAGE = 10.0;
 
     public static void loadMines(File dataFolder,
                                  WorkloadRunnable workloadRunnable,
@@ -111,6 +113,14 @@ public class JsonUtils {
 
                 boolean usePhysics = json.has("usePhysics") && json.get("usePhysics").getAsBoolean();
 
+                boolean resetAtPercentageEnabled = json.has("resetAtPercentageEnabled")
+                        ? json.get("resetAtPercentageEnabled").getAsBoolean()
+                        : DEFAULT_RESET_AT_PERCENTAGE_ENABLED;
+
+                double resetAtPercentage = json.has("resetAtPercentage")
+                        ? json.get("resetAtPercentage").getAsDouble()
+                        : DEFAULT_RESET_AT_PERCENTAGE;
+
                 Location teleportLocation = null;
                 if (json.has("teleportLocation")) {
                     JsonObject tp = json.getAsJsonObject("teleportLocation");
@@ -134,7 +144,9 @@ public class JsonUtils {
                         warnGlobal,
                         teleportPlayers,
                         warnDistance,
-                        usePhysics);
+                        usePhysics,
+                        resetAtPercentageEnabled,
+                        resetAtPercentage);
 
                 mine.setTeleportLocation(teleportLocation);
 
@@ -206,6 +218,8 @@ public class JsonUtils {
         json.addProperty("teleportPlayers", mine.isTeleportPlayers());
         json.addProperty("warnDistance", mine.getWarnDistance());
         json.addProperty("usePhysics", mine.isUsePhysics());
+        json.addProperty("resetAtPercentageEnabled", mine.isResetAtPercentageEnabled());
+        json.addProperty("resetAtPercentage", mine.getResetAtPercentage());
 
         Location teleportLocation = mine.getTeleportLocation();
         if (teleportLocation != null) {

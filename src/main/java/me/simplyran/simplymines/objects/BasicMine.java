@@ -42,6 +42,8 @@ public class BasicMine{
     @Getter @Setter private int warnDistance;
     @Getter @Setter private boolean usePhysics;
     @Getter @Setter private Location teleportLocation;
+    @Getter @Setter private boolean resetAtPercentageEnabled;
+    @Getter @Setter private double resetAtPercentage;
 
 
     public BasicMine(
@@ -57,7 +59,9 @@ public class BasicMine{
             boolean warnGlobal,
             boolean teleportPlayers,
             int warnDistance,
-            boolean usePhysics
+            boolean usePhysics,
+            boolean resetAtPercentageEnabled,
+            double resetAtPercentage
     ){
         this.enabled = enabled;
         this.name = name;
@@ -71,16 +75,14 @@ public class BasicMine{
         this.teleportPlayers = teleportPlayers;
         this.warnDistance = warnDistance;
         this.usePhysics = usePhysics;
-
+        this.resetAtPercentageEnabled = resetAtPercentageEnabled;
+        this.resetAtPercentage = resetAtPercentage;
 
         blockCache = new HashMap<>();
         for (String blockName : materials.keySet()){
-            //Put blocks in cache
             blockCache.put(blockName, ItemUtils.getCustomBlock(blockName));
         }
-
     }
-
 
     public void reset() {
         World world = region.getWorld();
@@ -199,5 +201,19 @@ public class BasicMine{
     public void addBlockBroken(){
         blocksBroken += 1;
     }
+
+    public double getPercentageOfMineLeft() {
+        long blockCount = region.getBlockCount();
+        if (blockCount <= 0) {
+            return 0.0;
+        }
+
+        return ((double) (blockCount - blocksBroken) / blockCount) * 100.0;
+    }
+
+    public boolean shouldResetByPercentage() {
+        return resetAtPercentageEnabled && getPercentageOfMineLeft() <= resetAtPercentage;
+    }
+
 
 }

@@ -151,7 +151,9 @@ public class MainCommand implements CommandExecutor {
                                     false,
                                     false,
                                     1,
-                                    false);
+                                    false,
+                                    false,
+                                    10.0);
                     mineManager.addMine(basicMine);
                     guiManager.openMineGUI(player, mineName);
 

@@ -32,7 +32,7 @@ public class RunnableManager implements Runnable{
         {
             long secondsUntilReset = mine.getResetTime() - (now - mine.getLastReset());
 
-            if (secondsUntilReset <= 0) {
+            if (secondsUntilReset <= 0 || mine.shouldResetByPercentage()) {
                 if (mine.isEnabled()) {
                     mine.reset();
                     mine.setLastReset(now);

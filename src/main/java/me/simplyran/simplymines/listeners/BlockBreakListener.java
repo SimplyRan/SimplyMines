@@ -1,7 +1,7 @@
 package me.simplyran.simplymines.listeners;
 
 import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.events.BlockBrokenImMineEvent;
+import me.simplyran.simplymines.events.BlockBrokenInMineEvent;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.Location;
@@ -30,7 +30,7 @@ public class BlockBreakListener implements Listener {
             if (mine.isInsideMine(location)){
 
                 plugin.getServer().getPluginManager().callEvent(
-                        new BlockBrokenImMineEvent(mine,
+                        new BlockBrokenInMineEvent(mine,
                                 e.getPlayer(),
                                 e.getBlock())
                 );
@@ -40,7 +40,7 @@ public class BlockBreakListener implements Listener {
     }
 
     @EventHandler
-    public void onMineBlockEvent(BlockBrokenImMineEvent e){
+    public void onMineBlockEvent(BlockBrokenInMineEvent e){
         e.getMine().addBlockBroken();
     }
 

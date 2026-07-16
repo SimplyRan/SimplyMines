@@ -124,7 +124,7 @@ public class MinePlaceholder extends PlaceholderExpansion {
             case "warndistance" -> String.valueOf(mine.getWarnDistance());
             case "blocks_broken" -> String.valueOf(mine.getBlocksBroken());
             case "blocks_count" -> String.valueOf(mine.getRegion().getBlockCount());
-            case "precent_left" -> String.valueOf(Math.round(getPercentageLeft(mine.getRegion().getBlockCount(), mine.getBlocksBroken()) * 100));
+            case "precent_left" -> String.valueOf(Math.round(mine.getPercentageOfMineLeft() * 100));
             default -> null;
         };
     }
@@ -150,13 +150,6 @@ public class MinePlaceholder extends PlaceholderExpansion {
         return null;
     }
 
-    public double getPercentageLeft(long blockCount, long blocksBroken) {
-        if (blockCount <= 0) {
-            return 0.0;
-        }
-
-        return ((double) (blockCount - blocksBroken) / blockCount) * 100.0;
-    }
 
     private long secondsUntilReset(@NotNull BasicMine mine) {
         long now = System.currentTimeMillis() / 1000;
