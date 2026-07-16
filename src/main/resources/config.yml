@@ -95,4 +95,4 @@ messages:
 
   missing-mine-name: "<red>You need to specify a mine name!"
 
-  higher-efficiency-level: "You need a tool with Efficiency <level> or higher to mine here."
+  higher-efficiency-level: "<red>You need a tool with Efficiency <level> or higher to mine here."
