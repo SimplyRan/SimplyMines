@@ -81,6 +81,8 @@ public class ConfigManager {
 
         config.addDefault("messages.missing-mine-name", "<red>You need to specify a mine name!");
 
+        config.addDefault("messages.higher-efficiency-level", "You need a tool with Efficiency <level> or higher to mine here.");
+
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);
 

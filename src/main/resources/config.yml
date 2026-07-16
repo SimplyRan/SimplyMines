@@ -94,3 +94,5 @@ messages:
   no-permission-tool: "<red>no permission to toggle tool."
 
   missing-mine-name: "<red>You need to specify a mine name!"
+
+  higher-efficiency-level: "You need a tool with Efficiency <level> or higher to mine here."

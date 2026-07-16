@@ -109,7 +109,7 @@ public final class SimplyMines extends JavaPlugin {
                 this);
 
         getServer().getPluginManager().registerEvents(
-                new BlockBreakListener(mineManager, this),
+                new BlockBreakListener(mineManager, configManager, this),
                 this
         );
     }

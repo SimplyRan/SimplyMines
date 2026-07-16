@@ -34,6 +34,8 @@ public class JsonUtils {
     private static final int DEFAULT_WARN_DISTANCE = 50;
     private static final boolean DEFAULT_RESET_AT_PERCENTAGE_ENABLED = false;
     private static final double DEFAULT_RESET_AT_PERCENTAGE = 10.0;
+    private static final boolean DEFAULT_MIN_EFFICIENCY_ENABLED = false;
+    private static final int DEFAULT_MIN_EFFICIENCY = 0;
 
     public static void loadMines(File dataFolder,
                                  WorkloadRunnable workloadRunnable,
@@ -121,6 +123,14 @@ public class JsonUtils {
                         ? json.get("resetAtPercentage").getAsDouble()
                         : DEFAULT_RESET_AT_PERCENTAGE;
 
+                boolean minEfficiencyEnabled = json.has("minEfficiencyEnabled")
+                        ? json.get("minEfficiencyEnabled").getAsBoolean()
+                        : DEFAULT_MIN_EFFICIENCY_ENABLED;
+
+                int minEfficiency = json.has("minEfficiency")
+                        ? json.get("minEfficiency").getAsInt()
+                        : DEFAULT_MIN_EFFICIENCY;
+
                 Location teleportLocation = null;
                 if (json.has("teleportLocation")) {
                     JsonObject tp = json.getAsJsonObject("teleportLocation");
@@ -146,7 +156,10 @@ public class JsonUtils {
                         warnDistance,
                         usePhysics,
                         resetAtPercentageEnabled,
-                        resetAtPercentage);
+                        resetAtPercentage,
+                        minEfficiencyEnabled,
+                        minEfficiency);
+
 
                 mine.setTeleportLocation(teleportLocation);
 
@@ -220,6 +233,8 @@ public class JsonUtils {
         json.addProperty("usePhysics", mine.isUsePhysics());
         json.addProperty("resetAtPercentageEnabled", mine.isResetAtPercentageEnabled());
         json.addProperty("resetAtPercentage", mine.getResetAtPercentage());
+        json.addProperty("minEfficiencyEnabled", mine.isMinEfficiencyEnabled());
+        json.addProperty("minEfficiency", mine.getMinEfficiency());
 
         Location teleportLocation = mine.getTeleportLocation();
         if (teleportLocation != null) {

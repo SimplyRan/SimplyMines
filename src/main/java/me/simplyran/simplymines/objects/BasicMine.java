@@ -13,7 +13,9 @@ import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,6 +46,8 @@ public class BasicMine{
     @Getter @Setter private Location teleportLocation;
     @Getter @Setter private boolean resetAtPercentageEnabled;
     @Getter @Setter private double resetAtPercentage;
+    @Getter @Setter private boolean minEfficiencyEnabled;
+    @Getter @Setter private int minEfficiency;
 
 
     public BasicMine(
@@ -61,7 +65,9 @@ public class BasicMine{
             int warnDistance,
             boolean usePhysics,
             boolean resetAtPercentageEnabled,
-            double resetAtPercentage
+            double resetAtPercentage,
+            boolean minEfficiencyEnabled,
+            int minEfficiency
     ){
         this.enabled = enabled;
         this.name = name;
@@ -77,6 +83,8 @@ public class BasicMine{
         this.usePhysics = usePhysics;
         this.resetAtPercentageEnabled = resetAtPercentageEnabled;
         this.resetAtPercentage = resetAtPercentage;
+        this.minEfficiencyEnabled = minEfficiencyEnabled;
+        this.minEfficiency = minEfficiency;
 
         blockCache = new HashMap<>();
         for (String blockName : materials.keySet()){
@@ -213,6 +221,11 @@ public class BasicMine{
 
     public boolean shouldResetByPercentage() {
         return resetAtPercentageEnabled && getPercentageOfMineLeft() <= resetAtPercentage;
+    }
+    
+    public boolean meetsEfficiencyRequirement(@NotNull ItemStack tool) {
+        if (!minEfficiencyEnabled) return true;
+        return tool.getEnchantmentLevel(Enchantment.EFFICIENCY) >= minEfficiency;
     }
 
 

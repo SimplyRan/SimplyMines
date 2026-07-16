@@ -108,6 +108,24 @@ public class GuiManager {
                             .color(mine.isTeleportPlayers() ? NamedTextColor.GREEN : NamedTextColor.RED))
             );
 
+            lore.add(Component.text("Reset At Percentage: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isResetAtPercentageEnabled()
+                                    ? mine.getResetAtPercentage() + "%"
+                                    : "Disabled")
+                            .color(mine.isResetAtPercentageEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
+            lore.add(Component.text("Min Efficiency: ")
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text(mine.isMinEfficiencyEnabled()
+                                    ? "Level " + mine.getMinEfficiency()
+                                    : "Disabled")
+                            .color(mine.isMinEfficiencyEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+            );
+
             lore.add(Component.text("Materials: ")
                     .color(NamedTextColor.BLUE)
                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -121,10 +139,6 @@ public class GuiManager {
                                 .color(NamedTextColor.WHITE))
                 );
             }
-
-
-
-
 
             GuiItem guiItem = ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                     .name(Component.text(mineName)
@@ -196,17 +210,6 @@ public class GuiManager {
                         .lore(buildMineInfoLore(mine))
                         .asGuiItem());
 
-        // Edit reset time item
-        mineGUI.setItem(3, 5,
-                ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Edit Reset Time")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getResetTime() + " Seconds")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> openChangeResetTimeGUI(player, mine)));
-
         // Edit blocks item
         List<Component> loreOfEditBlocks = new ArrayList<>();
         loreOfEditBlocks.add(Component.text("Materials: ")
@@ -223,8 +226,6 @@ public class GuiManager {
             );
         }
 
-
-
         mineGUI.setItem(3, 4,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                         .name(Component.text("Edit Blocks")
@@ -233,36 +234,40 @@ public class GuiManager {
                         .lore(loreOfEditBlocks)
                         .asGuiItem(event -> openBlocksGUI(player, mine)));
 
-        // Edit warn-seconds item
+        // Reset Settings hub (Timed + Percentage)
+        mineGUI.setItem(3, 5,
+                ItemBuilder.from(Material.CLOCK)
+                        .name(Component.text("Reset Settings")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text("Configure timed & percentage-based reset")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> openResetSettingsGUI(player, mine)));
+
+        // Warn Settings hub (Seconds + Distance)
         mineGUI.setItem(3, 6,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
-                        .name(Component.text("Warn Seconds Editor")
+                        .name(Component.text("Warn Settings")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> openWarnSecondsGUI(player, mine)));
+                        .lore(Component.text("Configure warn seconds & warn distance")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> openWarnSettingsGUI(player, mine)));
 
-        //Warn Distance item
+        // Min Efficiency editor
         mineGUI.setItem(3, 7,
-                ItemBuilder.from(Material.SPYGLASS)
-                        .name(Component.text("Edit Warn Distance")
+                ItemBuilder.from(Material.GOLDEN_PICKAXE)
+                        .name(Component.text("Min Efficiency")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> openChangeWarnDistanceGUI(player, mine)));
-
-        mineGUI.setItem(3, 8,
-                ItemBuilder.from(Material.REPEATER)
-                        .name(Component.text("Edit Reset At Percentage")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.isResetAtPercentageEnabled()
-                                        ? mine.getResetAtPercentage() + "% left (Enabled)"
+                        .lore(Component.text(mine.isMinEfficiencyEnabled()
+                                        ? "Level " + mine.getMinEfficiency() + " (Enabled)"
                                         : "Disabled")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(mine.isResetAtPercentageEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
-                        .asGuiItem(event -> openChangeResetPercentageGUI(player, mine)));
+                                .color(mine.isMinEfficiencyEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                        .asGuiItem(event -> openChangeMinEfficiencyGUI(player, mine)));
 
         // Toggle buttons — each owns a distinct slot, no collisions
         new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
@@ -324,13 +329,13 @@ public class GuiManager {
     }
 
     // ---------------------------------------------------------------------
-// Reset-at-percentage GUI
-// ---------------------------------------------------------------------
+    // Reset settings hub (Timed + Percentage)
+    // ---------------------------------------------------------------------
 
-    public void openChangeResetPercentageGUI(Player player, BasicMine mine) {
+    public void openResetSettingsGUI(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Reset At Percentage"))
+                .title(Component.text("Reset Settings"))
                 .disableAllInteractions()
                 .create();
 
@@ -349,65 +354,75 @@ public class GuiManager {
                                 .color(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
-        renderResetPercentageToggle(gui, mine);
-        renderResetPercentageDisplay(gui, mine);
+        gui.setItem(2, 4,
+                ItemBuilder.from(Material.CLOCK)
+                        .name(Component.text("Reset Time (Timed)")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text(mine.getResetTime() + "s")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> openChangeResetTimeGUI(player, mine)));
 
-        // Remove buttons
-        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10% from Reset Threshold", NamedTextColor.RED,
-                delta -> adjustResetPercentage(gui, mine, -delta)).render();
-        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5% from Reset Threshold", NamedTextColor.RED,
-                delta -> adjustResetPercentage(gui, mine, -delta)).render();
-        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1% from Reset Threshold", NamedTextColor.RED,
-                delta -> adjustResetPercentage(gui, mine, -delta)).render();
-
-        // Add buttons
-        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1% to Reset Threshold", NamedTextColor.GREEN,
-                delta -> adjustResetPercentage(gui, mine, delta)).render();
-        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5% to Reset Threshold", NamedTextColor.GREEN,
-                delta -> adjustResetPercentage(gui, mine, delta)).render();
-        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10% to Reset Threshold", NamedTextColor.GREEN,
-                delta -> adjustResetPercentage(gui, mine, delta)).render();
+        gui.setItem(2, 6,
+                ItemBuilder.from(Material.REPEATER)
+                        .name(Component.text("Reset At Percentage")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text(mine.isResetAtPercentageEnabled()
+                                        ? mine.getResetAtPercentage() + "% left (Enabled)"
+                                        : "Disabled")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(mine.isResetAtPercentageEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                        .asGuiItem(event -> openChangeResetPercentageGUI(player, mine)));
 
         gui.open(player);
     }
 
-    private void adjustResetPercentage(Gui gui, BasicMine mine, double delta) {
-        double newValue = mine.getResetAtPercentage() + delta;
-        newValue = Math.max(0, Math.min(100, newValue));
-        mine.setResetAtPercentage(newValue);
-        renderResetPercentageDisplay(gui, mine);
-        gui.update();
-    }
+    // ---------------------------------------------------------------------
+    // Warn settings hub (Seconds + Distance)
+    // ---------------------------------------------------------------------
 
-    private void renderResetPercentageDisplay(Gui gui, BasicMine mine) {
-        gui.setItem(2, 5,
-                ItemBuilder.from(Material.COMPARATOR)
-                        .name(Component.text("Reset Threshold")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getResetAtPercentage() + "% left")
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem());
-    }
+    public void openWarnSettingsGUI(Player player, BasicMine mine) {
+        Gui gui = Gui.gui()
+                .rows(3)
+                .title(Component.text("Warn Settings"))
+                .disableAllInteractions()
+                .create();
 
-    private void renderResetPercentageToggle(Gui gui, BasicMine mine) {
-        boolean enabled = mine.isResetAtPercentageEnabled();
-        gui.setItem(1, 5,
-                ItemBuilder.from(Material.REPEATER)
-                        .name(Component.text("Reset At Percentage: ")
+        gui.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            saveAsync(mine);
+            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+        });
+
+        GuiUtils.fillBorder(gui);
+
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE)
-                                .append(Component.text(enabled ? "Enabled" : "Disabled")
-                                        .color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
-                        .lore(Component.text("Click to toggle")
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
+
+        gui.setItem(2, 4,
+                ItemBuilder.from(Material.REDSTONE_TORCH)
+                        .name(Component.text("Warn Seconds")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.GRAY))
-                        .asGuiItem(event -> {
-                            mine.setResetAtPercentageEnabled(!mine.isResetAtPercentageEnabled());
-                            renderResetPercentageToggle(gui, mine);
-                            gui.update();
-                        }));
+                                .color(NamedTextColor.YELLOW))
+                        .asGuiItem(event -> openWarnSecondsGUI(player, mine)));
+
+        gui.setItem(2, 6,
+                ItemBuilder.from(Material.SPYGLASS)
+                        .name(Component.text("Warn Distance")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> openChangeWarnDistanceGUI(player, mine)));
+
+        gui.open(player);
     }
 
     // ---------------------------------------------------------------------
@@ -421,11 +436,11 @@ public class GuiManager {
                 .disableAllInteractions()
                 .create();
 
-        // Go back to mine GUI, but only on a genuine player-initiated close
+        // Go back to warn settings hub, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             saveAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+            Bukkit.getScheduler().runTask(plugin, () -> openWarnSettingsGUI(player, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -491,7 +506,7 @@ public class GuiManager {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             saveAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+            Bukkit.getScheduler().runTask(plugin, () -> openWarnSettingsGUI(player, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -592,11 +607,11 @@ public class GuiManager {
                                     .color(NamedTextColor.YELLOW)
                                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                             .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
-                                    .color(NamedTextColor.YELLOW)
-                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                                            .color(NamedTextColor.YELLOW)
+                                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                                     Component.text("Shift Right Click To Remove")
-                                    .color(NamedTextColor.RED)
-                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                                            .color(NamedTextColor.RED)
+                                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                             .asGuiItem(event -> {
                                 if (event.getClick().isRightClick()) return;
                                 openEditBlockGUI(player, material.getKey(), mine);
@@ -716,11 +731,11 @@ public class GuiManager {
                 .disableAllInteractions()
                 .create();
 
-        // Go back to mine GUI, but only on a genuine player-initiated close
+        // Go back to reset settings hub, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             saveAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+            Bukkit.getScheduler().runTask(plugin, () -> openResetSettingsGUI(player, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -770,5 +785,176 @@ public class GuiManager {
                                 .color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem());
+    }
+
+    // ---------------------------------------------------------------------
+    // Reset-at-percentage GUI
+    // ---------------------------------------------------------------------
+
+    public void openChangeResetPercentageGUI(Player player, BasicMine mine) {
+        Gui gui = Gui.gui()
+                .rows(3)
+                .title(Component.text("Reset At Percentage"))
+                .disableAllInteractions()
+                .create();
+
+        // Go back to reset settings hub, but only on a genuine player-initiated close
+        gui.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            saveAsync(mine);
+            Bukkit.getScheduler().runTask(plugin, () -> openResetSettingsGUI(player, mine));
+        });
+
+        GuiUtils.fillBorder(gui);
+
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
+
+        renderResetPercentageToggle(gui, mine);
+        renderResetPercentageDisplay(gui, mine);
+
+        // Remove buttons
+        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10% from Reset Threshold", NamedTextColor.RED,
+                delta -> adjustResetPercentage(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5% from Reset Threshold", NamedTextColor.RED,
+                delta -> adjustResetPercentage(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1% from Reset Threshold", NamedTextColor.RED,
+                delta -> adjustResetPercentage(gui, mine, -delta)).render();
+
+        // Add buttons
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1% to Reset Threshold", NamedTextColor.GREEN,
+                delta -> adjustResetPercentage(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5% to Reset Threshold", NamedTextColor.GREEN,
+                delta -> adjustResetPercentage(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10% to Reset Threshold", NamedTextColor.GREEN,
+                delta -> adjustResetPercentage(gui, mine, delta)).render();
+
+        gui.open(player);
+    }
+
+    private void adjustResetPercentage(Gui gui, BasicMine mine, double delta) {
+        double newValue = mine.getResetAtPercentage() + delta;
+        newValue = Math.max(0, Math.min(100, newValue));
+        mine.setResetAtPercentage(newValue);
+        renderResetPercentageDisplay(gui, mine);
+        gui.update();
+    }
+
+    private void renderResetPercentageDisplay(Gui gui, BasicMine mine) {
+        gui.setItem(2, 5,
+                ItemBuilder.from(Material.COMPARATOR)
+                        .name(Component.text("Reset Threshold")
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(Component.text(mine.getResetAtPercentage() + "% left")
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem());
+    }
+
+    private void renderResetPercentageToggle(Gui gui, BasicMine mine) {
+        boolean enabled = mine.isResetAtPercentageEnabled();
+        gui.setItem(1, 5,
+                ItemBuilder.from(Material.REPEATER)
+                        .name(Component.text("Reset At Percentage: ")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(enabled ? "Enabled" : "Disabled")
+                                        .color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                        .lore(Component.text("Click to toggle")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> {
+                            mine.setResetAtPercentageEnabled(!mine.isResetAtPercentageEnabled());
+                            renderResetPercentageToggle(gui, mine);
+                            gui.update();
+                        }));
+    }
+
+    // ---------------------------------------------------------------------
+    // Min efficiency GUI
+    // ---------------------------------------------------------------------
+
+    public void openChangeMinEfficiencyGUI(Player player, BasicMine mine) {
+        Gui gui = Gui.gui()
+                .rows(3)
+                .title(Component.text("Min Efficiency"))
+                .disableAllInteractions()
+                .create();
+
+        // Go back to mine GUI, but only on a genuine player-initiated close
+        gui.setCloseGuiAction(event -> {
+            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
+            saveAsync(mine);
+            Bukkit.getScheduler().runTask(plugin, () -> openMineGUI(player, mine.getName()));
+        });
+
+        GuiUtils.fillBorder(gui);
+
+        gui.setItem(3, 1,
+                ItemBuilder.from(Material.ARROW)
+                        .name(Component.text("Back")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE))
+                        .asGuiItem(event -> player.closeInventory()));
+
+        renderMinEfficiencyToggle(gui, mine);
+        renderMinEfficiencyDisplay(gui, mine);
+
+        // Remove buttons
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5 Levels", NamedTextColor.RED,
+                delta -> adjustMinEfficiency(gui, mine, -delta)).render();
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1 Level", NamedTextColor.RED,
+                delta -> adjustMinEfficiency(gui, mine, -delta)).render();
+
+        // Add buttons
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1 Level", NamedTextColor.GREEN,
+                delta -> adjustMinEfficiency(gui, mine, delta)).render();
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5 Levels", NamedTextColor.GREEN,
+                delta -> adjustMinEfficiency(gui, mine, delta)).render();
+
+        gui.open(player);
+    }
+
+    private void adjustMinEfficiency(Gui gui, BasicMine mine, int delta) {
+        int newValue = Math.max(0, mine.getMinEfficiency() + delta);
+        mine.setMinEfficiency(newValue);
+        renderMinEfficiencyDisplay(gui, mine);
+        gui.update();
+    }
+
+    private void renderMinEfficiencyDisplay(Gui gui, BasicMine mine) {
+        gui.setItem(2, 5,
+                ItemBuilder.from(Material.GOLDEN_PICKAXE)
+                        .name(Component.text("Required Efficiency Level")
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(Component.text("Level " + mine.getMinEfficiency())
+                                .color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .asGuiItem());
+    }
+
+    private void renderMinEfficiencyToggle(Gui gui, BasicMine mine) {
+        boolean enabled = mine.isMinEfficiencyEnabled();
+        gui.setItem(1, 5,
+                ItemBuilder.from(Material.ENCHANTED_BOOK)
+                        .name(Component.text("Min Efficiency: ")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(enabled ? "Enabled" : "Disabled")
+                                        .color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                        .lore(Component.text("Click to toggle")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> {
+                            mine.setMinEfficiencyEnabled(!mine.isMinEfficiencyEnabled());
+                            renderMinEfficiencyToggle(gui, mine);
+                            gui.update();
+                        }));
     }
 }
