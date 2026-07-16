@@ -85,12 +85,15 @@ public class ConfigManager {
 
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);
+        config.addDefault("max_milles_per_tick", 2.5);
 
 
         config.options().copyDefaults(true);
         plugin.saveConfig();
 
         WorkloadRunnable.setMAX_WORKLOADS(config.getInt("max_workload"));
+        WorkloadRunnable.setMAX_MILLIS_PER_TICK(config.getDouble("max_milles_per_tick"));
+
         RunnableManager.setSAVE_MINES_FILES(config.getInt("save_mines_seconds"));
 
         for (String key : config.getConfigurationSection("messages").getKeys(false)) {

@@ -1,6 +1,7 @@
 #Change ONLY if you know what you are doing
 max_workload: 20000000
 save_mines_seconds: 1800
+max_milles_per_tick: 2.5
 
 messages:
   # Shown when a console/non-player tries to use a player-only command
