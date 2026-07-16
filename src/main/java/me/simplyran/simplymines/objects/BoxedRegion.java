@@ -35,5 +35,13 @@ public class BoxedRegion {
                 z >= minZ && z <= maxZ;
     }
 
+    public long getBlockCount() {
+        long width = (long) maxX - minX + 1;
+        long height = (long) maxY - minY + 1;
+        long length = (long) maxZ - minZ + 1;
+
+        return width * height * length;
+    }
+
 
 }

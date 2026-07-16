@@ -25,20 +25,13 @@ public class BasicMine{
     @Getter
     private final String name;
     private final Map<String, Double> materials;
-    private final Map<String, IBlock> blockCahce;
+    private final Map<String, IBlock> blockCache;
 
-    @Getter
-    @Setter
-    private BoxedRegion region;
-    @Getter
-    @Setter
-    private long lastReset;
-    @Getter
-    @Setter
-    private int resetTime;
-    @Getter
-    @Setter
-    private boolean enabled;
+    @Getter @Setter private BoxedRegion region;
+    @Getter @Setter private long lastReset;
+    @Getter @Setter private int resetTime;
+    @Getter @Setter private boolean enabled;
+    @Getter private int blocksBroken;
 
     //Settings:
     @Getter private final Set<Integer> warnedSeconds = new HashSet<>();
@@ -80,10 +73,10 @@ public class BasicMine{
         this.usePhysics = usePhysics;
 
 
-        blockCahce = new HashMap<>();
+        blockCache = new HashMap<>();
         for (String blockName : materials.keySet()){
             //Put blocks in cache
-            blockCahce.put(blockName, ItemUtils.getCustomBlock(blockName));
+            blockCache.put(blockName, ItemUtils.getCustomBlock(blockName));
         }
 
     }
@@ -111,7 +104,7 @@ public class BasicMine{
             if (!usePhysics && block instanceof NexoBlock nexoBlock )
                 block = new NoPhysicsNexoBlock(nexoBlock.getBlockID());
 
-            blockCahce.put(blockName, block);
+            blockCache.put(blockName, block);
         }
 
         // Queue a placement task for every block position in the region
@@ -119,7 +112,7 @@ public class BasicMine{
             for (int y = region.getMinY(); y <= region.getMaxY(); y++) {
                 for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
                     String material = pickMaterial();
-                    IBlock block = blockCahce.get(material);
+                    IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
 
                     workloadRunnable.addWorkload(
@@ -130,6 +123,7 @@ public class BasicMine{
         }
 
         lastReset = System.currentTimeMillis();
+        blocksBroken = 0;
         warnedSeconds.clear();
     }
 
@@ -199,7 +193,11 @@ public class BasicMine{
 
     public void removeBlock(@NotNull String block){
         materials.remove(block);
-        blockCahce.remove(block);
+        blockCache.remove(block);
+    }
+
+    public void addBlockBroken(){
+        blocksBroken += 1;
     }
 
 }

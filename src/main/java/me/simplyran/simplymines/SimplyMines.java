@@ -3,6 +3,7 @@ package me.simplyran.simplymines;
 import lombok.Getter;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
+import me.simplyran.simplymines.listeners.BlockBreakListener;
 import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.placeholders.MinePlaceholder;
@@ -99,7 +100,10 @@ public final class SimplyMines extends JavaPlugin {
                 new SelectionListener(selectionManager, configManager),
                 this);
 
-
+        getServer().getPluginManager().registerEvents(
+                new BlockBreakListener(mineManager, this),
+                this
+        );
     }
 
     private void registerCommands(){
