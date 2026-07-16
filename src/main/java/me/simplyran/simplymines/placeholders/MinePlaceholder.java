@@ -2,7 +2,7 @@ package me.simplyran.simplymines.placeholders;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.simplyran.simplymines.managers.MineManager;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

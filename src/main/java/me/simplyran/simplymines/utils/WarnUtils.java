@@ -2,7 +2,7 @@ package me.simplyran.simplymines.utils;
 
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

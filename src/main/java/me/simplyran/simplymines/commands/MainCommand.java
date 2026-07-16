@@ -6,8 +6,7 @@ import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.objects.IMine;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -112,7 +111,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("no-permission-reset"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine != null) {
                         mine.reset();
                         sender.sendMessage(configManager.getMessage("mine-reset", "%mine%", mineName));
@@ -129,7 +128,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("only-players-create"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine != null) {
                         sender.sendMessage(configManager.getMessage("mine-already-exists", "%mine%", mineName));
                         break;
@@ -161,7 +160,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("no-permission-delete"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                     } else {
@@ -178,7 +177,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("only-players-create"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                         break;
@@ -196,7 +195,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("no-permission-disable"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                     } else {
@@ -209,7 +208,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("no-permission-enable"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                     } else {
@@ -226,7 +225,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("only-players-create"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                         break;
@@ -248,7 +247,7 @@ public class MainCommand implements CommandExecutor {
                         sender.sendMessage(configManager.getMessage("only-players-create"));
                         break;
                     }
-                    IMine mine = mineManager.getMine(mineName);
+                    BasicMine mine = mineManager.getMine(mineName);
                     if (mine == null) {
                         sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
                         break;

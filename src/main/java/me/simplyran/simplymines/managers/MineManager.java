@@ -1,7 +1,7 @@
 package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.jetbrains.annotations.Nullable;

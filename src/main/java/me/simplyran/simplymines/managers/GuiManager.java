@@ -7,7 +7,7 @@ import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.AdjustButton;
 import me.simplyran.simplymines.gui.ToggleButton;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.utils.JsonUtils;

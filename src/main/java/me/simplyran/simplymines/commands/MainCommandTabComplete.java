@@ -1,7 +1,7 @@
 package me.simplyran.simplymines.commands;
 
 import me.simplyran.simplymines.managers.MineManager;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;

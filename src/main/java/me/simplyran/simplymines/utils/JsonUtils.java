@@ -4,8 +4,7 @@ import com.google.gson.*;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.objects.IMine;
-import me.simplyran.simplymines.objects.impl.BasicMine;
+import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -150,16 +149,9 @@ public class JsonUtils {
     }
 
 
-    public static void saveMine(SimplyMines plugin, IMine mine) {
-        JsonObject json;
+    public static void saveMine(SimplyMines plugin, BasicMine mine) {
+        JsonObject json= serializeBasicMine(mine);
 
-        if (mine instanceof BasicMine basicMine){
-            json = serializeBasicMine(basicMine);
-        }
-        else {
-            Bukkit.getLogger().severe("ERROR FOUND");
-            return;
-        }
 
         File minesFolder = new File(plugin.getDataFolder(), "mines");
         if (!minesFolder.exists()) {

@@ -1,9 +1,7 @@
-package me.simplyran.simplymines.objects.impl;
+package me.simplyran.simplymines.objects;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.objects.IMine;
 import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
@@ -21,16 +19,25 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
-public class BasicMine implements IMine {
+public class BasicMine{
 
     private final WorkloadRunnable workloadRunnable;
+    @Getter
     private final String name;
     private final Map<String, Double> materials;
     private final Map<String, IBlock> blockCahce;
 
+    @Getter
+    @Setter
     private BoxedRegion region;
+    @Getter
+    @Setter
     private long lastReset;
+    @Getter
+    @Setter
     private int resetTime;
+    @Getter
+    @Setter
     private boolean enabled;
 
     //Settings:
@@ -82,39 +89,6 @@ public class BasicMine implements IMine {
     }
 
 
-
-
-    @Override
-    public BoxedRegion getRegion() {
-        return region;
-    }
-
-    @Override
-    public void setRegion(BoxedRegion region) {
-        this.region = region;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getResetTime() {
-        return resetTime;
-    }
-
-    @Override
-    public long getLastReset() {
-        return lastReset;
-    }
-
-    @Override
-    public void setLastReset(long lastReset) {
-        this.lastReset = lastReset;
-    }
-
-    @Override
     public void reset() {
         World world = region.getWorld();
         if (world == null || materials.isEmpty()) return;
@@ -159,16 +133,6 @@ public class BasicMine implements IMine {
         warnedSeconds.clear();
     }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     /**
      * Picks a material for a block position based on the configured weighted probabilities. (Missing % is AIR)
      */
@@ -191,7 +155,6 @@ public class BasicMine implements IMine {
     }
 
 
-    @Override
     public boolean isInsideMine(Location location) {
         return region.isInsideRegion(location);
     }
@@ -207,11 +170,6 @@ public class BasicMine implements IMine {
             }
         }
         return material;
-    }
-
-    @Override
-    public void setResetTime(int resetTime){
-        this.resetTime = resetTime;
     }
 
     public double getPercentage(@NotNull String block){
