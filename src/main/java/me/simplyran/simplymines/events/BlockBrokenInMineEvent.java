@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-public class BlockBrokenImMineEvent extends Event {
+public class BlockBrokenInMineEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -17,7 +17,7 @@ public class BlockBrokenImMineEvent extends Event {
     @Getter private final Player player;
     @Getter private final Block block;
 
-    public BlockBrokenImMineEvent(@NotNull BasicMine mine,
+    public BlockBrokenInMineEvent(@NotNull BasicMine mine,
                                   Player player,
                                   Block block){
         this.mine = mine;
