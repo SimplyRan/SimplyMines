@@ -25,6 +25,8 @@ public final class SimplyMines extends JavaPlugin {
 
     @Getter private static boolean NEXO_LOADED = false;
 
+    @Getter private static boolean CRAFTENGINE_LOADED = false;
+
 
     private int workloadTaskID;
     private int runnableManagerTaskID;
@@ -85,6 +87,10 @@ public final class SimplyMines extends JavaPlugin {
         if (this.getServer().getPluginManager().getPlugin("Nexo") != null) {
             NEXO_LOADED = true;
         }
+        if (this.getServer().getPluginManager().getPlugin("CraftEngine") != null) {
+            CRAFTENGINE_LOADED = true;
+        }
+
 
     }
 

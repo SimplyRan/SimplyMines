@@ -24,6 +24,8 @@ repositories {
     maven {
         url = 'https://repo.extendedclip.com/releases/'
     }
+
+    maven { url 'https://repo.momirealms.net/releases/' }
 }
 
 dependencies {
@@ -35,6 +37,11 @@ dependencies {
     //Textures Managers
     compileOnly("beer.devs:itemsadder-api:4.0.18-beta-10")
     compileOnly("com.nexomc:nexo:1.25.0")
+
+    compileOnly 'net.momirealms:craft-engine-core:26.7.3'
+    compileOnly 'net.momirealms:craft-engine-bukkit:26.7.3'
+
+
 
 
     compileOnly 'org.projectlombok:lombok:1.18.30'

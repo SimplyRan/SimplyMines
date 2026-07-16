@@ -8,8 +8,14 @@ import dev.lone.itemsadder.api.CustomStack;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.blocks.Block;
+import me.simplyran.simplymines.workload.blocks.CraftEngineBlock;
 import me.simplyran.simplymines.workload.blocks.ItemsAdderBlock;
 import me.simplyran.simplymines.workload.blocks.NexoBlock;
+import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.bukkit.item.BukkitItemDefinition;
+import net.momirealms.craftengine.core.block.BlockDefinition;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,6 +42,15 @@ public class ItemUtils {
             }
         }
 
+        if (SimplyMines.isCRAFTENGINE_LOADED()) {
+            Key key = keyFromName(name);
+            BukkitItemDefinition bukkitItemDefinition = CraftEngineItems.byId(key);
+            if (bukkitItemDefinition != null){
+                return bukkitItemDefinition.buildBukkitItem();
+            }
+        }
+
+
         return new ItemStack(Material.BARRIER);
     }
 
@@ -52,7 +67,15 @@ public class ItemUtils {
         }
 
         if (SimplyMines.isITEMSADDER_LOADED()) {
-            return CustomBlock.isBlock(itemStack);
+            if (CustomBlock.isBlock(itemStack)) return true;
+        }
+
+        if (SimplyMines.isCRAFTENGINE_LOADED()) {
+            Key key = CraftEngineItems.getCustomItemId(itemStack);
+            if (key != null){
+                BlockDefinition blockDefinition = CraftEngineBlocks.byId(key);
+                if (blockDefinition != null) return true;
+            }
         }
 
 
@@ -80,6 +103,14 @@ public class ItemUtils {
             }
         }
 
+        if (SimplyMines.isCRAFTENGINE_LOADED()) {
+            Key key = keyFromName(name);
+            BlockDefinition blockDefinition = CraftEngineBlocks.byId(key);
+            if (blockDefinition != null){
+                return new CraftEngineBlock(key);
+            }
+        }
+
 
         //Not Found
         return new Block(Material.AIR);
@@ -99,9 +130,25 @@ public class ItemUtils {
             }
         }
 
+        if (SimplyMines.isCRAFTENGINE_LOADED()) {
+            Key key = CraftEngineItems.getCustomItemId(itemStack);
+            if (key != null){
+                return keyToName(key);
+            }
+        }
+
 
         return itemStack.getType().name();
     }
+
+    public static Key keyFromName(String name){
+        return Key.of(name.split(":"));
+    }
+
+    public static String keyToName(Key key){
+        return key.namespace() + ":" + key.value();
+    }
+
 
 
 
