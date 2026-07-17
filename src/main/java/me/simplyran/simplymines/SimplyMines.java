@@ -11,6 +11,7 @@ import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.placeholders.MinePlaceholder;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SimplyMines extends JavaPlugin {
@@ -112,7 +113,7 @@ public final class SimplyMines extends JavaPlugin {
 
     private void registerBStats(){
         int pluginId = 32650;
-        Metrics metrics = new Metrics(this, pluginId);
+        new Metrics(this, pluginId);
     }
 
     private void registerListeners(){
@@ -127,14 +128,21 @@ public final class SimplyMines extends JavaPlugin {
     }
 
     private void registerCommands(){
-        this.getCommand("sm")
-                .setExecutor(new MainCommand(mineManager,
-                        guiManager,
-                        workloadRunnable,
-                        selectionManager,
-                        configManager,
-                        this));
-        this.getCommand("sm").setTabCompleter(new MainCommandTabComplete(mineManager));
+
+        MainCommand mainCommand = new MainCommand(mineManager,
+                guiManager,
+                workloadRunnable,
+                selectionManager,
+                configManager,
+                this);
+
+        PluginCommand simplyminesCommand = this.getCommand("sm");
+        if (simplyminesCommand == null){
+            getLogger().severe("No main command named 'sm' found in plugin.yml, could not load commands!");
+            return;
+        }
+        simplyminesCommand.setExecutor(mainCommand);
+        simplyminesCommand.setTabCompleter(new MainCommandTabComplete(mainCommand.getSubCommands()));
     }
 
 }

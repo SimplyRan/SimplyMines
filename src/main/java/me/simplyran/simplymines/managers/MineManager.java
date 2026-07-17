@@ -6,8 +6,10 @@ import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class MineManager {
 
@@ -53,6 +55,14 @@ public class MineManager {
 
     public Collection<BasicMine> getMines(){
         return mines.values();
+    }
+
+    public List<String> getMinesNames(){
+        List<String> minesName = new ArrayList<>();
+        for (BasicMine mine : getMines()){
+            minesName.add(mine.getName());
+        }
+        return minesName;
     }
 
 

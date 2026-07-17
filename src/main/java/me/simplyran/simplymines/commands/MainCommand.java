@@ -1,33 +1,28 @@
 package me.simplyran.simplymines.commands;
 
-import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.commands.subcommands.*;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
-import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.objects.BasicMine;
-import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MainCommand implements CommandExecutor {
 
-    private final MineManager mineManager;
     private final GuiManager guiManager;
-    private final WorkloadRunnable workloadRunnable;
-    private final SelectionManager selectionManager;
     private final ConfigManager configManager;
-    private final SimplyMines plugin;
+
+    @Getter private final List<SubCommand> subCommands;
 
     public MainCommand(@NotNull MineManager mineManager,
                        @NotNull GuiManager guiManager,
@@ -35,13 +30,23 @@ public class MainCommand implements CommandExecutor {
                        @NotNull SelectionManager selectionManager,
                        @NotNull ConfigManager configManager,
                        @NotNull SimplyMines plugin) {
-        this.mineManager = mineManager;
         this.guiManager = guiManager;
-        this.workloadRunnable = workloadRunnable;
-        this.selectionManager = selectionManager;
         this.configManager = configManager;
-        this.plugin = plugin;
+
+        this.subCommands = new ArrayList<>();
+
+        subCommands.add(new ReloadSubCommand(mineManager, workloadRunnable, configManager));
+        subCommands.add(new ToolSubCommand(selectionManager, configManager));
+        subCommands.add(new ResetSubCommand(mineManager, configManager));
+        subCommands.add(new CreateSubCommand(mineManager, configManager, selectionManager, guiManager, workloadRunnable));
+        subCommands.add(new DeleteSubCommand(mineManager, configManager));
+        subCommands.add(new ReassignSubCommand(mineManager, configManager, selectionManager, plugin));
+        subCommands.add(new EnableSubCommand(mineManager, configManager));
+        subCommands.add(new DisableSubCommand(mineManager, configManager));
+        subCommands.add(new TeleportSubCommand(mineManager, configManager));
+        subCommands.add(new SetTeleportSubCommand(mineManager, configManager));
     }
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender,
@@ -49,236 +54,42 @@ public class MainCommand implements CommandExecutor {
                              @NotNull String label,
                              String[] args) {
 
-        switch (args.length) {
+        if (args.length>0){
+            String subCommandName = args[0];
+            boolean foundCmd = false;
 
-            case 0: {
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage(configManager.getMessage("only-players"));
-                    break;
-                }
-                if (!sender.hasPermission("simplymines.admin")) {
-                    sender.sendMessage(configManager.getMessage("no-permission"));
-                    break;
-                }
-                guiManager.openMainGUI(player);
-                break;
-            }
-
-            case 1: {
-                String arg1 = args[0];
-                if (arg1.equalsIgnoreCase("reload")) {
-                    if (!sender.hasPermission("simplymines.reload")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-reload"));
-                        break;
-                    }
-                    workloadRunnable.resetWorkloadDeque();
-                    mineManager.reloadMines();
-                    configManager.reloadConfig();
-                    sender.sendMessage(configManager.getMessage("reloaded"));
-                    break;
-                }
-                if (arg1.equalsIgnoreCase("tool")){
-                    if (!sender.hasPermission("simplymines.tool")){
-                        sender.sendMessage(configManager.getMessage("no-permission-tool"));
-                    }
-                    if (!(sender instanceof Player player)){
-                        sender.sendMessage(configManager.getMessage("only-players-can-tool"));
-                        break;
-                    }
-                    boolean isDisabled = selectionManager.isToolDisabled(player.getUniqueId());
-                    selectionManager.toggleTool(player.getUniqueId());
-                    if (isDisabled){
-                        sender.sendMessage(configManager.getMessage("enabled-tool"));
+            for (SubCommand subCommand : subCommands){
+                if (subCommand.getName().equals(subCommandName)
+                        && sender.hasPermission(subCommand.getPermission())){
+                    if (!subCommand.isPlayerOnly()) subCommand.preform(sender, args, label);
+                    else if (sender instanceof Player){
+                        subCommand.preform(sender, args, label);
                     }
                     else {
-                        sender.sendMessage(configManager.getMessage("disabled-tool"));
+                        sender.sendMessage(configManager.getMessage("only-players"));
                     }
+                    foundCmd = true;
                     break;
                 }
-                else if (arg1.equalsIgnoreCase("reset") || arg1.equalsIgnoreCase("create") ||
-                        arg1.equalsIgnoreCase("delete") || arg1.equalsIgnoreCase("reassign") ||
-                        arg1.equalsIgnoreCase("disable") || arg1.equalsIgnoreCase("enable") ||
-                        arg1.equalsIgnoreCase("teleport") || arg1.equalsIgnoreCase("setteleport")) {
-                    sender.sendMessage(configManager.getMessage("missing-mine-name", "%sub%", arg1, "%label%", label));
-                }
-                else {
-                    sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
-                }
-                break;
+            }
+            if (!foundCmd){
+                sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", subCommandName));
+                return true;
             }
 
-            case 2: {
-                String arg1 = args[0];
-                String mineName = args[1];
-
-                if (arg1.equalsIgnoreCase("reset")) {
-                    if (!sender.hasPermission("simplymines.reset")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-reset"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine != null) {
-                        mine.reset();
-                        sender.sendMessage(configManager.getMessage("mine-reset", "%mine%", mineName));
-                    } else {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                    }
-
-                } else if (arg1.equalsIgnoreCase("create")) {
-                    if (!sender.hasPermission("simplymines.create")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-create"));
-                        break;
-                    }
-                    if (!(sender instanceof Player player)) {
-                        sender.sendMessage(configManager.getMessage("only-players-create"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine != null) {
-                        sender.sendMessage(configManager.getMessage("mine-already-exists", "%mine%", mineName));
-                        break;
-                    }
-                    Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
-                    if (corners == null || corners.first() == null || corners.second() == null) {
-                        sender.sendMessage(configManager.getMessage("no-selection"));
-                        break;
-                    }
-                    BasicMine basicMine =
-                            new BasicMine(true,
-                                    mineName,
-                                    30,
-                                    corners.first(),
-                                    corners.second(),
-                                    Map.of(),
-                                    workloadRunnable,
-                                    List.of(),
-                                    false,
-                                    false,
-                                    false,
-                                    1,
-                                    false,
-                                    false,
-                                    10.0,
-                                    false,
-                                    0);
-                    mineManager.addMine(basicMine);
-                    guiManager.openMineGUI(player, mineName);
-
-                } else if (arg1.equalsIgnoreCase("delete")) {
-                    if (!sender.hasPermission("simplymines.delete")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-delete"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                    } else {
-                        mineManager.deleteMine(mineName);
-                        sender.sendMessage(configManager.getMessage("mine-deleted", "%mine%", mineName));
-                    }
-
-                } else if (arg1.equalsIgnoreCase("reassign")) {
-                    if (!sender.hasPermission("simplymines.move")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-move"));
-                        break;
-                    }
-                    if (!(sender instanceof Player player)) {
-                        sender.sendMessage(configManager.getMessage("only-players-create"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                        break;
-                    }
-                    Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
-                    if (corners == null || corners.first() == null || corners.second() == null) {
-                        sender.sendMessage(configManager.getMessage("no-selection"));
-                        break;
-                    }
-                    mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
-                    sender.sendMessage(configManager.getMessage("mine-moved", "%mine%", mineName));
-                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
-
-                } else if (arg1.equalsIgnoreCase("disable")) {
-                    if (!sender.hasPermission("simplymines.disable")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-disable"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                    } else {
-                        mine.setEnabled(false);
-                        sender.sendMessage(configManager.getMessage("mine-disabled", "%mine%", mineName));
-                    }
-
-                } else if (arg1.equalsIgnoreCase("enable")) {
-                    if (!sender.hasPermission("simplymines.enable")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-enable"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                    } else {
-                        mine.setEnabled(true);
-                        sender.sendMessage(configManager.getMessage("mine-enabled", "%mine%", mineName));
-                    }
-
-                } else if (arg1.equalsIgnoreCase("teleport")) {
-                    if (!sender.hasPermission("simplymines.teleport")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-teleport"));
-                        break;
-                    }
-                    if (!(sender instanceof Player player)) {
-                        sender.sendMessage(configManager.getMessage("only-players-create"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                        break;
-                    }
-                    Location teleportLocation = mine.getTeleportLocation();
-                    if (teleportLocation == null) {
-                        sender.sendMessage(configManager.getMessage("no-teleport-location", "%mine%", mineName));
-                        break;
-                    }
-                    player.teleport(teleportLocation);
-                    sender.sendMessage(configManager.getMessage("mine-teleported", "%mine%", mineName));
-
-                } else if (arg1.equalsIgnoreCase("setteleport")) {
-                    if (!sender.hasPermission("simplymines.setteleport")) {
-                        sender.sendMessage(configManager.getMessage("no-permission-setteleport"));
-                        break;
-                    }
-                    if (!(sender instanceof Player player)) {
-                        sender.sendMessage(configManager.getMessage("only-players-create"));
-                        break;
-                    }
-                    BasicMine mine = mineManager.getMine(mineName);
-                    if (mine == null) {
-                        sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
-                        break;
-                    }
-                    mine.setTeleportLocation(player.getLocation());
-                    sender.sendMessage(configManager.getMessage("teleport-set", "%mine%", mineName));
-
-                }
-
-                else {
-                    sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", arg1));
-                }
-                break;
-            }
-
-            default: {
-                sender.sendMessage(configManager.getMessage("usage", "%label%", label));
-                break;
-            }
         }
+        else {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(configManager.getMessage("only-players"));
+                return true;
+            }
+            if (!sender.hasPermission("simplymines.admin")) {
+                sender.sendMessage(configManager.getMessage("no-permission"));
+                return true;
+            }
+            guiManager.openMainGUI(player);
 
+        }
         return true;
     }
 
