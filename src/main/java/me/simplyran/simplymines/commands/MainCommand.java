@@ -10,7 +10,6 @@ import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

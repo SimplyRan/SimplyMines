@@ -5,8 +5,8 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.gui.AdjustButton;
-import me.simplyran.simplymines.gui.ToggleButton;
+import me.simplyran.simplymines.gui.buttons.AdjustButton;
+import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -34,6 +34,7 @@ public class GuiManager {
         this.mineManager = mineManager;
     }
 
+    //todo change to other class
     private void saveAsync(BasicMine mine) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
     }

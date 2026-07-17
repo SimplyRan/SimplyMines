@@ -1,6 +1,7 @@
 package me.simplyran.simplymines;
 
 import lombok.Getter;
+import me.simplyran.simplymines.api.SimplyMinesAPI;
 import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
@@ -34,6 +35,7 @@ public final class SimplyMines extends JavaPlugin {
     @Override
     public void onEnable() {
 
+
         saveDefaultConfig();
 
         checkLoadedTextureManagers();
@@ -55,6 +57,10 @@ public final class SimplyMines extends JavaPlugin {
 
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
+
+        //Register the API
+        new SimplyMinesAPI(mineManager, selectionManager);
+
 
 
 
