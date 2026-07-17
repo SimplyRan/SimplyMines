@@ -87,8 +87,7 @@ public class CreateSubCommand implements SubCommand {
                         false,
                         0);
         mineManager.addMine(basicMine);
-        guiManager.openMineGUI(player, mineName);
 
-
+        guiManager.getMineEditorGUI().open(player, mineName);
     }
 }

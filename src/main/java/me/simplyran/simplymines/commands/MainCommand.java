@@ -87,7 +87,7 @@ public class MainCommand implements CommandExecutor {
                 sender.sendMessage(configManager.getMessage("no-permission"));
                 return true;
             }
-            guiManager.openMainGUI(player);
+            guiManager.getMainMenuGUI().open(player);
 
         }
         return true;
