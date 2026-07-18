@@ -49,8 +49,9 @@ public class ResetRequirementsGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            MineSaver.saveAsync(plugin, mine);
+
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+            MineSaver.saveAsync(plugin, mine);
         });
 
         GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
