@@ -21,6 +21,8 @@ public class RunnableManager implements Runnable{
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.configManager = configManager;
+        //So we don't insta save on startup.
+        this.lastMineSaves = System.currentTimeMillis() / 1000;
     }
 
 

@@ -42,11 +42,13 @@ public final class SimplyMines extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
-
         saveDefaultConfig();
 
         checkLoadedTextureManagers();
+        //Loading first requirements
+        loadMineRequirements();
+        loadResetRequirements();
+
 
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable();
@@ -84,8 +86,6 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
 
 
-        loadMineRequirements();
-        loadResetRequirements();
 
         loadPlaceholders();
         registerListeners();
