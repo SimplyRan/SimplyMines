@@ -3,6 +3,7 @@ package me.simplyran.simplymines.utils;
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.Pair;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.BoxedRegion;
@@ -37,7 +38,8 @@ public class JsonUtils {
 
     public static void loadMines(File dataFolder,
                                  WorkloadRunnable workloadRunnable,
-                                 MineManager mineManager) {
+                                 MineManager mineManager,
+                                 ConfigManager configManager) {
 
         File minesFolder = new File(dataFolder, "mines");
 
@@ -163,6 +165,7 @@ public class JsonUtils {
                     for (JsonElement element : requirements) {
                         IMineRequirement requirement =
                                 MineRequirementRegistry.deserialize(
+                                        configManager,
                                         element.getAsJsonObject()
                                 );
 

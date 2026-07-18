@@ -4,96 +4,55 @@ save_mines_seconds: 1800
 max_milles_per_tick: 2.5
 
 messages:
-  # Shown when a console/non-player tries to use a player-only command
   only-players: "<red>Only players can use this command."
-
-  # Shown when a player lacks permission to open the main GUI (/mine)
   no-permission: "<red>You do not have permission to use this command."
 
-  # /mine reload
   no-permission-reload: "<red>You do not have permission to reload."
   reloaded: "<green>Mines and Config have been reloaded!"
 
-  # Shown for an unrecognized subcommand
-  # Placeholders: <input>
   unknown-subcommand: "<red>Unknown subcommand: <yellow><input>"
-
-  # Shown when the command is used with an invalid number of arguments
-  # Placeholders: <label>
   usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]"
 
-  # /mine reset <name>
   no-permission-reset: "<red>You do not have permission to reset mines."
-  # Placeholders: <mine>
   mine-reset: "<green>Mine <mine> has been reset!"
-  # Placeholders: <mine>
   mine-not-found: "<red>Mine <mine> not found!"
 
-  # /mine create <name>
   no-permission-create: "<red>You do not have permission to create mines."
   only-players-create: "<red>Only players can create mines."
-  # Placeholders: <mine>
   mine-already-exists: "<red>Mine <mine> already exists."
   no-selection: "<red>No Selection found! Use a Wooden Hoe to select 2 corners."
 
-  # Shown when a player left-clicks a block with a Wooden Hoe to set corner 1
-  # Placeholders: <x>, <y>, <z>
   selected-corner-1: "<green>Selected Corner 1 at <x>, <y>, <z>"
-  # Shown when a player right-clicks a block with a Wooden Hoe to set corner 2
-  # Placeholders: <x>, <y>, <z>
   selected-corner-2: "<green>Selected Corner 2 at <x>, <y>, <z>"
 
-  # /mine delete <name>
   no-permission-delete: "<red>You do not have permission to delete mines."
-  # Placeholders: <mine>
   mine-deleted: "<green>Mine <mine> has been deleted."
 
-  # /mine disable <name>
   no-permission-disable: "<red>You do not have permission to disable mines."
-  # Placeholders: <mine>
   mine-disabled: "<red>Disabled <mine>."
 
-  # /mine enable <name>
   no-permission-enable: "<red>You do not have permission to enable mines."
-  # Placeholders: <mine>
   mine-enabled: "<green>Enabled <mine>."
 
-  # /mine move <name>
   no-permission-move: "<red>You do not have permission to move mines."
-  # Placeholders: <mine>
   mine-moved: "<green>Mine <mine> has been moved."
 
-  # /mine setteleport <name>
   no-permission-setteleport: "<red>You do not have permission to set mine teleport locations."
-  # Placeholders: <mine>
   teleport-set: "<green>Teleport location for <mine> has been set to your current position."
 
-  # /mine teleport <name>
   no-permission-teleport: "<red>You do not have permission to teleport to mines."
-  # Placeholders: <mine>
   no-teleport-location: "<red>Mine <mine> does not have a teleport location set."
-  # Placeholders: <mine>
   mine-teleported: "<green>Teleported to <mine>."
 
-  # Broadcast server-wide when a mine with warn-global enabled is about to reset
-  # Placeholders: <mine>, <seconds>
   warn-global: "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!"
-  # Sent only to players near a mine with warn-near enabled when it's about to reset
-  # Placeholders: <mine>, <seconds>
   warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"
 
-  # Sent when a console tries to use the Wooden Hoe selection tool
   only-players-can-tool: "<green>Only players can use tool"
-
-  # /mine tool — toggling the selection tool off
   disabled-tool: "<red>Disabled selection tool."
-
-  # /mine tool — toggling the selection tool on
   enabled-tool: "<green>Enabled selection tool."
-
-  # /mine tool — no permission to toggle tool
   no-permission-tool: "<red>no permission to toggle tool."
 
   missing-mine-name: "<red>You need to specify a mine name!"
 
   higher-efficiency-level: "<red>You need a tool with Efficiency <level> or higher to mine here."
+  no-permission-mine: "<red>You don't have permission to mine here."

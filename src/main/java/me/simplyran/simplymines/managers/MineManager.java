@@ -16,17 +16,21 @@ public class MineManager {
     private final HashMap<String, BasicMine> mines;
     private final SimplyMines plugin;
     private final WorkloadRunnable workloadRunnable;
+    private final ConfigManager configManager;
 
-    public MineManager(SimplyMines plugin, WorkloadRunnable workloadRunnable){
+    public MineManager(SimplyMines plugin,
+                       WorkloadRunnable workloadRunnable,
+                       ConfigManager configManager){
         this.plugin = plugin;
         this.workloadRunnable = workloadRunnable;
+        this.configManager = configManager;
         mines = new HashMap<>();
 
 
         //Loading Mines then starting the Workload
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
-                this);
+                this, configManager);
 
 
     }
@@ -40,7 +44,8 @@ public class MineManager {
         mines.clear();
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
-                this);
+                this,
+                configManager);
     }
 
     @Nullable

@@ -93,11 +93,11 @@ public class CreateSubCommand implements SubCommand {
         percentReq.setEnabled(false);
         basicMine.addResetRequirement(percentReq);
 
-        EfficiencyMineRequirement efficiencyReq = new EfficiencyMineRequirement(0);
+        EfficiencyMineRequirement efficiencyReq = new EfficiencyMineRequirement(configManager,0);
         efficiencyReq.setEnabled(false);
         basicMine.addMineRequirement(efficiencyReq);
 
-        PermissionMineRequirement permissionMineRequirement = new PermissionMineRequirement("simplymines.mine." + mineName);
+        PermissionMineRequirement permissionMineRequirement = new PermissionMineRequirement(configManager,"simplymines.mine." + mineName);
         permissionMineRequirement.setEnabled(false);
         basicMine.addMineRequirement(permissionMineRequirement);
 

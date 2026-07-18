@@ -4,6 +4,7 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
@@ -20,10 +21,12 @@ public class AddMineRequirementGUI {
 
     private final SimplyMines plugin;
     private final GuiManager guiManager;
+    private final ConfigManager configManager;
 
-    public AddMineRequirementGUI(SimplyMines plugin, GuiManager guiManager) {
+    public AddMineRequirementGUI(ConfigManager configManager, SimplyMines plugin, GuiManager guiManager) {
         this.plugin = plugin;
         this.guiManager = guiManager;
+        this.configManager = configManager;
     }
 
     public void open(Player player, BasicMine mine) {
@@ -49,7 +52,7 @@ public class AddMineRequirementGUI {
                 .name(Component.text("Min Efficiency").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                 .lore(Component.text("Requires a minimum tool efficiency level").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                 .asGuiItem(event -> {
-                    EfficiencyMineRequirement req = new EfficiencyMineRequirement(0);
+                    EfficiencyMineRequirement req = new EfficiencyMineRequirement( configManager,0);
                     req.setEnabled(true);
                     mine.addMineRequirement(req);
                     Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineRequirementsGUI().open(player, mine));
@@ -61,7 +64,7 @@ public class AddMineRequirementGUI {
                 .name(Component.text("Permission").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                 .lore(Component.text("Requires a permission node").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                 .asGuiItem(event -> {
-                    PermissionMineRequirement req = new PermissionMineRequirement("");
+                    PermissionMineRequirement req = new PermissionMineRequirement(configManager, "");
                     req.setEnabled(false); // no node set yet, don't lock anyone out
                     mine.addMineRequirement(req);
                     Bukkit.getScheduler().runTask(plugin, () -> guiManager.getPermissionRequirementGUI().open(player, mine));

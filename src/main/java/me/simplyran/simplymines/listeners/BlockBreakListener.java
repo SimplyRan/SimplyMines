@@ -37,6 +37,7 @@ public class BlockBreakListener implements Listener {
             if (!mine.isInsideMine(location)) continue;
             for (IMineRequirement mineRequirement : mine.getMineRequirements()){
                 if (!mineRequirement.isSatisfied(player)){
+                    player.sendMessage(mineRequirement.denyMessage());
                     //TODO send message. config also
                     //configManager.getMessage("higher-efficiency-level",
                     //                                    "level",

@@ -3,6 +3,7 @@ package me.simplyran.simplymines.gui.menus;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
@@ -21,16 +22,18 @@ public class PermissionRequirementGUI {
 
     private final SimplyMines plugin;
     private final GuiManager guiManager;
+    private final ConfigManager configManager;
 
-    public PermissionRequirementGUI(SimplyMines plugin, GuiManager guiManager) {
+    public PermissionRequirementGUI(ConfigManager configManager, SimplyMines plugin, GuiManager guiManager) {
         this.plugin = plugin;
         this.guiManager = guiManager;
+        this.configManager = configManager;
     }
 
     public void open(Player player, BasicMine mine) {
         PermissionMineRequirement req = mine.getMineRequirement(PermissionMineRequirement.class);
         if (req == null) {
-            req = new PermissionMineRequirement("");
+            req = new PermissionMineRequirement(configManager,"");
             req.setEnabled(false);
             mine.addMineRequirement(req);
         }

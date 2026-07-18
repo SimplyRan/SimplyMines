@@ -52,13 +52,15 @@ public final class SimplyMines extends JavaPlugin {
         this.workloadRunnable = new WorkloadRunnable();
 
         //Creating MineManager - depending on workloadRunnable
-        this.mineManager = new MineManager(this, workloadRunnable);
+        this.mineManager = new MineManager(this, workloadRunnable, configManager);
 
-        //Creating GUIManager
-        this.guiManager = new GuiManager(this, mineManager);
 
         //Creating ConfigManager
         this.configManager = new ConfigManager(this);
+
+        //Creating GUIManager
+        this.guiManager = new GuiManager(configManager,this, mineManager);
+
 
         //Creating RunnableManager - depending on mineManager
         this.runnableManager = new RunnableManager(this, mineManager, configManager);
@@ -67,7 +69,7 @@ public final class SimplyMines extends JavaPlugin {
         this.selectionManager = new SelectionManager();
 
         //Register the API
-        new SimplyMinesAPI(mineManager, selectionManager);
+        new SimplyMinesAPI(mineManager, selectionManager, configManager);
 
 
 

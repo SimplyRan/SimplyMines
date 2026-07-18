@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.requirements.mine;
 
 import it.unimi.dsi.fastutil.Pair;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +26,8 @@ public interface IMineRequirement {
     //left is Property
     //right is value
     List<Pair<String, Object>> serialize();
+
+    Component denyMessage();
 
 
 }

@@ -24,7 +24,7 @@ public class GuiManager {
     private final AddMineRequirementGUI addMineRequirementGUI;
     private final PermissionRequirementGUI permissionRequirementGUI;
 
-    public GuiManager(SimplyMines plugin, MineManager mineManager) {
+    public GuiManager(ConfigManager configManager, SimplyMines plugin, MineManager mineManager) {
         this.mainMenuGUI = new MainMenuGUI(plugin, mineManager, this);
         this.mineEditorGUI = new MineEditorGUI(plugin, mineManager, this);
         this.resetSettingsGUI = new ResetSettingsGUI(plugin, this);
@@ -35,12 +35,12 @@ public class GuiManager {
         this.editBlockGUI = new EditBlockGUI(plugin, this);
         this.resetTimeGUI = new ResetTimeGUI(plugin, this);
         this.resetPercentageGUI = new ResetPercentageGUI(plugin, this);
-        this.minEfficiencyGUI = new MinEfficiencyGUI(plugin, this);
+        this.minEfficiencyGUI = new MinEfficiencyGUI(configManager, plugin, this);
         this.resetRequirementsGUI = new ResetRequirementsGUI(plugin, this);
         this.mineRequirementsGUI = new MineRequirementsGUI(plugin, this);
         this.addResetRequirementGUI = new AddResetRequirementGUI(plugin, this);
-        this.addMineRequirementGUI = new AddMineRequirementGUI(plugin, this);
-        this.permissionRequirementGUI = new PermissionRequirementGUI(plugin, this);
+        this.addMineRequirementGUI = new AddMineRequirementGUI(configManager, plugin, this);
+        this.permissionRequirementGUI = new PermissionRequirementGUI(configManager, plugin, this);
     }
 
 }

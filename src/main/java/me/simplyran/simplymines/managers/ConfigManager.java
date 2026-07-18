@@ -19,8 +19,6 @@ public class ConfigManager {
     private final Map<String, String> messages = new HashMap<>();
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-    // Only used by getMessageLegacy(), for any call sites that still need a plain
-    // legacy-formatted String instead of an Adventure Component.
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public ConfigManager(@NotNull SimplyMines plugin) {
@@ -38,12 +36,15 @@ public class ConfigManager {
         messages.clear();
 
         FileConfiguration config = plugin.getConfig();
+
         config.addDefault("messages.only-players", "<red>Only players can use this command.");
         config.addDefault("messages.no-permission", "<red>You do not have permission to use this command.");
+
         config.addDefault("messages.no-permission-reload", "<red>You do not have permission to reload.");
         config.addDefault("messages.reloaded", "<green>Mines and Config have been reloaded!");
+
         config.addDefault("messages.unknown-subcommand", "<red>Unknown subcommand: <yellow><input>");
-        config.addDefault("messages.usage", "<red>Usage: /<label> [reload|reset|create|delete|disable|enable] [mine name]");
+        config.addDefault("messages.usage", "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]");
 
         config.addDefault("messages.no-permission-reset", "<red>You do not have permission to reset mines.");
         config.addDefault("messages.mine-reset", "<green>Mine <mine> has been reset!");
@@ -54,6 +55,9 @@ public class ConfigManager {
         config.addDefault("messages.mine-already-exists", "<red>Mine <mine> already exists.");
         config.addDefault("messages.no-selection", "<red>No Selection found! Use a Wooden Hoe to select 2 corners.");
 
+        config.addDefault("messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
+        config.addDefault("messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
+
         config.addDefault("messages.no-permission-delete", "<red>You do not have permission to delete mines.");
         config.addDefault("messages.mine-deleted", "<green>Mine <mine> has been deleted.");
 
@@ -62,31 +66,33 @@ public class ConfigManager {
 
         config.addDefault("messages.no-permission-enable", "<red>You do not have permission to enable mines.");
         config.addDefault("messages.mine-enabled", "<green>Enabled <mine>.");
-        config.addDefault("messages.no-permission-enable", "<red>You do not have permission to enable mines.");
-        config.addDefault("messages.mine-enabled", "<green>Enabled <mine>.");
-
-        config.addDefault("messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
-        config.addDefault("messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
 
         config.addDefault("messages.no-permission-move", "<red>You do not have permission to move mines.");
-        config.addDefault("messages.mine-moved", "<green>Mine <mine> has been moved!");
+        config.addDefault("messages.mine-moved", "<green>Mine <mine> has been moved.");
+
+        config.addDefault("messages.no-permission-setteleport", "<red>You do not have permission to set mine teleport locations.");
+        config.addDefault("messages.teleport-set", "<green>Teleport location for <mine> has been set to your current position.");
+
+        config.addDefault("messages.no-permission-teleport", "<red>You do not have permission to teleport to mines.");
+        config.addDefault("messages.no-teleport-location", "<red>Mine <mine> does not have a teleport location set.");
+        config.addDefault("messages.mine-teleported", "<green>Teleported to <mine>.");
 
         config.addDefault("messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
         config.addDefault("messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
 
         config.addDefault("messages.only-players-can-tool", "<green>Only players can use tool");
-        config.addDefault("messages.disabled-tool", "<red>Disabled tool.");
-        config.addDefault("messages.enabled-tool", "<green>Enabled tool.");
+        config.addDefault("messages.disabled-tool", "<red>Disabled selection tool.");
+        config.addDefault("messages.enabled-tool", "<green>Enabled selection tool.");
         config.addDefault("messages.no-permission-tool", "<red>no permission to toggle tool.");
 
         config.addDefault("messages.missing-mine-name", "<red>You need to specify a mine name!");
 
         config.addDefault("messages.higher-efficiency-level", "<red>You need a tool with Efficiency <level> or higher to mine here.");
+        config.addDefault("messages.no-permission-mine", "<red>You don't have permission to mine here.");
 
         config.addDefault("max_workload", 20_000_000);
         config.addDefault("save_mines_seconds", 1800);
         config.addDefault("max_milles_per_tick", 2.5);
-
 
         config.options().copyDefaults(true);
         plugin.saveConfig();
