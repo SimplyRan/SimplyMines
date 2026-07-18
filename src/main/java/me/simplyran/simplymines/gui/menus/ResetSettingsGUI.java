@@ -5,6 +5,8 @@ import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
@@ -52,26 +54,33 @@ public class ResetSettingsGUI {
 
         gui.setItem(2, 4,
                 ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Time (Timed)")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getResetTime() + "s")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                        .name(Component.text("Reset Time (Timed)").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
+                        .lore(Component.text(resetTimeLabel(mine)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                         .asGuiItem(event -> guiManager.getResetTimeGUI().open(player, mine)));
 
         gui.setItem(2, 6,
                 ItemBuilder.from(Material.REPEATER)
-                        .name(Component.text("Reset At Percentage")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.isResetAtPercentageEnabled()
-                                        ? mine.getResetAtPercentage() + "% left (Enabled)"
-                                        : "Disabled")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(mine.isResetAtPercentageEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                        .name(Component.text("Reset At Percentage").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
+                        .lore(Component.text(percentageLabel(mine)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(percentEnabled(mine) ? NamedTextColor.GREEN : NamedTextColor.RED))
                         .asGuiItem(event -> guiManager.getResetPercentageGUI().open(player, mine)));
 
         gui.open(player);
+    }
+
+    private String resetTimeLabel(BasicMine mine) {
+        TimeResetRequirement req = mine.getResetRequirement(TimeResetRequirement.class);
+        return req != null ? req.getResetTime() + "s" : "Not set";
+    }
+
+    private boolean percentEnabled(BasicMine mine) {
+        PercentResetRequirement req = mine.getResetRequirement(PercentResetRequirement.class);
+        return req != null && req.isEnabled();
+    }
+
+    private String percentageLabel(BasicMine mine) {
+        PercentResetRequirement req = mine.getResetRequirement(PercentResetRequirement.class);
+        if (req == null || !req.isEnabled()) return "Disabled";
+        return req.getResetAtPercentage() + "% left (Enabled)";
     }
 }

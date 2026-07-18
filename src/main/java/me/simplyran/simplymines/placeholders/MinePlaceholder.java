@@ -3,6 +3,7 @@ package me.simplyran.simplymines.placeholders;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -118,7 +119,11 @@ public class MinePlaceholder extends PlaceholderExpansion {
             case "timeleft" -> String.valueOf(Math.max(0, secondsUntilReset(mine)));
             case "timeleft_formatted" -> formatMMSS(secondsUntilReset(mine));
             case "timeleft_hms" -> formatHMS(secondsUntilReset(mine));
-            case "resettime" -> String.valueOf(mine.getResetTime());
+            case "resettime" -> {
+                TimeResetRequirement timeResetRequirement =
+                        mine.getResetRequirement(TimeResetRequirement.class);
+                yield String.valueOf(timeResetRequirement.getResetTime());
+            }
             case "enabled" -> String.valueOf(mine.isEnabled());
             case "status" -> mine.isEnabled() ? "Enabled" : "Disabled";
             case "warndistance" -> String.valueOf(mine.getWarnDistance());
@@ -153,7 +158,10 @@ public class MinePlaceholder extends PlaceholderExpansion {
 
     private long secondsUntilReset(@NotNull BasicMine mine) {
         long now = System.currentTimeMillis() / 1000;
-        return mine.getResetTime() - (now - mine.getLastReset());
+        TimeResetRequirement timeResetRequirement =
+                mine.getResetRequirement(TimeResetRequirement.class);
+
+        return timeResetRequirement.getResetTime() - (now - timeResetRequirement.getLastReset());
     }
 
     private String formatMMSS(long totalSeconds) {

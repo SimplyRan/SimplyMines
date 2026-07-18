@@ -8,6 +8,9 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
 import net.kyori.adventure.text.Component;
@@ -71,7 +74,7 @@ public class MainMenuGUI {
         lore.add(Component.text("Reset Time: ")
                 .color(NamedTextColor.AQUA)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .append(Component.text(mine.getResetTime())
+                .append(Component.text(resetTimeLabel(mine))
                         .color(NamedTextColor.WHITE))
         );
 
@@ -103,22 +106,22 @@ public class MainMenuGUI {
                         .color(mine.isTeleportPlayers() ? NamedTextColor.GREEN : NamedTextColor.RED))
         );
 
+        lore.add(Component.text("Reset Time: ")
+                .color(NamedTextColor.AQUA)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                .append(Component.text(resetTimeLabel(mine)).color(NamedTextColor.WHITE))
+        );
+
         lore.add(Component.text("Reset At Percentage: ")
                 .color(NamedTextColor.AQUA)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .append(Component.text(mine.isResetAtPercentageEnabled()
-                                ? mine.getResetAtPercentage() + "%"
-                                : "Disabled")
-                        .color(mine.isResetAtPercentageEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                .append(Component.text(percentageLabel(mine)).color(percentEnabled(mine) ? NamedTextColor.GREEN : NamedTextColor.RED))
         );
 
         lore.add(Component.text("Min Efficiency: ")
                 .color(NamedTextColor.AQUA)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .append(Component.text(mine.isMinEfficiencyEnabled()
-                                ? "Level " + mine.getMinEfficiency()
-                                : "Disabled")
-                        .color(mine.isMinEfficiencyEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                .append(Component.text(minEfficiencyLabel(mine)).color(minEfficiencyEnabled(mine) ? NamedTextColor.GREEN : NamedTextColor.RED))
         );
 
         lore.add(Component.text("Materials: ")
@@ -142,4 +145,32 @@ public class MainMenuGUI {
                 .lore(lore)
                 .asGuiItem(event -> guiManager.getMineEditorGUI().open(player, mineName));
     }
+
+    private boolean minEfficiencyEnabled(BasicMine mine) {
+        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
+        return req != null && req.isEnabled();
+    }
+
+    private String minEfficiencyLabel(BasicMine mine) {
+        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
+        if (req == null || !req.isEnabled()) return "Disabled";
+        return "Level " + req.getEfficiencyLevel() + " (Enabled)";
+    }
+
+    private String resetTimeLabel(BasicMine mine) {
+        TimeResetRequirement req = mine.getResetRequirement(TimeResetRequirement.class);
+        return req != null ? req.getResetTime() + "s" : "Not set";
+    }
+
+    private boolean percentEnabled(BasicMine mine) {
+        PercentResetRequirement req = mine.getResetRequirement(PercentResetRequirement.class);
+        return req != null && req.isEnabled();
+    }
+
+    private String percentageLabel(BasicMine mine) {
+        PercentResetRequirement req = mine.getResetRequirement(PercentResetRequirement.class);
+        if (req == null || !req.isEnabled()) return "Disabled";
+        return req.getResetAtPercentage() + "% left (Enabled)";
+    }
+
 }

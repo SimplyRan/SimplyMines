@@ -16,7 +16,7 @@ public class TimeResetRequirement implements IResetRequirement {
 
 
     private final BasicMine mine;
-    private long lastReset;
+    @Getter private long lastReset;
     @Getter @Setter private int resetTime;
 
     public TimeResetRequirement(@NotNull BasicMine mine,
@@ -46,7 +46,7 @@ public class TimeResetRequirement implements IResetRequirement {
 
     @Override
     public void update() {
-        lastReset = System.currentTimeMillis();
+        lastReset = System.currentTimeMillis() / 1000;
     }
 
     @Override

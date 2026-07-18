@@ -8,6 +8,10 @@ import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -68,26 +72,37 @@ public class CreateSubCommand implements SubCommand {
             sender.sendMessage(configManager.getMessage("no-selection"));
             return;
         }
-        BasicMine basicMine =
-                new BasicMine(true,
-                        mineName,
-                        30,
-                        corners.first(),
-                        corners.second(),
-                        Map.of(),
-                        workloadRunnable,
-                        List.of(),
-                        false,
-                        false,
-                        false,
-                        1,
-                        false,
-                        false,
-                        10.0,
-                        false,
-                        0);
-        mineManager.addMine(basicMine);
+        BasicMine basicMine = new BasicMine(
+                true,
+                mineName,
+                corners.first(),
+                corners.second(),
+                Map.of(),
+                workloadRunnable,
+                List.of(),
+                false,
+                false,
+                false,
+                1,
+                false
+        );
 
+        basicMine.addResetRequirement(new TimeResetRequirement(basicMine, 30));
+
+        PercentResetRequirement percentReq = new PercentResetRequirement(basicMine, 10.0);
+        percentReq.setEnabled(false);
+        basicMine.addResetRequirement(percentReq);
+
+        EfficiencyMineRequirement efficiencyReq = new EfficiencyMineRequirement(0);
+        efficiencyReq.setEnabled(false);
+        basicMine.addMineRequirement(efficiencyReq);
+
+        PermissionMineRequirement permissionMineRequirement = new PermissionMineRequirement("simplymines.mine." + mineName);
+        permissionMineRequirement.setEnabled(false);
+        basicMine.addMineRequirement(permissionMineRequirement);
+
+        mineManager.addMine(basicMine);
         guiManager.getMineEditorGUI().open(player, mineName);
+
     }
 }

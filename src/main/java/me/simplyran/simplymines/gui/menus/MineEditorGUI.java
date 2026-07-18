@@ -7,6 +7,7 @@ import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.utils.MineSaver;
@@ -115,13 +116,10 @@ public class MineEditorGUI {
         // Reset Settings hub (Timed + Percentage)
         mineGUI.setItem(3, 5,
                 ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Settings")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Configure timed & percentage-based reset")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.GRAY))
-                        .asGuiItem(event -> guiManager.getResetSettingsGUI().open(player, mine)));
+                        .name(Component.text("Reset Requirements").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
+                        .lore(Component.text("Configure how/when this mine resets").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> guiManager.getResetRequirementsGUI().open(player, mine)));
+
 
         // Warn Settings hub (Seconds + Distance)
         mineGUI.setItem(3, 6,
@@ -137,15 +135,9 @@ public class MineEditorGUI {
         // Min Efficiency editor
         mineGUI.setItem(3, 7,
                 ItemBuilder.from(Material.GOLDEN_PICKAXE)
-                        .name(Component.text("Min Efficiency")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.isMinEfficiencyEnabled()
-                                        ? "Level " + mine.getMinEfficiency() + " (Enabled)"
-                                        : "Disabled")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(mine.isMinEfficiencyEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
-                        .asGuiItem(event -> guiManager.getMinEfficiencyGUI().open(player, mine)));
+                        .name(Component.text("Mine Requirements").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
+                        .lore(Component.text("Configure who can mine here (tool/permission)").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
+                        .asGuiItem(event -> guiManager.getMineRequirementsGUI().open(player, mine)));
 
         // Toggle buttons — each owns a distinct slot, no collisions
         new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
@@ -205,4 +197,17 @@ public class MineEditorGUI {
                         .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
         );
     }
+
+
+    private boolean minEfficiencyEnabled(BasicMine mine) {
+        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
+        return req != null && req.isEnabled();
+    }
+
+    private String minEfficiencyLabel(BasicMine mine) {
+        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
+        if (req == null || !req.isEnabled()) return "Disabled";
+        return "Level " + req.getEfficiencyLevel() + " (Enabled)";
+    }
+
 }

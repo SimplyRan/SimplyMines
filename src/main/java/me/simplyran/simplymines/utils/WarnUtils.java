@@ -3,6 +3,7 @@ package me.simplyran.simplymines.utils;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,22 +13,23 @@ import org.jetbrains.annotations.NotNull;
 public class WarnUtils {
 
     public static void checkWarnings(@NotNull BasicMine mine, long now, @NotNull ConfigManager configManager) {
-        long secondsUntilReset = mine.getResetTime() - (now - mine.getLastReset());
+        TimeResetRequirement timeReq = mine.getResetRequirement(TimeResetRequirement.class);
+        if (timeReq == null) return;
+
+        long secondsUntilReset = timeReq.getResetTime() - (now - timeReq.getLastReset());
         if (secondsUntilReset <= 0) return;
 
         int seconds = (int) secondsUntilReset;
         if (!mine.getWarnSeconds().contains(seconds)) return;
-        if (!mine.getWarnedSeconds().add(seconds)) return; // already warned this second
+        if (!mine.getWarnedSeconds().add(seconds)) return;
 
         String secondsStr = String.valueOf(seconds);
 
         if (mine.isWarnGlobal()) {
-            Component message = configManager.getMessage("warn-global",
-                    "mine", mine.getName(), "seconds", secondsStr);
+            Component message = configManager.getMessage("warn-global", "mine", mine.getName(), "seconds", secondsStr);
             Bukkit.broadcast(message);
         } else if (mine.isWarnNear()) {
-            Component message = configManager.getMessage("warn-near",
-                    "mine", mine.getName(), "seconds", secondsStr);
+            Component message = configManager.getMessage("warn-near", "mine", mine.getName(), "seconds", secondsStr);
             warnNearbyPlayers(mine, message);
         }
     }

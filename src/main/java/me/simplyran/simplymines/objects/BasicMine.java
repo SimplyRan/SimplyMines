@@ -88,6 +88,8 @@ public class BasicMine{
         }
     }
 
+
+
     public void addResetRequirement(@NotNull IResetRequirement resetRequirement) {
         resetRequirements.add(resetRequirement);
     }
@@ -96,6 +98,29 @@ public class BasicMine{
         mineRequirements.add(mineRequirement);
     }
 
+    public void removeResetRequirement(@NotNull IResetRequirement resetRequirement) {
+        resetRequirements.remove(resetRequirement);
+    }
+
+    public void removeMineRequirement(@NotNull IMineRequirement mineRequirement) {
+        mineRequirements.remove(mineRequirement);
+    }
+
+    /** Finds the first reset requirement of a given concrete type, or null if none is attached. */
+    public <T extends IResetRequirement> T getResetRequirement(Class<T> clazz) {
+        for (IResetRequirement requirement : resetRequirements) {
+            if (clazz.isInstance(requirement)) return clazz.cast(requirement);
+        }
+        return null;
+    }
+
+    /** Finds the first mine requirement of a given concrete type, or null if none is attached. */
+    public <T extends IMineRequirement> T getMineRequirement(Class<T> clazz) {
+        for (IMineRequirement requirement : mineRequirements) {
+            if (clazz.isInstance(requirement)) return clazz.cast(requirement);
+        }
+        return null;
+    }
 
 
     public void reset() {

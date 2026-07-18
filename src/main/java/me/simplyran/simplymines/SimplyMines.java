@@ -6,6 +6,7 @@ import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
 import me.simplyran.simplymines.listeners.BlockBreakListener;
+import me.simplyran.simplymines.listeners.ChatInputListener;
 import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.placeholders.MinePlaceholder;
@@ -149,6 +150,9 @@ public final class SimplyMines extends JavaPlugin {
 
 
     private void registerListeners(){
+        getServer().getPluginManager().registerEvents(
+                new ChatInputListener(this), this);
+
         getServer().getPluginManager().registerEvents(
                 new SelectionListener(selectionManager, configManager),
                 this);

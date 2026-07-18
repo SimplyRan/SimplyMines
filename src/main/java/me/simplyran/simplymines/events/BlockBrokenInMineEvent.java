@@ -26,8 +26,6 @@ public class BlockBrokenInMineEvent extends Event {
     }
 
 
-
-
     @Override
     public @NonNull HandlerList getHandlers() {
         return HANDLERS;
