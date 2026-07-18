@@ -2,7 +2,6 @@ package me.simplyran.simplymines.listeners;
 
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.events.BlockBrokenInMineEvent;
-import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
@@ -16,14 +15,11 @@ import org.jetbrains.annotations.NotNull;
 public class BlockBreakListener implements Listener {
 
     private final MineManager mineManager;
-    private final ConfigManager configManager;
     private final SimplyMines plugin;
 
     public BlockBreakListener(@NotNull MineManager mineManager,
-                              @NotNull ConfigManager configManager,
                               @NotNull SimplyMines plugin){
         this.mineManager = mineManager;
-        this.configManager = configManager;
         this.plugin = plugin;
     }
 
@@ -35,6 +31,7 @@ public class BlockBreakListener implements Listener {
 
         for (BasicMine mine : mineManager.getMines()){
             if (!mine.isInsideMine(location)) continue;
+
             for (IMineRequirement mineRequirement : mine.getMineRequirements()){
                 if (!mineRequirement.isSatisfied(player)){
                     player.sendMessage(mineRequirement.denyMessage());

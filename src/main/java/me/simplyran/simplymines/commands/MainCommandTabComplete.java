@@ -4,9 +4,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainCommandTabComplete implements TabCompleter {
@@ -20,9 +19,9 @@ public class MainCommandTabComplete implements TabCompleter {
 
 
     @Override
-    public List<String> onTabComplete(CommandSender sender,
-                                      Command command,
-                                      String alias,
+    public List<String> onTabComplete(@NonNull CommandSender sender,
+                                      @NonNull Command command,
+                                      @NonNull String alias,
                                       String[] args) {
 
         if (args.length <= 1) {
