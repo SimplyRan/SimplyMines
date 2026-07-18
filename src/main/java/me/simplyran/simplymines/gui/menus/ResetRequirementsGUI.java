@@ -59,7 +59,12 @@ public class ResetRequirementsGUI {
         gui.setItem(2, 1,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
-                        .asGuiItem(event -> player.closeInventory()));
+                        .asGuiItem(event -> {
+                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+                            //Saving after opening
+                            MineSaver.saveAsync(plugin, mine);
+
+                        }));
 
         gui.setItem(2, 3,
                 ItemBuilder.from(Material.ARROW)

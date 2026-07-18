@@ -1,7 +1,6 @@
 package me.simplyran.simplymines.workload.blocks;
 
 import dev.lone.itemsadder.api.CustomBlock;
-import lombok.AllArgsConstructor;
 import me.simplyran.simplymines.workload.IBlock;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;

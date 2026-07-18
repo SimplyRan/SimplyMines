@@ -1,8 +1,6 @@
 package me.simplyran.simplymines.workload.blocks;
 
 import com.nexomc.nexo.api.NexoBlocks;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import me.simplyran.simplymines.workload.IBlock;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;

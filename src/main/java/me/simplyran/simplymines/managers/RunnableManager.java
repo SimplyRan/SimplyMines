@@ -12,7 +12,7 @@ public class RunnableManager implements Runnable{
     private final MineManager mineManager;
     private final ConfigManager configManager;
     private final SimplyMines plugin;
-    private long lastMineSaves = 0;
+    private long lastMineSaves;
     @Setter private static int SAVE_MINES_FILES = 1800;
 
     public RunnableManager(@NotNull SimplyMines plugin,

@@ -48,8 +48,10 @@ public class MineRequirementsGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            MineSaver.saveAsync(plugin, mine);
+
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+            //Saving after opening
+            MineSaver.saveAsync(plugin, mine);
         });
 
         GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
@@ -57,7 +59,11 @@ public class MineRequirementsGUI {
         gui.setItem(2, 1,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
-                        .asGuiItem(event -> player.closeInventory()));
+                        .asGuiItem(event -> {
+                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+                            //Saving after opening
+                            MineSaver.saveAsync(plugin, mine);
+                        }));
 
         gui.setItem(2, 3,
                 ItemBuilder.from(Material.ARROW)
