@@ -55,7 +55,7 @@ public class MainCommand implements CommandExecutor {
                              @NotNull String label,
                              String[] args) {
 
-        if (args.length>0){
+        if (args.length > 0){
             String subCommandName = args[0];
             boolean foundCmd = false;
 

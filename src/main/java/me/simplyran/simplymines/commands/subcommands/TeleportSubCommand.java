@@ -52,7 +52,8 @@ public class TeleportSubCommand implements SubCommand {
         String mineName = args[1];
 
         if (!player.hasPermission(getPermission()+ "." + mineName)) {
-            //TODO Add to config no perms to teleport to mine
+            //TODO Add to config no perms to teleport to mine - maybe.
+            sender.sendMessage(configManager.getMessage("no-permission"));
             return;
         }
 
