@@ -51,9 +51,11 @@ public class PercentResetRequirement implements IResetRequirement {
 
     @Override
     public List<Pair<String, Object>> serialize() {
-        return List.of(Pair.of("reset_percentage", resetAtPercentage));
+        return List.of(
+                Pair.of("reset_percentage", resetAtPercentage),
+                Pair.of("enabled", enabled)
+        );
     }
-
 
     public static IResetRequirement deserialize(BasicMine mine, JsonObject json) {
         PercentResetRequirement requirement =

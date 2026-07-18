@@ -7,10 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class NoPhysicsNexoBlock implements IBlock {
-
-    private final String blockID;
+public record NoPhysicsNexoBlock(String blockID) implements IBlock {
 
     @Override
     public void place(@NotNull Location location) {

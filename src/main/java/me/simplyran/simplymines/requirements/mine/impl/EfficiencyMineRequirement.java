@@ -46,7 +46,10 @@ public class EfficiencyMineRequirement implements IMineRequirement {
 
     @Override
     public List<Pair<String, Object>> serialize() {
-        return List.of(Pair.of("efficiency_level", efficiencyLevel));
+        return List.of(
+                Pair.of("efficiency_level", efficiencyLevel),
+                Pair.of("enabled", enabled)
+        );
     }
 
     @Override

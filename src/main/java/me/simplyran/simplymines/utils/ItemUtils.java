@@ -7,10 +7,7 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.workload.IBlock;
-import me.simplyran.simplymines.workload.blocks.Block;
-import me.simplyran.simplymines.workload.blocks.CraftEngineBlock;
-import me.simplyran.simplymines.workload.blocks.ItemsAdderBlock;
-import me.simplyran.simplymines.workload.blocks.NexoBlock;
+import me.simplyran.simplymines.workload.blocks.*;
 import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.item.BukkitItemDefinition;
@@ -139,6 +136,16 @@ public class ItemUtils {
 
 
         return itemStack.getType().name();
+    }
+
+    public static IBlock getNoPhysicsBlock(IBlock block){
+        if (block instanceof Block(Material material))
+            block = new NoPhysicsBlock(material);
+        if (block instanceof NexoBlock(String blockID))
+            block = new NoPhysicsNexoBlock(blockID);
+        if (block instanceof CraftEngineBlock(Key key))
+            block = new NoPhysicsCraftEngineBlock(key);
+        return block;
     }
 
     public static Key keyFromName(String name){

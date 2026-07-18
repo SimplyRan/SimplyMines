@@ -6,10 +6,7 @@ import me.simplyran.simplymines.workload.IBlock;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class ItemsAdderBlock implements IBlock {
-
-    private final String blockID;
+public record ItemsAdderBlock(String blockID) implements IBlock {
 
     @Override
     public void place(@NotNull Location location) {

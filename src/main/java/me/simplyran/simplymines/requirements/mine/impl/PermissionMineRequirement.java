@@ -43,7 +43,10 @@ public class PermissionMineRequirement implements IMineRequirement {
 
     @Override
     public List<Pair<String, Object>> serialize() {
-        return List.of(Pair.of("permission", permission));
+        return List.of(
+                Pair.of("permission", permission),
+                Pair.of("enabled", enabled)
+        );
     }
 
     @Override

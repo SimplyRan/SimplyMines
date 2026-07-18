@@ -7,10 +7,7 @@ import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class CraftEngineBlock implements IBlock {
-
-    private final Key blockKey;
+public record CraftEngineBlock(Key blockKey) implements IBlock {
 
     @Override
     public void place(@NotNull Location location) {

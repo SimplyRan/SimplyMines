@@ -6,10 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class NoPhysicsBlock implements IBlock {
-
-    private final Material material;
+public record NoPhysicsBlock(Material material) implements IBlock {
 
     @Override
     public void place(@NotNull Location location) {

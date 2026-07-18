@@ -1,16 +1,11 @@
 package me.simplyran.simplymines.workload.blocks;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import me.simplyran.simplymines.workload.IBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class Block implements IBlock {
-
-    @Getter private final Material material;
+public record Block(Material material) implements IBlock {
 
     @Override
     public void place(@NotNull Location location) {
