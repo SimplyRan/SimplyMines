@@ -205,7 +205,7 @@ public class JsonUtils {
         );
     }
 
-    public static void saveMine(SimplyMines plugin, BasicMine mine) {
+    public static boolean saveMine(SimplyMines plugin, BasicMine mine) {
 
         JsonObject json = serializeBasicMine(mine);
 
@@ -225,7 +225,9 @@ public class JsonUtils {
                     "Failed to save mine " + mine.getName(),
                     e
             );
+            return false;
         }
+        return true;
     }
 
     private static JsonObject serializeBasicMine(BasicMine mine) {
@@ -361,7 +363,7 @@ public class JsonUtils {
         try {
             Files.deleteIfExists(path);
         } catch (Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().severe("Error while deleting mine. %s".formatted(e.getMessage()));
         }
     }
 

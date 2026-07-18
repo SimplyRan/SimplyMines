@@ -9,7 +9,7 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.BoxedRegion;
-import me.simplyran.simplymines.utils.JsonUtils;
+import me.simplyran.simplymines.utils.MineSaver;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -72,6 +72,6 @@ public class ReassignSubCommand implements SubCommand {
         }
         mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
         sender.sendMessage(configManager.getMessage("mine-moved", "%mine%", mineName));
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+        MineSaver.saveAsync(plugin, mine);
     }
 }

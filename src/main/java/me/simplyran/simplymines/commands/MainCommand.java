@@ -47,6 +47,7 @@ public class MainCommand implements CommandExecutor {
         subCommands.add(new SetTeleportSubCommand(mineManager, configManager));
         subCommands.add(new SaveSubCommand(mineManager, configManager, plugin));
         subCommands.add(new EditSubCommand(mineManager, configManager, guiManager));
+        subCommands.add(new RenameSubCommand(mineManager, configManager, plugin));
     }
 
 

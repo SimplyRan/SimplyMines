@@ -2,14 +2,16 @@ package me.simplyran.simplymines.objects;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.ItemUtils;
+import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.*;
 import me.simplyran.simplymines.workload.impl.PlaceableBlock;
-import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -22,8 +24,7 @@ import java.util.*;
 public class BasicMine{
 
     private final WorkloadRunnable workloadRunnable;
-    @Getter
-    private final String name;
+    @Getter private String name;
     private final Map<String, Double> materials;
     private final Map<String, IBlock> blockCache;
 
@@ -248,6 +249,29 @@ public class BasicMine{
         }
 
         return ((double) (blockCount - blocksBroken) / blockCount) * 100.0;
+    }
+
+    /*
+    This Makes sure when you change name it delete the old file and create new one.
+     */
+    public void setName(@NotNull String newName,
+                        @NotNull MineManager mineManager,
+                        @NotNull SimplyMines plugin){
+        //Mine with this name already exist!
+        if (mineManager.getMine(newName) != null) return;
+        String oldName = name;
+        this.name = newName;
+        saveAndDelete(plugin, oldName);
+        mineManager.deleteMine(oldName);
+        mineManager.addMine(this);
+    }
+
+    private void saveAndDelete(SimplyMines plugin, String oldName){
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (JsonUtils.saveMine(plugin, this)) {
+                JsonUtils.deleteMine(plugin, oldName);
+            }
+        });
     }
 
 
