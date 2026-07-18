@@ -9,6 +9,12 @@ import me.simplyran.simplymines.listeners.BlockBreakListener;
 import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.placeholders.MinePlaceholder;
+import me.simplyran.simplymines.requirements.mine.MineRequirementRegistry;
+import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
+import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
+import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
+import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -74,6 +80,9 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
 
 
+        loadMineRequirements();
+        loadResetRequirements();
+
         loadPlaceholders();
         registerListeners();
         registerCommands();
@@ -97,8 +106,6 @@ public final class SimplyMines extends JavaPlugin {
         if (this.getServer().getPluginManager().getPlugin("CraftEngine") != null) {
             CRAFTENGINE_LOADED = true;
         }
-
-
     }
 
     @Override
@@ -115,6 +122,31 @@ public final class SimplyMines extends JavaPlugin {
         int pluginId = 32650;
         new Metrics(this, pluginId);
     }
+
+    private void loadMineRequirements(){
+        MineRequirementRegistry.register(
+                EfficiencyMineRequirement.NAME,
+                EfficiencyMineRequirement::deserialize
+        );
+
+        MineRequirementRegistry.register(
+                PermissionMineRequirement.NAME,
+                PermissionMineRequirement::deserialize
+        );
+    }
+
+    private void loadResetRequirements(){
+        ResetRequirementRegistry.register(
+                TimeResetRequirement.NAME,
+                TimeResetRequirement::deserialize
+        );
+        ResetRequirementRegistry.register(
+                PercentResetRequirement.NAME,
+                PercentResetRequirement::deserialize
+        );
+    }
+
+
 
     private void registerListeners(){
         getServer().getPluginManager().registerEvents(

@@ -2,6 +2,8 @@ package me.simplyran.simplymines.objects;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.simplyran.simplymines.requirements.mine.IMineRequirement;
+import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.ItemUtils;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
@@ -13,9 +15,7 @@ import me.simplyran.simplymines.workload.impl.PlaceableBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,12 +30,17 @@ public class BasicMine{
     private final Map<String, IBlock> blockCache;
 
     @Getter @Setter private BoxedRegion region;
-    @Getter @Setter private long lastReset;
-    @Getter @Setter private int resetTime;
+
     @Getter @Setter private boolean enabled;
     @Getter private int blocksBroken;
 
-    //Settings:
+
+    @Getter private final List<IResetRequirement> resetRequirements;
+    @Getter private final List<IMineRequirement> mineRequirements;
+
+
+
+    //TODO Change
     @Getter private final Set<Integer> warnedSeconds = new HashSet<>();
     @Getter @Setter private boolean warnNear;
     @Getter @Setter private boolean warnGlobal;
@@ -44,16 +49,12 @@ public class BasicMine{
     @Getter @Setter private int warnDistance;
     @Getter @Setter private boolean usePhysics;
     @Getter @Setter private Location teleportLocation;
-    @Getter @Setter private boolean resetAtPercentageEnabled;
-    @Getter @Setter private double resetAtPercentage;
-    @Getter @Setter private boolean minEfficiencyEnabled;
-    @Getter @Setter private int minEfficiency;
+
 
 
     public BasicMine(
             boolean enabled,
             @NotNull String name,
-            int resetTime,
             @NotNull Location corner1,
             @NotNull Location corner2,
             @NotNull Map<String, Double> materials,
@@ -63,17 +64,12 @@ public class BasicMine{
             boolean warnGlobal,
             boolean teleportPlayers,
             int warnDistance,
-            boolean usePhysics,
-            boolean resetAtPercentageEnabled,
-            double resetAtPercentage,
-            boolean minEfficiencyEnabled,
-            int minEfficiency
+            boolean usePhysics
     ){
         this.enabled = enabled;
         this.name = name;
         this.region = new BoxedRegion(corner1.getWorld(), corner1, corner2);
         this.materials = new HashMap<>(materials);
-        this.resetTime = resetTime;
         this.workloadRunnable = workloadRunnable;
         this.warnSeconds = new ArrayList<>(warnSeconds);
         this.warnNear = warnNear;
@@ -81,16 +77,26 @@ public class BasicMine{
         this.teleportPlayers = teleportPlayers;
         this.warnDistance = warnDistance;
         this.usePhysics = usePhysics;
-        this.resetAtPercentageEnabled = resetAtPercentageEnabled;
-        this.resetAtPercentage = resetAtPercentage;
-        this.minEfficiencyEnabled = minEfficiencyEnabled;
-        this.minEfficiency = minEfficiency;
+
+        this.resetRequirements = new ArrayList<>();
+        this.mineRequirements = new ArrayList<>();
+
 
         blockCache = new HashMap<>();
         for (String blockName : materials.keySet()){
             blockCache.put(blockName, ItemUtils.getCustomBlock(blockName));
         }
     }
+
+    public void addResetRequirement(@NotNull IResetRequirement resetRequirement) {
+        resetRequirements.add(resetRequirement);
+    }
+
+    public void addMineRequirement(@NotNull IMineRequirement mineRequirement) {
+        mineRequirements.add(mineRequirement);
+    }
+
+
 
     public void reset() {
         World world = region.getWorld();
@@ -132,7 +138,10 @@ public class BasicMine{
             }
         }
 
-        lastReset = System.currentTimeMillis();
+        for (IResetRequirement resetRequirement : resetRequirements){
+            resetRequirement.update();
+        }
+
         blocksBroken = 0;
         warnedSeconds.clear();
     }
@@ -219,14 +228,6 @@ public class BasicMine{
         return ((double) (blockCount - blocksBroken) / blockCount) * 100.0;
     }
 
-    public boolean shouldResetByPercentage() {
-        return resetAtPercentageEnabled && getPercentageOfMineLeft() <= resetAtPercentage;
-    }
-    
-    public boolean meetsEfficiencyRequirement(@NotNull ItemStack tool) {
-        if (!minEfficiencyEnabled) return true;
-        return tool.getEnchantmentLevel(Enchantment.EFFICIENCY) >= minEfficiency;
-    }
 
 
 }

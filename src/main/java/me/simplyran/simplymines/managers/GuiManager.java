@@ -14,14 +14,6 @@ import me.simplyran.simplymines.gui.menus.WarnDistanceGUI;
 import me.simplyran.simplymines.gui.menus.WarnSecondsGUI;
 import me.simplyran.simplymines.gui.menus.WarnSettingsGUI;
 
-/**
- * Facade that constructs and wires together every GUI menu class, and exposes
- * the original public API (openMainGUI, openMineGUI, ...) so existing call
- * sites throughout the plugin don't need to change.
- * Each menu class is handed a reference to this GuiManager so it can navigate
- * to sibling menus (e.g. "Back" buttons) without the menu classes needing to
- * depend on each other directly.
- */
 @Getter
 public class GuiManager {
 

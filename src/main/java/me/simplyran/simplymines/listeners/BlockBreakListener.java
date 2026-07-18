@@ -5,12 +5,12 @@ import me.simplyran.simplymines.events.BlockBrokenInMineEvent;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockBreakListener implements Listener {
@@ -32,27 +32,28 @@ public class BlockBreakListener implements Listener {
     public void onBlockBreak(BlockBreakEvent e){
         Location location = e.getBlock().getLocation();
         Player player = e.getPlayer();
-        ItemStack tool = player.getInventory().getItemInMainHand();
 
         for (BasicMine mine : mineManager.getMines()){
+            if (!mine.isInsideMine(location)) continue;
+            for (IMineRequirement mineRequirement : mine.getMineRequirements()){
+                if (!mineRequirement.isSatisfied(player)){
+                    //TODO send message. config also
+                    //configManager.getMessage("higher-efficiency-level",
+                    //                                    "level",
+                    //                                    Integer.toString(mine.getMinEfficiency())));
 
-            if (mine.isInsideMine(location)){
-
-                if (!mine.meetsEfficiencyRequirement(tool)) {
                     e.setCancelled(true);
-                    player.sendMessage(
-                            configManager.getMessage("higher-efficiency-level",
-                                    "level",
-                                    Integer.toString(mine.getMinEfficiency())));
+                    //Stop after it
                     return;
                 }
-
-                plugin.getServer().getPluginManager().callEvent(
-                        new BlockBrokenInMineEvent(mine,
-                                player,
-                                e.getBlock())
-                );
             }
+
+            plugin.getServer().getPluginManager().callEvent(
+                    new BlockBrokenInMineEvent(mine,
+                            player,
+                            e.getBlock())
+            );
+
         }
     }
 
