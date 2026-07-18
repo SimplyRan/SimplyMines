@@ -1,5 +1,5 @@
 name: SimplyMines
-version: '1.0.0'
+version: '1.1.0'
 main: me.simplyran.simplymines.SimplyMines
 api-version: '1.21'
 soft-depend:
@@ -13,11 +13,5 @@ commands:
     aliases:
       - simplymines
       - simplymine
-    permission: simplyran.edit
     description: SimplyMines
 
-
-permissions:
-  simplyran.edit:
-    description: Allows editing mines
-    default: op

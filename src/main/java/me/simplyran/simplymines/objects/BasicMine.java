@@ -33,7 +33,6 @@ public class BasicMine{
     @Getter @Setter private boolean enabled;
     @Getter private int blocksBroken;
 
-
     @Getter private final List<IResetRequirement> resetRequirements;
     @Getter private final List<IMineRequirement> mineRequirements;
 
