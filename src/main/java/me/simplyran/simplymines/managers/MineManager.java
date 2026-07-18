@@ -30,7 +30,8 @@ public class MineManager {
         //Loading Mines then starting the Workload
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
-                this, configManager);
+                this,
+                configManager);
 
 
     }

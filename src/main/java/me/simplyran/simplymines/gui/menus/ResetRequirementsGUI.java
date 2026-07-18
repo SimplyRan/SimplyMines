@@ -41,8 +41,8 @@ public class ResetRequirementsGUI {
     public void open(Player player, BasicMine mine) {
         PaginatedGui gui = Gui.paginated()
                 .title(Component.text("Reset Requirements: " + mine.getName()))
-                .rows(6)
-                .pageSize(28)
+                .rows(2)
+                .pageSize(9)
                 .disableAllInteractions()
                 .create();
 
@@ -53,24 +53,24 @@ public class ResetRequirementsGUI {
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
         });
 
-        GuiUtils.fillRow(gui, 6, Material.WHITE_STAINED_GLASS_PANE);
+        GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
 
-        gui.setItem(6, 1,
+        gui.setItem(2, 1,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
-        gui.setItem(6, 3,
+        gui.setItem(2, 3,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Previous").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.previous()));
 
-        gui.setItem(6, 7,
+        gui.setItem(2, 7,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Next").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.next()));
 
-        gui.setItem(6, 9,
+        gui.setItem(2, 9,
                 ItemBuilder.from(Material.EMERALD)
                         .name(Component.text("Add Requirement").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GREEN))
                         .asGuiItem(event -> guiManager.getAddResetRequirementGUI().open(player, mine)));
