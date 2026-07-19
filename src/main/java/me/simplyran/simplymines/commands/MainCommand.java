@@ -7,6 +7,9 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +23,13 @@ import java.util.List;
 public class MainCommand implements CommandExecutor {
 
     private final GuiManager guiManager;
-    private final ConfigManager configManager;
+
+    private final ConfigData<String> onlyPlayers = ConfigFactory.newConfigData(
+            "messages.only-players", "<red>Only players can use this command.");
+    private final ConfigData<String> unknownSubcommand = ConfigFactory.newConfigData(
+            "messages.unknown-subcommand", "<red>Unknown subcommand: <yellow><input>");
+    private final ConfigData<String> noPermission = ConfigFactory.newConfigData(
+            "messages.no-permission", "<red>You do not have permission to use this command.");
 
     @Getter private final List<SubCommand> subCommands;
 
@@ -31,7 +40,9 @@ public class MainCommand implements CommandExecutor {
                        @NotNull ConfigManager configManager,
                        @NotNull SimplyMines plugin) {
         this.guiManager = guiManager;
-        this.configManager = configManager;
+        configManager.register(onlyPlayers);
+        configManager.register(unknownSubcommand);
+        configManager.register(noPermission);
 
         this.subCommands = new ArrayList<>();
 
@@ -69,25 +80,25 @@ public class MainCommand implements CommandExecutor {
                         subCommand.preform(sender, args, label);
                     }
                     else {
-                        sender.sendMessage(configManager.getMessage("only-players"));
+                        sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
                     }
                     foundCmd = true;
                     break;
                 }
             }
             if (!foundCmd){
-                sender.sendMessage(configManager.getMessage("unknown-subcommand", "%input%", subCommandName));
+                sender.sendMessage(MessageUtils.format(sender, unknownSubcommand, "input", subCommandName));
                 return true;
             }
 
         }
         else {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage(configManager.getMessage("only-players"));
+                sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
                 return true;
             }
             if (!sender.hasPermission("simplymines.admin")) {
-                sender.sendMessage(configManager.getMessage("no-permission"));
+                sender.sendMessage(MessageUtils.format(sender, noPermission));
                 return true;
             }
             guiManager.getMainMenuGUI().open(player);

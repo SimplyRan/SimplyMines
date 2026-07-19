@@ -6,21 +6,29 @@ fot the guide!
  */
 
 
-import lombok.Setter;
+import me.simplyran.simplymines.managers.ConfigManager;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class WorkloadRunnable implements Runnable{
 
-    @Setter private static double MAX_MILLIS_PER_TICK = 2.5;
-    private static final int MAX_NANOS_PER_TICK = (int) (MAX_MILLIS_PER_TICK*1E6);
-    @Setter private static int MAX_WORKLOADS = 20_000_000;
+    private final ConfigData<Integer> maxWorkloads = ConfigFactory.newConfigData("max_workload", 20_000_000);
+    private final ConfigData<Double> maxMillisPerTick = ConfigFactory.newConfigData("max_milles_per_tick", 2.5);
+
     private Deque<Workload> workloadDeque = new ArrayDeque<>();
 
+    public WorkloadRunnable(@NotNull ConfigManager configManager){
+        configManager.register(maxWorkloads);
+        configManager.register(maxMillisPerTick);
+    }
+
     public void addWorkload(Workload workload){
-        // If workload is more than 1m too much
-        if (workloadDeque.size() >= MAX_WORKLOADS) return;
+        // If workload is more than max_workload its too much and not adding new workloads
+        if (workloadDeque.size() >= maxWorkloads.getValue()) return;
 
         this.workloadDeque.add(workload);
     }
@@ -32,7 +40,8 @@ public class WorkloadRunnable implements Runnable{
 
     @Override
     public void run() {
-        long stopTime = System.nanoTime() + MAX_NANOS_PER_TICK;
+        long maxNanosPerTick = (long) (maxMillisPerTick.getValue() * 1E6);
+        long stopTime = System.nanoTime() + maxNanosPerTick;
 
         Workload nextLoad;
         while (System.nanoTime() <= stopTime && (nextLoad = this.workloadDeque.poll()) != null){

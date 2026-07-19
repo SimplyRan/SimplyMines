@@ -50,12 +50,11 @@ public final class SimplyMines extends JavaPlugin {
         loadResetRequirements();
 
 
-        //Creating WorkloadRunnable
-        this.workloadRunnable = new WorkloadRunnable();
-
-
         //Creating ConfigManager
         this.configManager = new ConfigManager(this);
+
+        //Creating WorkloadRunnable
+        this.workloadRunnable = new WorkloadRunnable(configManager);
 
         //Creating MineManager - depending on workloadRunnable
         this.mineManager = new MineManager(this, workloadRunnable, configManager);
@@ -81,9 +80,9 @@ public final class SimplyMines extends JavaPlugin {
         this.workloadTaskID = this.getServer().getScheduler()
                 .scheduleSyncRepeatingTask(this, workloadRunnable, 0, 1);
 
-        //Scheduling the runnable manager
+        //Scheduling the runnable manager - 5 sec delay to give other plugins to register Requirements
         this.runnableManagerTaskID = this.getServer().getScheduler()
-                .scheduleSyncRepeatingTask(this, runnableManager, 20, 20);
+                .scheduleSyncRepeatingTask(this, runnableManager, 5 * 20, 20);
 
 
 

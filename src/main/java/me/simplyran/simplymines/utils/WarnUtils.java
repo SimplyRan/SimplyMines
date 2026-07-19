@@ -3,6 +3,8 @@ package me.simplyran.simplymines.utils;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -12,7 +14,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class WarnUtils {
 
-    public static void checkWarnings(@NotNull BasicMine mine, long now, @NotNull ConfigManager configManager) {
+    private final ConfigData<String> warnGlobal = ConfigFactory.newConfigData(
+            "messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
+    private final ConfigData<String> warnNear = ConfigFactory.newConfigData(
+            "messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
+
+    public WarnUtils(@NotNull ConfigManager configManager) {
+        configManager.register(warnGlobal);
+        configManager.register(warnNear);
+    }
+
+    public void checkWarnings(@NotNull BasicMine mine, long now) {
         TimeResetRequirement timeReq = mine.getResetRequirement(TimeResetRequirement.class);
         if (timeReq == null) return;
 
@@ -26,15 +38,21 @@ public class WarnUtils {
         String secondsStr = String.valueOf(seconds);
 
         if (mine.isWarnGlobal()) {
-            Component message = configManager.getMessage("warn-global", "mine", mine.getName(), "seconds", secondsStr);
+            Component message = MessageUtils.format(warnGlobal,
+                    "mine", mine.getName(),
+                    "seconds", secondsStr);
+
             Bukkit.broadcast(message);
         } else if (mine.isWarnNear()) {
-            Component message = configManager.getMessage("warn-near", "mine", mine.getName(), "seconds", secondsStr);
+            Component message = MessageUtils.format(warnNear,
+                    "mine", mine.getName(),
+                    "seconds", secondsStr);
+
             warnNearbyPlayers(mine, message);
         }
     }
 
-    private static void warnNearbyPlayers(@NotNull BasicMine mine, @NotNull Component message) {
+    private void warnNearbyPlayers(@NotNull BasicMine mine, @NotNull Component message) {
         BoxedRegion region = mine.getRegion();
         double distSq = (double) mine.getWarnDistance() * mine.getWarnDistance();
 

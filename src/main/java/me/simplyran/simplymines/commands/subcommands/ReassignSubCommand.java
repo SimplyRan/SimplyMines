@@ -1,7 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
 import it.unimi.dsi.fastutil.Pair;
-import lombok.AllArgsConstructor;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
@@ -9,6 +8,9 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.BoxedRegion;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.utils.MineSaver;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -18,15 +20,33 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-@AllArgsConstructor
 public class ReassignSubCommand implements SubCommand {
 
     private final MineManager mineManager;
-    private final ConfigManager configManager;
     private final SelectionManager selectionManager;
     private final SimplyMines plugin;
 
+    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
+            "messages.missing-mine-name", "<red>You need to specify a mine name!");
+    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
+            "messages.mine-not-found", "<red>Mine <mine> not found!");
+    private final ConfigData<String> noSelection = ConfigFactory.newConfigData(
+            "messages.no-selection", "<red>No Selection found! Use a Wooden Hoe to select 2 corners.");
+    private final ConfigData<String> mineMoved = ConfigFactory.newConfigData(
+            "messages.mine-moved", "<green>Mine <mine> has been moved.");
 
+    public ReassignSubCommand(@NotNull MineManager mineManager,
+                              @NotNull ConfigManager configManager,
+                              @NotNull SelectionManager selectionManager,
+                              @NotNull SimplyMines plugin) {
+        this.mineManager = mineManager;
+        this.selectionManager = selectionManager;
+        this.plugin = plugin;
+        configManager.register(missingMineName);
+        configManager.register(mineNotFound);
+        configManager.register(noSelection);
+        configManager.register(mineMoved);
+    }
 
     @Override
     public String getName() {
@@ -53,7 +73,7 @@ public class ReassignSubCommand implements SubCommand {
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
         if (args.length < 2) {
-            sender.sendMessage(configManager.getMessage("missing-mine-name", "%sub%", getName(), "%label%", mainCommandName));
+            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
             return;
         }
 
@@ -62,16 +82,18 @@ public class ReassignSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
-            sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
+            sender.sendMessage(MessageUtils.format(sender,
+                    mineNotFound, "mine", mineName));
             return;
         }
         Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
         if (corners == null || corners.first() == null || corners.second() == null) {
-            sender.sendMessage(configManager.getMessage("no-selection"));
+            sender.sendMessage(MessageUtils.format(sender, noSelection));
             return;
         }
         mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
-        sender.sendMessage(configManager.getMessage("mine-moved", "%mine%", mineName));
+        sender.sendMessage(MessageUtils.format(sender, mineMoved,
+                "mine", mineName));
         MineSaver.saveAsync(plugin, mine);
     }
 }

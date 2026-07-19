@@ -1,7 +1,8 @@
 package me.simplyran.simplymines.managers;
 
-import lombok.Setter;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.utils.WarnUtils;
@@ -10,17 +11,19 @@ import org.jetbrains.annotations.NotNull;
 public class RunnableManager implements Runnable{
 
     private final MineManager mineManager;
-    private final ConfigManager configManager;
     private final SimplyMines plugin;
+    private final WarnUtils warnUtils;
     private long lastMineSaves;
-    @Setter private static int SAVE_MINES_FILES = 1800;
+
+    private final ConfigData<Integer> saveMinesSeconds = ConfigFactory.newConfigData("save_mines_seconds", 1800);
 
     public RunnableManager(@NotNull SimplyMines plugin,
                            @NotNull MineManager mineManager,
                            @NotNull ConfigManager configManager){
         this.plugin = plugin;
         this.mineManager = mineManager;
-        this.configManager = configManager;
+        this.warnUtils = new WarnUtils(configManager);
+        configManager.register(saveMinesSeconds);
         //So we don't insta save on startup.
         this.lastMineSaves = System.currentTimeMillis() / 1000;
     }
@@ -29,7 +32,7 @@ public class RunnableManager implements Runnable{
     @Override
     public void run() {
         long now = System.currentTimeMillis() / 1000;
-        boolean shouldSaveMines = now - lastMineSaves >= SAVE_MINES_FILES;
+        boolean shouldSaveMines = now - lastMineSaves >= saveMinesSeconds.getValue();
 
         mineManager.getMines().forEach(mine ->
         {
@@ -43,7 +46,7 @@ public class RunnableManager implements Runnable{
                 }
             }
 
-            WarnUtils.checkWarnings(mine, now, configManager);
+            warnUtils.checkWarnings(mine, now);
 
             if (shouldSaveMines) {
                 JsonUtils.saveMine(plugin, mine);

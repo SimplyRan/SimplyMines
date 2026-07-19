@@ -1,17 +1,19 @@
 package me.simplyran.simplymines.commands.subcommands;
 
 import it.unimi.dsi.fastutil.Pair;
-import lombok.AllArgsConstructor;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
+import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -22,7 +24,6 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
 public class CreateSubCommand implements SubCommand {
 
     private final MineManager mineManager;
@@ -31,6 +32,27 @@ public class CreateSubCommand implements SubCommand {
     private final GuiManager guiManager;
     private final WorkloadRunnable workloadRunnable;
 
+    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
+            "messages.missing-mine-name", "<red>You need to specify a mine name!");
+    private final ConfigData<String> mineAlreadyExists = ConfigFactory.newConfigData(
+            "messages.mine-already-exists", "<red>Mine <mine> already exists.");
+    private final ConfigData<String> noSelection = ConfigFactory.newConfigData(
+            "messages.no-selection", "<red>No Selection found! Use a Wooden Hoe to select 2 corners.");
+
+    public CreateSubCommand(@NotNull MineManager mineManager,
+                            @NotNull ConfigManager configManager,
+                            @NotNull SelectionManager selectionManager,
+                            @NotNull GuiManager guiManager,
+                            @NotNull WorkloadRunnable workloadRunnable) {
+        this.mineManager = mineManager;
+        this.configManager = configManager;
+        this.selectionManager = selectionManager;
+        this.guiManager = guiManager;
+        this.workloadRunnable = workloadRunnable;
+        configManager.register(missingMineName);
+        configManager.register(mineAlreadyExists);
+        configManager.register(noSelection);
+    }
 
     @Override
     public String getName() {
@@ -55,7 +77,7 @@ public class CreateSubCommand implements SubCommand {
     @Override
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
         if (args.length < 2) {
-            sender.sendMessage(configManager.getMessage("missing-mine-name", "%sub%", getName(), "%label%", mainCommandName));
+            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
             return;
         }
 
@@ -64,12 +86,12 @@ public class CreateSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine != null) {
-            sender.sendMessage(configManager.getMessage("mine-already-exists", "%mine%", mineName));
+            sender.sendMessage(MessageUtils.format(sender, mineAlreadyExists, "mine", mineName));
             return;
         }
         Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
         if (corners == null || corners.first() == null || corners.second() == null) {
-            sender.sendMessage(configManager.getMessage("no-selection"));
+            sender.sendMessage(MessageUtils.format(sender, noSelection));
             return;
         }
         BasicMine basicMine = new BasicMine(

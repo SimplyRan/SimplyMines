@@ -2,6 +2,9 @@ package me.simplyran.simplymines.listeners;
 
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.SelectionManager;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,11 +18,16 @@ import org.jetbrains.annotations.NotNull;
 public class SelectionListener implements Listener {
 
     private final SelectionManager selectionManager;
-    private final ConfigManager configManager;
+
+    private final ConfigData<String> selectedCorner1 = ConfigFactory.newConfigData(
+            "messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
+    private final ConfigData<String> selectedCorner2 = ConfigFactory.newConfigData(
+            "messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
 
     public SelectionListener(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager){
         this.selectionManager = selectionManager;
-        this.configManager = configManager;
+        configManager.register(selectedCorner1);
+        configManager.register(selectedCorner2);
     }
 
     @EventHandler
@@ -40,13 +48,13 @@ public class SelectionListener implements Listener {
             if (event.getAction().isLeftClick()) {
                 event.setCancelled(true);
                 selectionManager.setCorener(player.getUniqueId(), location, 1);
-                player.sendMessage(configManager.getMessage("selected-corner-1",
+                player.sendMessage(MessageUtils.format(player, selectedCorner1,
                         "x", x, "y", y, "z", z));
             }
             if (event.getAction().isRightClick()) {
                 event.setCancelled(true);
                 selectionManager.setCorener(player.getUniqueId(), location, 2);
-                player.sendMessage(configManager.getMessage("selected-corner-2",
+                player.sendMessage(MessageUtils.format(player, selectedCorner2,
                         "x", x, "y", y, "z", z));
             }
         }

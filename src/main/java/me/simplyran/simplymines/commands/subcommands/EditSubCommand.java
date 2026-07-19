@@ -1,11 +1,13 @@
 package me.simplyran.simplymines.commands.subcommands;
 
-import lombok.AllArgsConstructor;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -13,13 +15,22 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-@AllArgsConstructor
 public class EditSubCommand implements SubCommand {
 
     private final MineManager mineManager;
-    private final ConfigManager configManager;
     private final GuiManager guiManager;
 
+    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
+            "messages.missing-mine-name", "<red>You need to specify a mine name!");
+    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
+            "messages.mine-not-found", "<red>Mine <mine> not found!");
+
+    public EditSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager, @NotNull GuiManager guiManager) {
+        this.mineManager = mineManager;
+        this.guiManager = guiManager;
+        configManager.register(missingMineName);
+        configManager.register(mineNotFound);
+    }
 
     @Override
     public String getName() {
@@ -45,7 +56,7 @@ public class EditSubCommand implements SubCommand {
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
         if (args.length < 2) {
-            sender.sendMessage(configManager.getMessage("missing-mine-name", "%sub%", getName(), "%label%", mainCommandName));
+            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
             return;
         }
 
@@ -56,7 +67,7 @@ public class EditSubCommand implements SubCommand {
         if (mine != null) {
             guiManager.getMineEditorGUI().open(player, mineName);
         } else {
-            sender.sendMessage(configManager.getMessage("mine-not-found", "%mine%", mineName));
+            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
         }
 
     }
