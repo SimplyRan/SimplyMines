@@ -36,6 +36,9 @@ public class RunnableManager implements Runnable{
 
         mineManager.getMines().forEach(mine ->
         {
+            //Checking if mine is enabled
+            if (!mine.isEnabled()) return;
+
             //Checking if any reset requirement are satisfied.
             for (IResetRequirement resetRequirement : mine.getResetRequirements()){
                 if (resetRequirement.isEnabled() && resetRequirement.isSatisfied()) {

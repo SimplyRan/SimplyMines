@@ -127,9 +127,8 @@ public class BasicMine{
 
         // Evacuate any players standing inside the mine before we bury them
         if (teleportPlayers && teleportLocation != null) {
-            for (Player player : world.getPlayers()) {
-                Location loc = player.getLocation();
-                if (region.isInsideRegion(loc)) {
+            for (Player player : new ArrayList<>(world.getPlayers())) {
+                if (region.isInsideRegion(player.getLocation())) {
                     player.teleport(teleportLocation);
                 }
             }
