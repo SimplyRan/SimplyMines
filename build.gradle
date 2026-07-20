@@ -6,11 +6,13 @@ plugins {
 
 shadowJar {
     relocate("dev.triumphteam.gui", "simplyran.gui")
+    archiveBaseName.set("SimplyMines")
+    archiveClassifier.set("")
 }
 
 
 group = 'me.simplyran'
-version = '1'
+version = '1.1'
 
 repositories {
     mavenCentral()
