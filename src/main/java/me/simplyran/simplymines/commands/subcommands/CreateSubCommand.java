@@ -106,7 +106,8 @@ public class CreateSubCommand implements SubCommand {
                 false,
                 false,
                 1,
-                false
+                false,
+                true
         );
 
         basicMine.addResetRequirement(new TimeResetRequirement(basicMine, 30));

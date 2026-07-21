@@ -155,6 +155,10 @@ public class MineEditorGUI {
         new ToggleButton(mineGUI, 4, 7, "Use Physics",
                 mine::isUsePhysics, mine::setUsePhysics, () -> MineSaver.saveAsync(plugin, mine)).render();
 
+        new ToggleButton(mineGUI, 5, 5, "Replace Mode",
+                mine::isReplaceMode, mine::setReplaceMode, () -> MineSaver.saveAsync(plugin, mine)).render();
+
+
         mineGUI.open(player);
     }
 

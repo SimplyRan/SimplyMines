@@ -47,6 +47,7 @@ public class BasicMine{
     @Getter @Setter private int warnDistance;
     @Getter @Setter private boolean usePhysics;
     @Getter @Setter private Location teleportLocation;
+    @Getter @Setter private boolean replaceMode;
 
 
 
@@ -62,7 +63,8 @@ public class BasicMine{
             boolean warnGlobal,
             boolean teleportPlayers,
             int warnDistance,
-            boolean usePhysics
+            boolean usePhysics,
+            boolean replaceMode
     ){
         this.enabled = enabled;
         this.name = name;
@@ -75,6 +77,7 @@ public class BasicMine{
         this.teleportPlayers = teleportPlayers;
         this.warnDistance = warnDistance;
         this.usePhysics = usePhysics;
+        this.replaceMode = replaceMode;
 
         this.resetRequirements = new ArrayList<>();
         this.mineRequirements = new ArrayList<>();
@@ -148,12 +151,15 @@ public class BasicMine{
         for (int x = region.getMinX(); x <= region.getMaxX(); x++) {
             for (int y = region.getMinY(); y <= region.getMaxY(); y++) {
                 for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
+
                     String material = pickMaterial();
                     IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
+                    Location loc = new Location(world, x, y, z);
+                    if (replaceMode && loc.getBlock().getType() != Material.AIR) continue;
 
                     workloadRunnable.addWorkload(
-                            new PlaceableBlock(world.getUID(), x, y,z, block)
+                            new PlaceableBlock(loc, block)
                     );
                 }
             }
