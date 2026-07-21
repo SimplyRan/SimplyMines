@@ -157,7 +157,7 @@ public class MineEditorGUI {
         new ToggleButton(mineGUI, 4, 7, "Use Physics",
                 mine::isUsePhysics, mine::setUsePhysics, () -> MineSaver.saveAsync(plugin, mine)).render();
 
-        new ToggleButton(mineGUI, 5, 5, "Auto Pickup",
+        new ToggleButton(mineGUI, 5, 4, "Auto Pickup",
                 mine::isAutoPickup, mine::setAutoPickup, () -> MineSaver.saveAsync(plugin, mine)).render();
 
 

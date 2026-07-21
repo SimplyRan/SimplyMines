@@ -100,8 +100,8 @@ public class BlocksGUI {
                             .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
                                             .color(NamedTextColor.YELLOW)
                                             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                                    Component.text("Click to edit")
-                                            .color(NamedTextColor.WHITE)
+                                    Component.text("Left Click to edit")
+                                            .color(NamedTextColor.YELLOW)
                                             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                                     Component.text("Shift Right Click To Remove")
                                             .color(NamedTextColor.RED)

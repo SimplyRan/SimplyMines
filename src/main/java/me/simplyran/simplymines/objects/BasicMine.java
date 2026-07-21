@@ -147,8 +147,9 @@ public class BasicMine{
         World world = region.getWorld();
         if (world == null || materials.isEmpty()) return;
 
-        // if no blocks broken then no need to reset.
-        if (!force && (blocksBroken == 0 && !replaceMode)) return;
+        // If replaceMode is disabled and no blocks are broken, skip resetting (unless forced)
+        // Note: If replaceMode is enabled, we ignore blocksBroken and always reset!
+        if (!force && !replaceMode && blocksBroken == 0) return;
 
         // Evacuate any players standing inside the mine before we bury them
         if (teleportPlayers && teleportLocation != null) {
@@ -178,7 +179,12 @@ public class BasicMine{
                     IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
                     Location loc = new Location(world, x, y, z);
-                    if (!force && !replaceMode && !loc.getBlock().isEmpty()) continue;
+
+                    // If replaceMode is false, we ONLY change air blocks.
+                    // Therefore, if it's not forced, replaceMode is false, and the block is NOT empty -> skip it.
+                    if (!force && !replaceMode && !loc.getBlock().isEmpty()) {
+                        continue;
+                    }
 
                     workloadRunnable.addWorkload(
                             new PlaceableBlock(loc, block)
@@ -244,7 +250,7 @@ public class BasicMine{
                               double percentage){
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        materials.put(block,Math.round(percentage * 100.0) / 100.0 );
+        addBlock(block, Math.round(percentage * 100.0) / 100.0);
     }
 
     public double getTotalPercentage(){
@@ -265,6 +271,11 @@ public class BasicMine{
         materials.remove(block);
         blockCache.remove(block);
     }
+
+    public void addBlock(@NotNull String block, double precent){
+        materials.put(block, precent);
+    }
+
 
     public void addBlockBroken(){
         blocksBroken += 1;
