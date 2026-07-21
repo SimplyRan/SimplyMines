@@ -63,7 +63,7 @@ public class ResetSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine != null) {
-            mine.reset();
+            mine.reset(true);
             sender.sendMessage(MessageUtils.format(sender, mineReset, "mine", mineName));
         } else {
             sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));

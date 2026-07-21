@@ -87,8 +87,17 @@ public class BasicMine{
         this.blockCache = new HashMap<>();
 
 
-        //if enabled then insta reset
-        if (enabled) reset(true);
+        for (String blockName : materials.keySet()){
+            //Put blocks in cache
+            IBlock block = ItemUtils.getCustomBlock(blockName);
+            if (!usePhysics){
+                block = ItemUtils.getNoPhysicsBlock(block);
+            }
+
+            blockCache.put(blockName, block);
+        }
+        //on creating next reset will update the mine (if not air blocks) we set 1 so it doesn't skip.
+        blocksBroken = 1;
     }
 
 
@@ -135,7 +144,7 @@ public class BasicMine{
         if (world == null || materials.isEmpty()) return;
 
         // if no blocks broken then no need to reset.
-        if (!force && blocksBroken == 0 && !replaceMode) return;
+        if (!force && (blocksBroken == 0 && !replaceMode)) return;
 
         // Evacuate any players standing inside the mine before we bury them
         if (teleportPlayers && teleportLocation != null) {
@@ -165,7 +174,7 @@ public class BasicMine{
                     IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
                     Location loc = new Location(world, x, y, z);
-                    if (!force && !replaceMode && loc.getBlock().isEmpty()) continue;
+                    if (!force && !replaceMode && !loc.getBlock().isEmpty()) continue;
 
                     workloadRunnable.addWorkload(
                             new PlaceableBlock(loc, block)
