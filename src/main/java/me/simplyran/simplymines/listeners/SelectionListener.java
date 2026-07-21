@@ -3,7 +3,7 @@ package me.simplyran.simplymines.listeners;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;

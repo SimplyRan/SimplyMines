@@ -4,7 +4,7 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

@@ -2,7 +2,7 @@ package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.utils.WarnUtils;

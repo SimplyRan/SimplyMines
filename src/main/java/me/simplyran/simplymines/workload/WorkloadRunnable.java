@@ -8,7 +8,7 @@ fot the guide!
 
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;

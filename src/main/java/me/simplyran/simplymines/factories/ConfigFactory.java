@@ -1,4 +1,6 @@
-package me.simplyran.simplymines.objects;
+package me.simplyran.simplymines.factories;
+
+import me.simplyran.simplymines.objects.ConfigData;
 
 public class ConfigFactory {
 
