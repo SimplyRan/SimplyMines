@@ -107,6 +107,7 @@ public class CreateSubCommand implements SubCommand {
                 false,
                 1,
                 false,
+                true,
                 true
         );
 

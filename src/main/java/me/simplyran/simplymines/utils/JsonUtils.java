@@ -44,7 +44,7 @@ public class JsonUtils {
         File minesFolder = new File(dataFolder, "mines");
 
         if (!minesFolder.exists()) {
-            boolean mkdirs = minesFolder.mkdirs();
+            minesFolder.mkdirs();
             return;
         }
 
@@ -132,6 +132,9 @@ public class JsonUtils {
                 boolean replaceMode = json.has("replaceMode")
                         && json.get("replaceMode").getAsBoolean();
 
+                boolean normalDropsEnabled = json.has("normalDropsEnabled")
+                        && json.get("normalDropsEnabled").getAsBoolean();
+
                 BasicMine mine = new BasicMine(
                         enabled,
                         mineName,
@@ -145,7 +148,8 @@ public class JsonUtils {
                         teleportPlayers,
                         warnDistance,
                         usePhysics,
-                        replaceMode
+                        replaceMode,
+                        normalDropsEnabled
                 );
 
                 if (json.has("teleportLocation")) {
@@ -278,6 +282,7 @@ public class JsonUtils {
         json.addProperty("warnDistance", mine.getWarnDistance());
         json.addProperty("usePhysics", mine.isUsePhysics());
         json.addProperty("replaceMode", mine.isReplaceMode());
+        json.addProperty("normalDropsEnabled", mine.isNormalDropsEnabled());
 
         JsonArray mineRequirements = new JsonArray();
 

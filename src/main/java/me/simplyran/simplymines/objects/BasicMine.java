@@ -48,6 +48,7 @@ public class BasicMine{
     @Getter @Setter private boolean usePhysics;
     @Getter @Setter private Location teleportLocation;
     @Getter @Setter private boolean replaceMode;
+    @Getter @Setter private boolean normalDropsEnabled;
 
 
 
@@ -64,7 +65,8 @@ public class BasicMine{
             boolean teleportPlayers,
             int warnDistance,
             boolean usePhysics,
-            boolean replaceMode
+            boolean replaceMode,
+            boolean normalDropsEnabled
     ){
         this.enabled = enabled;
         this.name = name;
@@ -78,6 +80,7 @@ public class BasicMine{
         this.warnDistance = warnDistance;
         this.usePhysics = usePhysics;
         this.replaceMode = replaceMode;
+        this.normalDropsEnabled = normalDropsEnabled;
 
         this.resetRequirements = new ArrayList<>();
         this.mineRequirements = new ArrayList<>();
@@ -156,7 +159,7 @@ public class BasicMine{
                     IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
                     Location loc = new Location(world, x, y, z);
-                    if (replaceMode && loc.getBlock().getType() != Material.AIR) continue;
+                    if (!replaceMode && loc.getBlock().isEmpty()) continue;
 
                     workloadRunnable.addWorkload(
                             new PlaceableBlock(loc, block)

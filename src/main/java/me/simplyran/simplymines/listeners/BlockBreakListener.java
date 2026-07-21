@@ -31,6 +31,7 @@ public class BlockBreakListener implements Listener {
 
         for (BasicMine mine : mineManager.getMines()){
             if (!mine.isInsideMine(location)) continue;
+            if (!mine.isNormalDropsEnabled() && e.isDropItems()) e.setDropItems(false);
 
             for (IMineRequirement mineRequirement : mine.getMineRequirements()){
                 if (!mineRequirement.isSatisfied(player)){

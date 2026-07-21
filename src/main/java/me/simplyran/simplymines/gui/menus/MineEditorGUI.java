@@ -33,6 +33,8 @@ public class MineEditorGUI {
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
+    //todo find new layout
+
     public MineEditorGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
@@ -157,6 +159,10 @@ public class MineEditorGUI {
 
         new ToggleButton(mineGUI, 5, 5, "Replace Mode",
                 mine::isReplaceMode, mine::setReplaceMode, () -> MineSaver.saveAsync(plugin, mine)).render();
+
+        new ToggleButton(mineGUI, 5, 6, "Normal Drops Enabled",
+                mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, () -> MineSaver.saveAsync(plugin, mine)).render();
+
 
 
         mineGUI.open(player);
