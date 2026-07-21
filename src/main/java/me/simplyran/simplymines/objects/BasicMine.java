@@ -84,12 +84,11 @@ public class BasicMine{
 
         this.resetRequirements = new ArrayList<>();
         this.mineRequirements = new ArrayList<>();
+        this.blockCache = new HashMap<>();
 
 
-        blockCache = new HashMap<>();
-        for (String blockName : materials.keySet()){
-            blockCache.put(blockName, ItemUtils.getCustomBlock(blockName));
-        }
+        //if enabled then insta reset
+        if (enabled) reset(true);
     }
 
 
@@ -126,10 +125,17 @@ public class BasicMine{
         return null;
     }
 
+    public void reset(){
+        reset(false);
+    }
 
-    public void reset() {
+
+    public void reset(boolean force) {
         World world = region.getWorld();
         if (world == null || materials.isEmpty()) return;
+
+        // if no blocks broken then no need to reset.
+        if (!force && blocksBroken == 0 && !replaceMode) return;
 
         // Evacuate any players standing inside the mine before we bury them
         if (teleportPlayers && teleportLocation != null) {
@@ -159,7 +165,7 @@ public class BasicMine{
                     IBlock block = blockCache.get(material);
                     if (block == null) block = new Block(Material.AIR);
                     Location loc = new Location(world, x, y, z);
-                    if (!replaceMode && loc.getBlock().isEmpty()) continue;
+                    if (!force && !replaceMode && loc.getBlock().isEmpty()) continue;
 
                     workloadRunnable.addWorkload(
                             new PlaceableBlock(loc, block)
@@ -225,7 +231,7 @@ public class BasicMine{
                               double percentage){
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        materials.put(block, Math.round(percentage * 100.0) / 100.0);
+        materials.put(block,Math.round(percentage * 100.0) / 100.0 );
     }
 
     public double getTotalPercentage(){
@@ -235,6 +241,8 @@ public class BasicMine{
         }
         return total;
     }
+
+
 
     public Set<Map.Entry<String, Double>> getMaterials(){
         return materials.entrySet();
