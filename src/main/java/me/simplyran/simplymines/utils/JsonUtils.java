@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JsonUtils {
 
@@ -39,12 +40,13 @@ public class JsonUtils {
     public static void loadMines(File dataFolder,
                                  WorkloadRunnable workloadRunnable,
                                  MineManager mineManager,
-                                 ConfigManager configManager) {
+                                 ConfigManager configManager,
+                                 Logger logger) {
 
         File minesFolder = new File(dataFolder, "mines");
 
         if (!minesFolder.exists()) {
-            minesFolder.mkdirs();
+            boolean mkdir = minesFolder.mkdirs();
             return;
         }
 
@@ -69,7 +71,7 @@ public class JsonUtils {
                 World world = Bukkit.getWorld(worldName);
 
                 if (world == null) {
-                    Bukkit.getLogger().warning("Could not find world '" + worldName + "' for mine '" + mineName + "'");
+                    logger.warning("Could not find world '" + worldName + "' for mine '" + mineName + "'");
                     continue;
                 }
 
@@ -207,13 +209,13 @@ public class JsonUtils {
                 mineManager.addMine(mine);
 
             } catch (Exception e) {
-                Bukkit.getLogger().warning(
+                logger.warning(
                         "Failed to load mine '" + mineName + "': " + e.getMessage()
                 );
             }
         }
 
-        Bukkit.getLogger().info(
+        logger.info(
                 "Loaded " + mineManager.getMines().size() + " mine(s)."
         );
     }
@@ -225,7 +227,7 @@ public class JsonUtils {
         File minesFolder = new File(plugin.getDataFolder(), "mines");
 
         if (!minesFolder.exists()) {
-            minesFolder.mkdirs();
+            boolean mkdir = minesFolder.mkdirs();
         }
 
         File mineFile = new File(minesFolder, mine.getName() + ".json");

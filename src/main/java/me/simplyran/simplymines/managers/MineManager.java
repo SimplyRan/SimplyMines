@@ -31,7 +31,8 @@ public class MineManager {
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
                 this,
-                configManager);
+                configManager,
+                plugin.getLogger());
 
 
     }
@@ -46,7 +47,8 @@ public class MineManager {
         JsonUtils.loadMines(plugin.getDataFolder(),
                 workloadRunnable,
                 this,
-                configManager);
+                configManager,
+                plugin.getLogger());
     }
 
     @Nullable
