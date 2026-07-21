@@ -19,6 +19,7 @@ public class MineFactory {
     private static final boolean DEFAULT_USE_PHYSICS = false;
     private static final boolean DEFAULT_REPLACE_MODE = true;
     private static final boolean DEFAULT_NORMAL_DROPS_ENABLED = true;
+    private static final boolean DEFAULT_AUTO_PICKUP = false;
 
     public static BasicMine createDefaultMin(@NotNull String mineName,
                                              @NotNull Pair<Location, Location> corners,
@@ -42,7 +43,8 @@ public class MineFactory {
                 DEFAULT_WARN_DISTANCE,
                 DEFAULT_USE_PHYSICS,
                 DEFAULT_REPLACE_MODE,
-                DEFAULT_NORMAL_DROPS_ENABLED
+                DEFAULT_NORMAL_DROPS_ENABLED,
+                DEFAULT_AUTO_PICKUP
         );
 
     }

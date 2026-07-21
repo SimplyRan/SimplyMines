@@ -11,7 +11,6 @@ public class ItemDropAction implements IAction {
 
     private final ItemStack itemStack;
 
-    //TODO when impl insta goes to inv go through here
     public ItemDropAction(@NotNull ItemStack itemStack){
         this.itemStack = itemStack.clone();
     }
@@ -20,7 +19,8 @@ public class ItemDropAction implements IAction {
     public void perform(@NotNull Location location,
                         @NotNull BasicMine mine,
                         @NotNull Player player) {
-        location.getWorld().dropItem(location, itemStack.clone());
 
+        if (mine.isAutoPickup()) player.getInventory().addItem(itemStack.clone());
+        else location.getWorld().dropItem(location, itemStack.clone());
     }
 }

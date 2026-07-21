@@ -50,6 +50,8 @@ public class BasicMine{
     @Getter @Setter private boolean replaceMode;
     @Getter @Setter private boolean normalDropsEnabled;
 
+    @Getter @Setter private boolean autoPickup;
+
 
 
     public BasicMine(
@@ -66,7 +68,8 @@ public class BasicMine{
             int warnDistance,
             boolean usePhysics,
             boolean replaceMode,
-            boolean normalDropsEnabled
+            boolean normalDropsEnabled,
+            boolean autoPickup
     ){
         this.enabled = enabled;
         this.name = name;
@@ -81,6 +84,7 @@ public class BasicMine{
         this.usePhysics = usePhysics;
         this.replaceMode = replaceMode;
         this.normalDropsEnabled = normalDropsEnabled;
+        this.autoPickup = autoPickup;
 
         this.resetRequirements = new ArrayList<>();
         this.mineRequirements = new ArrayList<>();

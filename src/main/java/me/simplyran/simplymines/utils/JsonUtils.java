@@ -135,6 +135,10 @@ public class JsonUtils {
                 boolean normalDropsEnabled = json.has("normalDropsEnabled")
                         && json.get("normalDropsEnabled").getAsBoolean();
 
+                boolean autoPickup = json.has("autoPickup")
+                        && json.get("autoPickup").getAsBoolean();
+
+
                 BasicMine mine = new BasicMine(
                         enabled,
                         mineName,
@@ -149,7 +153,8 @@ public class JsonUtils {
                         warnDistance,
                         usePhysics,
                         replaceMode,
-                        normalDropsEnabled
+                        normalDropsEnabled,
+                        autoPickup
                 );
 
                 if (json.has("teleportLocation")) {
@@ -283,6 +288,7 @@ public class JsonUtils {
         json.addProperty("usePhysics", mine.isUsePhysics());
         json.addProperty("replaceMode", mine.isReplaceMode());
         json.addProperty("normalDropsEnabled", mine.isNormalDropsEnabled());
+        json.addProperty("autoPickup", mine.isAutoPickup());
 
         JsonArray mineRequirements = new JsonArray();
 
