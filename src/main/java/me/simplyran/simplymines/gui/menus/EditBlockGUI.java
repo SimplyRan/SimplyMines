@@ -45,7 +45,7 @@ public class EditBlockGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             MineSaver.saveAsync(plugin, mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlocksGUI().open(player, mine));
+            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -92,7 +92,7 @@ public class EditBlockGUI {
             if (totalWithoutCurrent + newPercent > 1.0) {
                 newPercent = 1.0 - totalWithoutCurrent;
             }
-            newPercent = Math.max(0, Math.min(1, newPercent));
+            newPercent = Math.clamp(newPercent, 0, 1);
         }
 
         mine.setPercentage(block, newPercent);

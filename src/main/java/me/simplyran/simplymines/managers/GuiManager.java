@@ -23,6 +23,12 @@ public class GuiManager {
     private final AddResetRequirementGUI addResetRequirementGUI;
     private final AddMineRequirementGUI addMineRequirementGUI;
     private final PermissionRequirementGUI permissionRequirementGUI;
+    private final BlockOptionsGUI blockOptionsGUI;
+    private final BlockActionsGUI blockActionsGUI;
+    private final AddBlockActionGUI addBlockActionGUI;
+    private final EditItemDropActionGUI editItemDropActionGUI;
+    private final EditCommandActionGUI editCommandActionGUI;
+    private final EditEconomyActionGUI editEconomyActionGUI;
 
     public GuiManager(ConfigManager configManager, SimplyMines plugin, MineManager mineManager) {
         this.mainMenuGUI = new MainMenuGUI(plugin, mineManager, this);
@@ -41,6 +47,12 @@ public class GuiManager {
         this.addResetRequirementGUI = new AddResetRequirementGUI(plugin, this);
         this.addMineRequirementGUI = new AddMineRequirementGUI(configManager, plugin, this);
         this.permissionRequirementGUI = new PermissionRequirementGUI(configManager, plugin, this);
+        this.blockOptionsGUI = new BlockOptionsGUI(plugin, this);
+        this.blockActionsGUI = new BlockActionsGUI(plugin, this);
+        this.addBlockActionGUI = new AddBlockActionGUI(plugin, this);
+        this.editItemDropActionGUI = new EditItemDropActionGUI(plugin, this);
+        this.editCommandActionGUI = new EditCommandActionGUI(plugin, this);
+        this.editEconomyActionGUI = new EditEconomyActionGUI(plugin, this);
     }
 
 }

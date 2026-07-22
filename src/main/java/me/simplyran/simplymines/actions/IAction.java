@@ -17,4 +17,21 @@ public interface IAction {
     String name();
 
     List<Pair<String, Object>> serialize();
+
+    /** Chance (0.0-1.0) that this action fires when its block is triggered. */
+    double getChance();
+
+    void setChance(double chance);
+
+    /**
+     * Rolls this action's chance and performs it if the roll succeeds.
+     * Returns whether the action actually fired.
+     */
+    default boolean activate(@NotNull Location location,
+                             @NotNull BasicMine mine,
+                             @NotNull Player player) {
+        if (Math.random() > getChance()) return false;
+        perform(location, mine, player);
+        return true;
+    }
 }

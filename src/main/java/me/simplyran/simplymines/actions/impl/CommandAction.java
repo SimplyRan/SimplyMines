@@ -3,6 +3,7 @@ package me.simplyran.simplymines.actions.impl;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
 import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.Bukkit;
@@ -19,16 +20,23 @@ public class CommandAction implements IAction {
 
     public final static String NAME = "command_action";
 
-    private final String commandName;
-    private final Command command;
-    private final String[] args;
+    @Getter private String commandName;
+    private Command command;
+    @Getter private String[] args;
+    private double chance;
 
     private CommandAction(String commandName,
                           Command command,
-                          String[] args){
+                          String[] args,
+                          double chance){
         this.commandName = commandName;
         this.command = command;
         this.args = args;
+        this.chance = chance;
+    }
+
+    public CommandAction(String commandName, Command command, String[] args){
+        this(commandName, command, args, 1.0);
     }
 
     @Override
@@ -43,9 +51,26 @@ public class CommandAction implements IAction {
     }
 
     @Override
+    public double getChance() {
+        return chance;
+    }
+
+    @Override
+    public void setChance(double chance) {
+        this.chance = Math.clamp(chance, 0, 1);
+    }
+
+    public void setCommand(String commandName, String[] args) {
+        this.commandName = commandName;
+        this.command = Bukkit.getCommandMap().getCommand(commandName);
+        this.args = args;
+    }
+
+    @Override
     public List<Pair<String, Object>> serialize() {
         return List.of(Pair.of("command_name", commandName),
-                        Pair.of("args", List.of(args)));
+                        Pair.of("args", List.of(args)),
+                        Pair.of("chance", chance));
     }
 
     @Nullable
@@ -63,7 +88,9 @@ public class CommandAction implements IAction {
         }
         String[] args = argList.toArray(new String[0]);
 
-        return new CommandAction(commandName, command, args);
+        double chance = json.has("chance") ? json.get("chance").getAsDouble() : 1.0;
+
+        return new CommandAction(commandName, command, args, chance);
     }
 
 

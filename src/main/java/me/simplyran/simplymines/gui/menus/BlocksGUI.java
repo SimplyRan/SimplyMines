@@ -4,6 +4,10 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.actions.IAction;
+import me.simplyran.simplymines.actions.impl.CommandAction;
+import me.simplyran.simplymines.actions.impl.EconomyAction;
+import me.simplyran.simplymines.actions.impl.ItemDropAction;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
@@ -18,6 +22,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,7 +71,7 @@ public class BlocksGUI {
         gui.setPlayerInventoryAction(event -> {
                     if (event.getCurrentItem() == null) return;
                     if (ItemUtils.isBlock(event.getCurrentItem())) {
-                        guiManager.getEditBlockGUI().open(player,
+                        guiManager.getBlockOptionsGUI().open(player,
                                 ItemUtils.getIDFromItemStack(event.getCurrentItem()), mine);
                     }
                 }
@@ -92,27 +98,58 @@ public class BlocksGUI {
 
         for (Map.Entry<String, Double> material : mine.getMaterials()) {
             ItemStack itemNow = ItemUtils.getItemStackFromName(material.getKey());
+
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Block Chances: " + material.getValue() * 100 + "%")
+                    .color(NamedTextColor.YELLOW)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+
+            int actionCount = mine.getActions(material.getKey()).size();
+            lore.add(Component.text("Actions: " + actionCount)
+                    .color(NamedTextColor.AQUA)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+
+            for (IAction action : mine.getActions(material.getKey())) {
+                int chancePercent = (int) Math.round(action.getChance() * 100);
+                lore.add(Component.text("   " + actionLabel(action) + " (" + chancePercent + "%)")
+                        .color(NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+            }
+
+            lore.add(Component.text("Left Click to edit")
+                    .color(NamedTextColor.YELLOW)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+            lore.add(Component.text("Shift Right Click To Remove")
+                    .color(NamedTextColor.RED)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+
             gui.addItem(
                     ItemBuilder.from(itemNow)
                             .name(itemNow.displayName()
                                     .color(NamedTextColor.YELLOW)
                                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                            .lore(Component.text("Block Chances: " + material.getValue() * 100 + "%")
-                                            .color(NamedTextColor.YELLOW)
-                                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                                    Component.text("Left Click to edit")
-                                            .color(NamedTextColor.YELLOW)
-                                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                                    Component.text("Shift Right Click To Remove")
-                                            .color(NamedTextColor.RED)
-                                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                            .lore(lore)
                             .asGuiItem(event -> {
                                 if (event.getClick().isRightClick()) return;
-                                guiManager.getEditBlockGUI().open(player, material.getKey(), mine);
+                                guiManager.getBlockOptionsGUI().open(player, material.getKey(), mine);
                             })
             );
         }
 
         gui.open(player);
+    }
+
+    private String actionLabel(IAction action) {
+        if (action instanceof ItemDropAction itemDrop) {
+            return "Item Drop: " + itemDrop.getAmount() + "x " + itemDrop.getItemStack().getType().name();
+        }
+        if (action instanceof CommandAction commandAction) {
+            String name = commandAction.getCommandName();
+            return "Command: " + (name.isEmpty() ? "(not set)" : name);
+        }
+        if (action instanceof EconomyAction economyAction) {
+            return "Economy: " + economyAction.getAmount();
+        }
+        return action.name();
     }
 }

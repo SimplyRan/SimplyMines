@@ -19,10 +19,16 @@ public class ItemDropAction implements IAction {
 
     public final static String NAME = "item_drop_action";
 
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
+    private double chance;
 
     public ItemDropAction(@NotNull ItemStack itemStack){
+        this(itemStack, 1.0);
+    }
+
+    public ItemDropAction(@NotNull ItemStack itemStack, double chance){
         this.itemStack = itemStack.clone();
+        this.chance = chance;
     }
 
     @Override
@@ -36,12 +42,38 @@ public class ItemDropAction implements IAction {
 
     @Override
     public List<Pair<String, Object>> serialize() {
-        return List.of(Pair.of("itemStack", itemStack.serialize()));
+        return List.of(Pair.of("itemStack", itemStack.serialize()), Pair.of("chance", chance));
     }
 
     @Override
     public String name() {
         return NAME;
+    }
+
+    public ItemStack getItemStack() {
+        return itemStack.clone();
+    }
+
+    public void setItemStack(@NotNull ItemStack itemStack) {
+        this.itemStack = itemStack.clone();
+    }
+
+    public int getAmount() {
+        return itemStack.getAmount();
+    }
+
+    public void setAmount(int amount) {
+        itemStack.setAmount(Math.max(1, Math.min(amount, itemStack.getMaxStackSize())));
+    }
+
+    @Override
+    public double getChance() {
+        return chance;
+    }
+
+    @Override
+    public void setChance(double chance) {
+        this.chance = Math.clamp(chance, 0, 1);
     }
 
 
@@ -54,7 +86,8 @@ public class ItemDropAction implements IAction {
         Map<String, Object> serializedMap = jsonToMap(itemObj);
 
         ItemStack itemStack = ItemStack.deserialize(serializedMap);
-        return new ItemDropAction(itemStack);
+        double chance = json.has("chance") ? json.get("chance").getAsDouble() : 1.0;
+        return new ItemDropAction(itemStack, chance);
     }
 
     private static Map<String, Object> jsonToMap(JsonObject jsonObject) {
