@@ -3,6 +3,8 @@ package me.simplyran.simplymines.utils;
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.Pair;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.actions.ActionRegistry;
+import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
@@ -205,6 +207,21 @@ public class JsonUtils {
                         }
                     }
                 }
+                if (json.has("block_actions")) {
+                    JsonObject blockActionsJson = json.getAsJsonObject("block_actions");
+                    for (Map.Entry<String, JsonElement> entry : blockActionsJson.entrySet()) {
+                        String blockKey = entry.getKey();
+                        JsonArray actionsArray = entry.getValue().getAsJsonArray();
+
+                        for (JsonElement element : actionsArray) {
+                            IAction action = ActionRegistry.deserialize(element.getAsJsonObject());
+                            if (action != null) {
+                                mine.addAction(blockKey, action);
+                            }
+                        }
+                    }
+                }
+
 
                 mineManager.addMine(mine);
 
@@ -339,6 +356,27 @@ public class JsonUtils {
         }
 
         json.add("reset_requirements", resetRequirements);
+
+
+        JsonObject blockActionsJson = new JsonObject();
+        for (Map.Entry<String, List<IAction>> entry : mine.getAllActions().entrySet()) {
+            JsonArray actionList = new JsonArray();
+            for (IAction action : entry.getValue()) {
+                JsonObject actionJson = new JsonObject();
+                actionJson.addProperty("type", action.name());
+
+                for (Pair<String, Object> pair : action.serialize()) {
+                    if (pair.right() instanceof Map || pair.right() instanceof List) {
+                        actionJson.add(pair.first(), GSON.toJsonTree(pair.right()));
+                    } else {
+                        addProperty(actionJson, pair.first(), pair.right());
+                    }
+                }
+                actionList.add(actionJson);
+            }
+            blockActionsJson.add(entry.getKey(), actionList);
+        }
+        json.add("block_actions", blockActionsJson);
 
         Location teleportLocation = mine.getTeleportLocation();
 

@@ -1,6 +1,10 @@
 package me.simplyran.simplymines;
 
 import lombok.Getter;
+import me.simplyran.simplymines.actions.ActionRegistry;
+import me.simplyran.simplymines.actions.impl.CommandAction;
+import me.simplyran.simplymines.actions.impl.EconomyAction;
+import me.simplyran.simplymines.actions.impl.ItemDropAction;
 import me.simplyran.simplymines.api.SimplyMinesAPI;
 import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
@@ -125,6 +129,23 @@ public final class SimplyMines extends JavaPlugin {
     private void registerBStats(){
         int pluginId = 32650;
         new Metrics(this, pluginId);
+    }
+
+    private void loadActions(){
+        ActionRegistry.register(
+                ItemDropAction.NAME,
+                ItemDropAction::deserialize
+        );
+
+        ActionRegistry.register(
+                CommandAction.NAME,
+                CommandAction::deserialize
+        );
+
+        ActionRegistry.register(
+                EconomyAction.NAME,
+                EconomyAction::deserialize
+        );
     }
 
     private void loadMineRequirements(){

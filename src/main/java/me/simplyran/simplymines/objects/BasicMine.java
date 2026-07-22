@@ -3,6 +3,7 @@ package me.simplyran.simplymines.objects;
 import lombok.Getter;
 import lombok.Setter;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
@@ -35,6 +36,7 @@ public class BasicMine{
 
     @Getter private final List<IResetRequirement> resetRequirements;
     @Getter private final List<IMineRequirement> mineRequirements;
+    @Getter private final Map<String, List<IAction>> blocksActions;
 
 
 
@@ -88,9 +90,10 @@ public class BasicMine{
 
         this.resetRequirements = new ArrayList<>();
         this.mineRequirements = new ArrayList<>();
+        this.blocksActions = new HashMap<>();
+
+
         this.blockCache = new HashMap<>();
-
-
         for (String blockName : materials.keySet()){
             //Put blocks in cache
             IBlock block = ItemUtils.getCustomBlock(blockName);
@@ -313,6 +316,27 @@ public class BasicMine{
         });
     }
 
+    public void addAction(String block, IAction action) {
+        blocksActions.computeIfAbsent(block, k -> new ArrayList<>()).add(action);
+    }
+
+    public void removeAction(String block, IAction action) {
+        List<IAction> actions = blocksActions.get(block);
+        if (actions != null) {
+            actions.remove(action);
+            if (actions.isEmpty()) {
+                blocksActions.remove(block);
+            }
+        }
+    }
+
+    public List<IAction> getActions(String block) {
+        return blocksActions.getOrDefault(block, Collections.emptyList());
+    }
+
+    public Map<String, List<IAction>> getAllActions() {
+        return blocksActions;
+    }
 
 
 }
