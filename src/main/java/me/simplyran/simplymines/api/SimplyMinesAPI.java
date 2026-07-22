@@ -2,6 +2,9 @@ package me.simplyran.simplymines.api;
 
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
+import me.simplyran.simplymines.actions.ActionFactory;
+import me.simplyran.simplymines.actions.ActionRegistry;
+import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
@@ -90,6 +93,29 @@ public class SimplyMinesAPI {
         ResetRequirementRegistry.register(id, factory);
     }
 
+    /**
+     * Registers a factory for a custom IAction type so it can be
+     * saved to and loaded from disk.
+     */
+    public void registerAction(@NotNull String id, @NotNull ActionFactory factory){
+        ActionRegistry.register(id, factory);
+    }
+
+    public void addAction(@NotNull String mineName,
+                          @NotNull String blockName,
+                          @NotNull IAction action){
+        BasicMine mine = getMine(mineName);
+        if (mine != null) mine.addAction(blockName, action);
+    }
+
+    public void removeAction(@NotNull String mineName,
+                          @NotNull String blockName,
+                          @NotNull IAction action){
+        BasicMine mine = getMine(mineName);
+        if (mine != null) mine.removeAction(blockName, action);
+    }
+
+
     // ------------------------------------------------------------------
     // Mine Requirements (things a player must satisfy to mine in a mine)
     // ------------------------------------------------------------------
@@ -107,6 +133,7 @@ public class SimplyMinesAPI {
         BasicMine mine = getMine(mineName);
         if (mine != null) mine.removeMineRequirement(requirement);
     }
+
 
     @Nullable
     public List<IMineRequirement> getMineRequirements(@NotNull String mineName){

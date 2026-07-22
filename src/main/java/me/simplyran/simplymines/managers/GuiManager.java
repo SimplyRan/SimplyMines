@@ -31,7 +31,7 @@ public class GuiManager {
     private final EditEconomyActionGUI editEconomyActionGUI;
 
     public GuiManager(ConfigManager configManager, SimplyMines plugin, MineManager mineManager) {
-        this.mainMenuGUI = new MainMenuGUI(plugin, mineManager, this);
+        this.mainMenuGUI = new MainMenuGUI(mineManager, this);
         this.mineEditorGUI = new MineEditorGUI(plugin, mineManager, this);
         this.resetSettingsGUI = new ResetSettingsGUI(plugin, this);
         this.warnSettingsGUI = new WarnSettingsGUI(plugin, this);
