@@ -5,6 +5,7 @@ import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
+import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.ChatInputManager;
@@ -95,6 +96,9 @@ public class EditCommandActionGUI {
                         }));
 
         renderDisplay(gui, action);
+
+        new ToggleButton(gui, 2, 5, "Run As Console",
+                action::isAsConsole, action::setAsConsole, null).render();
 
         new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10% Chance", NamedTextColor.RED,
                 delta -> adjust(gui, action, -delta / 100.0)).render();

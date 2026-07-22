@@ -106,12 +106,6 @@ public class MainMenuGUI {
                         .color(mine.isTeleportPlayers() ? NamedTextColor.GREEN : NamedTextColor.RED))
         );
 
-        lore.add(Component.text("Reset Time: ")
-                .color(NamedTextColor.AQUA)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .append(Component.text(resetTimeLabel(mine)).color(NamedTextColor.WHITE))
-        );
-
         lore.add(Component.text("Reset At Percentage: ")
                 .color(NamedTextColor.AQUA)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)

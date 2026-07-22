@@ -63,7 +63,7 @@ public class ItemDropAction implements IAction {
     }
 
     public void setAmount(int amount) {
-        itemStack.setAmount(Math.max(1, Math.min(amount, itemStack.getMaxStackSize())));
+        itemStack.setAmount(Math.clamp(amount, 1, itemStack.getMaxStackSize()));
     }
 
     @Override
