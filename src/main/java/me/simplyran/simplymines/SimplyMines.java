@@ -22,8 +22,10 @@ import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SimplyMines extends JavaPlugin {
@@ -34,6 +36,8 @@ public final class SimplyMines extends JavaPlugin {
     private GuiManager guiManager;
     private SelectionManager selectionManager;
     private ConfigManager configManager;
+    @Getter
+    private static Economy economy;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
 
@@ -49,10 +53,15 @@ public final class SimplyMines extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        if(!setupEconomy()){
+            getLogger().info("Vault is not installed. Cannot use economy.");
+        }
+
         checkLoadedTextureManagers();
         //Loading first requirements
         loadMineRequirements();
         loadResetRequirements();
+        loadActions();
 
 
         //Creating ConfigManager
@@ -209,5 +218,18 @@ public final class SimplyMines extends JavaPlugin {
         simplyminesCommand.setExecutor(mainCommand);
         simplyminesCommand.setTabCompleter(new MainCommandTabComplete(mainCommand.getSubCommands()));
     }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        economy = rsp.getProvider();
+        return true;
+    }
+
 
 }

@@ -76,7 +76,7 @@ public class AddBlockActionGUI {
                         .name(Component.text("Economy").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                         .lore(Component.text("Grants a currency amount when this block is mined").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                         .asGuiItem(event -> {
-                            EconomyAction action = new EconomyAction(0);
+                            EconomyAction action = new EconomyAction(SimplyMines.getEconomy(), 0);
                             mine.addAction(block, action);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditEconomyActionGUI().open(player, block, mine, action));
                         }));
