@@ -168,6 +168,9 @@ public class MineEditorGUI {
                 mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, () -> MineSaver.saveAsync(plugin, mine)).render();
 
 
+        new ToggleButton(mineGUI, 5, 7, "Fortune Enabled",
+                mine::isFortuneEnabled, mine::setFortuneEnabled, () -> MineSaver.saveAsync(plugin, mine)).render();
+
 
         mineGUI.open(player);
     }

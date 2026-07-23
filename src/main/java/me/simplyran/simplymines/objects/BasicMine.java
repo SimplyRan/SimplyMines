@@ -51,6 +51,7 @@ public class BasicMine{
     @Getter @Setter private Location teleportLocation;
     @Getter @Setter private boolean replaceMode;
     @Getter @Setter private boolean normalDropsEnabled;
+    @Getter @Setter private boolean fortuneEnabled;
 
     @Getter @Setter private boolean autoPickup;
 

@@ -7,26 +7,32 @@ import it.unimi.dsi.fastutil.Pair;
 import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.Location;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ItemDropAction implements IAction {
 
-    public final static String NAME = "item_drop_action";
+    private static final Random RANDOM = new Random();
+    private static final Gson GSON = new Gson();
+
+    public static final String NAME = "item_drop_action";
 
     private ItemStack itemStack;
     private double chance;
 
-    public ItemDropAction(@NotNull ItemStack itemStack){
+    public ItemDropAction(@NotNull ItemStack itemStack) {
         this(itemStack, 1.0);
     }
 
-    public ItemDropAction(@NotNull ItemStack itemStack, double chance){
+    public ItemDropAction(@NotNull ItemStack itemStack, double chance) {
         this.itemStack = itemStack.clone();
         this.chance = chance;
     }
@@ -36,8 +42,34 @@ public class ItemDropAction implements IAction {
                         @NotNull BasicMine mine,
                         @NotNull Player player) {
 
-        if (mine.isAutoPickup()) player.getInventory().addItem(itemStack.clone());
-        else location.getWorld().dropItem(location, itemStack.clone());
+        int fortuneLevel = 0;
+
+        if (mine.isFortuneEnabled()) {
+            ItemStack mainHand = player.getInventory().getItemInMainHand();
+            if (mainHand.hasItemMeta()) {
+                fortuneLevel = mainHand.getEnchantmentLevel(Enchantment.FORTUNE);
+            }
+        }
+
+        // Calculate total drops: base stack amount * standard Minecraft fortune multiplier
+        int multiplier = getItemMultiCount(fortuneLevel);
+        int totalAmount = itemStack.getAmount() * multiplier;
+
+        ItemStack drop = itemStack.clone();
+        drop.setAmount(totalAmount);
+
+        if (mine.isAutoPickup()) {
+            HashMap<Integer, ItemStack> remaining = player.getInventory().addItem(drop);
+
+            // Drop leftovers on the ground if inventory gets full
+            if (!remaining.isEmpty() && location.getWorld() != null) {
+                for (ItemStack leftover : remaining.values()) {
+                    location.getWorld().dropItem(location, leftover);
+                }
+            }
+        } else if (location.getWorld() != null) {
+            location.getWorld().dropItem(location, drop);
+        }
     }
 
     @Override
@@ -76,7 +108,6 @@ public class ItemDropAction implements IAction {
         this.chance = Math.clamp(chance, 0, 1);
     }
 
-
     public static IAction deserialize(@NotNull JsonObject json) {
         if (!json.has("itemStack") || !json.get("itemStack").isJsonObject()) {
             return null;
@@ -92,7 +123,23 @@ public class ItemDropAction implements IAction {
 
     private static Map<String, Object> jsonToMap(JsonObject jsonObject) {
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
-        return new Gson().fromJson(jsonObject, type);
+        return GSON.fromJson(jsonObject, type);
     }
 
+    /**
+     * Standard Minecraft Vanilla Fortune drop multiplier calculation.
+     */
+    public static int getItemMultiCount(int fortuneLevel) {
+        if (fortuneLevel <= 0) {
+            return 1;
+        }
+
+        int roll = RANDOM.nextInt(fortuneLevel + 2);
+
+        if (roll < 2) {
+            return 1;
+        }
+
+        return roll;
+    }
 }

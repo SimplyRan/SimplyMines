@@ -27,8 +27,7 @@ public class CommandAction implements IAction {
     private Command command;
     @Getter private String[] args;
     private double chance;
-    @Setter
-    @Getter private boolean asConsole;
+    @Setter @Getter private boolean asConsole;
 
     private CommandAction(String commandName,
                           Command command,
