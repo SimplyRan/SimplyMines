@@ -213,8 +213,7 @@ public final class SimplyMines extends JavaPlugin {
                 guiManager,
                 workloadRunnable,
                 selectionManager,
-                configManager,
-                this);
+                configManager);
 
         PluginCommand simplyminesCommand = this.getCommand("sm");
         if (simplyminesCommand == null){

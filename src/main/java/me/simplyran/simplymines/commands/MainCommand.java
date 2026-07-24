@@ -1,7 +1,6 @@
 package me.simplyran.simplymines.commands;
 
 import lombok.Getter;
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.subcommands.*;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
@@ -37,8 +36,7 @@ public class MainCommand implements CommandExecutor {
                        @NotNull GuiManager guiManager,
                        @NotNull WorkloadRunnable workloadRunnable,
                        @NotNull SelectionManager selectionManager,
-                       @NotNull ConfigManager configManager,
-                       @NotNull SimplyMines plugin) {
+                       @NotNull ConfigManager configManager) {
         this.guiManager = guiManager;
         configManager.register(onlyPlayers);
         configManager.register(unknownSubcommand);
@@ -51,14 +49,14 @@ public class MainCommand implements CommandExecutor {
         subCommands.add(new ResetSubCommand(mineManager, configManager));
         subCommands.add(new CreateSubCommand(mineManager, configManager, selectionManager, guiManager, workloadRunnable));
         subCommands.add(new DeleteSubCommand(mineManager, configManager));
-        subCommands.add(new ReassignSubCommand(mineManager, configManager, selectionManager, plugin));
+        subCommands.add(new ReassignSubCommand(mineManager, configManager, selectionManager));
         subCommands.add(new EnableSubCommand(mineManager, configManager));
         subCommands.add(new DisableSubCommand(mineManager, configManager));
         subCommands.add(new TeleportSubCommand(mineManager, configManager));
         subCommands.add(new SetTeleportSubCommand(mineManager, configManager));
-        subCommands.add(new SaveSubCommand(mineManager, configManager, plugin));
+        subCommands.add(new SaveSubCommand(mineManager, configManager));
         subCommands.add(new EditSubCommand(mineManager, configManager, guiManager));
-        subCommands.add(new RenameSubCommand(mineManager, configManager, plugin));
+        subCommands.add(new RenameSubCommand(mineManager, configManager));
     }
 
 
