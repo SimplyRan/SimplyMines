@@ -1,6 +1,5 @@
 package me.simplyran.simplymines.managers;
 
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
@@ -10,16 +9,13 @@ import org.jetbrains.annotations.NotNull;
 public class RunnableManager implements Runnable{
 
     private final MineManager mineManager;
-    private final SimplyMines plugin;
     private final WarnUtils warnUtils;
     private long lastMineSaves;
 
     private final ConfigData<Integer> saveMinesSeconds = ConfigFactory.newConfigData("save_mines_seconds", 1800);
 
-    public RunnableManager(@NotNull SimplyMines plugin,
-                           @NotNull MineManager mineManager,
+    public RunnableManager(@NotNull MineManager mineManager,
                            @NotNull ConfigManager configManager){
-        this.plugin = plugin;
         this.mineManager = mineManager;
         this.warnUtils = new WarnUtils(configManager);
         configManager.register(saveMinesSeconds);
@@ -51,7 +47,7 @@ public class RunnableManager implements Runnable{
             warnUtils.checkWarnings(mine, now);
 
             if (shouldSaveMines) {
-                mineManager.saveMine(mine);
+                mineManager.saveMineAsync(mine);
             }
         });
 
@@ -59,13 +55,4 @@ public class RunnableManager implements Runnable{
             lastMineSaves = now;
         }
     }
-    public void saveAllMines(){
-        mineManager.getMines().forEach(mine -> {
-            lastMineSaves = System.currentTimeMillis()/1000;
-            mineManager.saveMine(mine);
-        });
-    }
-
-
-
 }

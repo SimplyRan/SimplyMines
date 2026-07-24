@@ -8,6 +8,7 @@ import me.simplyran.simplymines.database.IDatabase;
 import me.simplyran.simplymines.database.MineSerializer;
 import me.simplyran.simplymines.objects.BasicMine;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
@@ -67,11 +68,15 @@ public class JsonDatabase implements IDatabase {
 
                 if (mine != null) {
                     mines.add(mine);
+                } else {
+                    plugin.getLogger().warning(
+                            "Mine file '" + file.getName() + "' was skipped and remains on disk.");
                 }
 
             } catch (Exception e) {
                 plugin.getLogger().warning(
                         "Failed to load mine '" + mineName + "': " + e.getMessage()
+                                + " (its file remains on disk)"
                 );
             }
         }
@@ -80,9 +85,7 @@ public class JsonDatabase implements IDatabase {
     }
 
     @Override
-    public boolean saveMine(@NotNull BasicMine mine) {
-
-        JsonObject json = serializer.serialize(mine);
+    public boolean saveMine(@NotNull String mineName, @NotNull JsonObject data) {
 
         File minesFolder = new File(plugin.getDataFolder(), "mines");
 
@@ -90,14 +93,15 @@ public class JsonDatabase implements IDatabase {
             boolean mkdir = minesFolder.mkdirs();
         }
 
-        File mineFile = new File(minesFolder, mine.getName() + ".json");
+        File mineFile = resolveMineFile(minesFolder, mineName);
+        if (mineFile == null) return false;
 
         try (FileWriter writer = new FileWriter(mineFile)) {
-            GSON.toJson(json, writer);
+            GSON.toJson(data, writer);
         } catch (IOException e) {
             plugin.getLogger().log(
                     Level.SEVERE,
-                    "Failed to save mine " + mine.getName(),
+                    "Failed to save mine " + mineName,
                     e
             );
             return false;
@@ -108,14 +112,34 @@ public class JsonDatabase implements IDatabase {
     @Override
     public void deleteMine(@NotNull String mineName) {
 
-        Path path = Path.of(
-                plugin.getDataFolder() + "/mines/" + mineName + ".json"
-        );
+        File minesFolder = new File(plugin.getDataFolder(), "mines");
+
+        File mineFile = resolveMineFile(minesFolder, mineName);
+        if (mineFile == null) return;
 
         try {
-            Files.deleteIfExists(path);
+            Files.deleteIfExists(mineFile.toPath());
         } catch (Exception e) {
             plugin.getLogger().severe("Error while deleting mine. %s".formatted(e.getMessage()));
         }
+    }
+
+    /**
+     * Resolves {@code <name>.json} inside the mines folder, refusing any name
+     * that would escape it (defense in depth behind {@code MineNameValidator}).
+     */
+    @Nullable
+    private File resolveMineFile(File minesFolder, String mineName) {
+        File mineFile = new File(minesFolder, mineName + ".json");
+
+        Path folder = minesFolder.toPath().toAbsolutePath().normalize();
+        Path file = mineFile.toPath().toAbsolutePath().normalize();
+
+        if (!file.startsWith(folder)) {
+            plugin.getLogger().severe(
+                    "Refusing to touch file for unsafe mine name: " + mineName);
+            return null;
+        }
+        return mineFile;
     }
 }

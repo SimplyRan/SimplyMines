@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -353,18 +354,21 @@ public class MineSerializer {
         return json;
     }
 
-    private static String getRequirementName(Object requirement) {
+    private static final Map<Class<?>, String> NAME_CACHE = new ConcurrentHashMap<>();
 
-        try {
-            Field field = requirement.getClass().getField("NAME");
-            return (String) field.get(null);
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Requirement " + requirement.getClass().getName()
-                            + " is missing public static final String NAME",
-                    e
-            );
-        }
+    private static String getRequirementName(Object requirement) {
+        return NAME_CACHE.computeIfAbsent(requirement.getClass(), clazz -> {
+            try {
+                Field field = clazz.getField("NAME");
+                return (String) field.get(null);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Requirement " + clazz.getName()
+                                + " is missing public static final String NAME",
+                        e
+                );
+            }
+        });
     }
 
     private static void addProperty(JsonObject json,

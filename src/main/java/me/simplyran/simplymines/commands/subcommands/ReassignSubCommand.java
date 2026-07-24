@@ -1,7 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
 import it.unimi.dsi.fastutil.Pair;
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -11,7 +10,6 @@ import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,7 +22,6 @@ public class ReassignSubCommand implements SubCommand {
 
     private final MineManager mineManager;
     private final SelectionManager selectionManager;
-    private final SimplyMines plugin;
 
     private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
             "messages.missing-mine-name", "<red>You need to specify a mine name!");
@@ -37,11 +34,9 @@ public class ReassignSubCommand implements SubCommand {
 
     public ReassignSubCommand(@NotNull MineManager mineManager,
                               @NotNull ConfigManager configManager,
-                              @NotNull SelectionManager selectionManager,
-                              @NotNull SimplyMines plugin) {
+                              @NotNull SelectionManager selectionManager) {
         this.mineManager = mineManager;
         this.selectionManager = selectionManager;
-        this.plugin = plugin;
         configManager.register(missingMineName);
         configManager.register(mineNotFound);
         configManager.register(noSelection);
@@ -94,6 +89,6 @@ public class ReassignSubCommand implements SubCommand {
         mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
         sender.sendMessage(MessageUtils.format(sender, mineMoved,
                 "mine", mineName));
-        MineSaver.saveAsync(plugin, mineManager, mine);
+        mineManager.saveMineAsync(mine);
     }
 }

@@ -15,7 +15,9 @@ import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.MessageUtils;
+import me.simplyran.simplymines.utils.MineNameValidator;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -84,6 +86,13 @@ public class CreateSubCommand implements SubCommand {
         String mineName = args[1];
         Player player = (Player) sender;
 
+        if (!MineNameValidator.isValid(mineName)) {
+            //TODO maybe add to config
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(
+                    "<red>Invalid mine name! Use only letters, numbers, - and _ (max 32 characters)."));
+            return;
+        }
+
         BasicMine mine = mineManager.getMine(mineName);
         if (mine != null) {
             sender.sendMessage(MessageUtils.format(sender, mineAlreadyExists, "mine", mineName));
@@ -111,6 +120,8 @@ public class CreateSubCommand implements SubCommand {
         basicMine.addMineRequirement(permissionMineRequirement);
 
         mineManager.addMine(basicMine);
+        //Persist immediately - a crash before the editor GUI closes must not lose the mine.
+        mineManager.saveMineAsync(basicMine);
         guiManager.getMineEditorGUI().open(player, mineName);
 
     }

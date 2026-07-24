@@ -11,7 +11,6 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.ChatInputManager;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -50,7 +49,7 @@ public class EditCommandActionGUI {
             if (action.getCommandName().isEmpty()) {
                 mine.removeAction(block, action);
             }
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
         });
 
@@ -94,7 +93,7 @@ public class EditCommandActionGUI {
                         .name(Component.text("Remove Action").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED))
                         .asGuiItem(event -> {
                             mine.removeAction(block, action);
-                            MineSaver.saveAsync(plugin, mineManager, mine);
+                            mineManager.saveMineAsync(mine);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
                         }));
 

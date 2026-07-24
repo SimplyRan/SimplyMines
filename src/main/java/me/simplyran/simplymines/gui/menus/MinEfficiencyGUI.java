@@ -10,7 +10,6 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -46,7 +45,7 @@ public class MinEfficiencyGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineRequirementsGUI().open(player, mine));
         });
 

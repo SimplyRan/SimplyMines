@@ -10,7 +10,6 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.utils.ChatInputManager;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -51,7 +50,7 @@ public class PermissionRequirementGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineRequirementsGUI().open(player, mine));
         });
 

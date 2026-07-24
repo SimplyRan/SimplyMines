@@ -13,7 +13,6 @@ import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -53,7 +52,7 @@ public class BlockActionsGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
         });
 
@@ -63,7 +62,7 @@ public class BlockActionsGUI {
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                         .asGuiItem(event -> {
-                            MineSaver.saveAsync(plugin, mineManager, mine);
+                            mineManager.saveMineAsync(mine);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
                         }));
 
@@ -92,8 +91,8 @@ public class BlockActionsGUI {
     private GuiItem buildItem(Player player, String block, BasicMine mine, IAction action) {
         int chancePercent = (int) Math.round(action.getChance() * 100);
 
-        if (action instanceof ItemDropAction itemDrop) {
-            return ItemBuilder.from(itemDrop.getItemStack())
+        return switch (action) {
+            case ItemDropAction itemDrop -> ItemBuilder.from(itemDrop.getItemStack())
                     .lore(List.of(
                             Component.text("Type: Item Drop").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
                             Component.text("Amount: " + itemDrop.getAmount()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE),
@@ -104,10 +103,7 @@ public class BlockActionsGUI {
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditItemDropActionGUI().open(player, block, mine, itemDrop)));
-        }
-
-        if (action instanceof CommandAction commandAction) {
-            return ItemBuilder.from(Material.COMMAND_BLOCK)
+            case CommandAction commandAction -> ItemBuilder.from(Material.COMMAND_BLOCK)
                     .name(Component.text("Command: " + (commandAction.getCommandName().isEmpty() ? "(not set)" : commandAction.getCommandName()))
                             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                     .lore(List.of(
@@ -118,10 +114,7 @@ public class BlockActionsGUI {
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditCommandActionGUI().open(player, block, mine, commandAction)));
-        }
-
-        if (action instanceof EconomyAction economyAction) {
-            return ItemBuilder.from(Material.GOLD_INGOT)
+            case EconomyAction economyAction -> ItemBuilder.from(Material.GOLD_INGOT)
                     .name(Component.text("Economy: " + economyAction.getAmount())
                             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                     .lore(List.of(
@@ -132,17 +125,17 @@ public class BlockActionsGUI {
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditEconomyActionGUI().open(player, block, mine, economyAction)));
-        }
+            default -> ItemBuilder.from(Material.PAPER)
+                    .name(Component.text(action.name()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                    .asGuiItem();
+        };
 
-        return ItemBuilder.from(Material.PAPER)
-                .name(Component.text(action.name()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
-                .asGuiItem();
     }
 
     private void handleClick(Player player, String block, BasicMine mine, IAction action, ClickType click, Runnable openEditor) {
         if (click == ClickType.SHIFT_RIGHT) {
             mine.removeAction(block, action);
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> open(player, block, mine));
             return;
         }

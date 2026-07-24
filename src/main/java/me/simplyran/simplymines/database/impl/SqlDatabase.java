@@ -22,9 +22,6 @@ import java.util.logging.Level;
 /**
  * Shared JDBC backend. Each mine is stored as a single row keyed by its name,
  * with the full mine serialized to a JSON string in the {@code data} column.
- * This keeps the registry-based requirement/action format intact without
- * normalising it into per-type tables. Concrete subclasses supply the
- * connection pool configuration and the dialect-specific SQL.
  */
 public abstract class SqlDatabase implements IDatabase {
 
@@ -34,35 +31,29 @@ public abstract class SqlDatabase implements IDatabase {
 
     protected final SimplyMines plugin;
     private final MineSerializer serializer;
+    private final String upsertSql;
     private final HikariDataSource dataSource;
 
     protected SqlDatabase(@NotNull SimplyMines plugin,
-                          @NotNull MineSerializer serializer) {
+                          @NotNull MineSerializer serializer,
+                          @NotNull HikariConfig config,
+                          @NotNull String createTableSql,
+                          @NotNull String upsertSql) {
         this.plugin = plugin;
         this.serializer = serializer;
-        this.dataSource = new HikariDataSource(buildHikariConfig());
-        createTable();
+        this.upsertSql = upsertSql;
+
+        config.setConnectionTimeout(5_000);
+        config.setInitializationFailTimeout(10_000);
+
+        this.dataSource = new HikariDataSource(config);
+        createTable(createTableSql);
     }
 
-    /**
-     * @return the pool configuration for this dialect (jdbc url, driver, credentials).
-     */
-    protected abstract HikariConfig buildHikariConfig();
-
-    /**
-     * @return {@code CREATE TABLE IF NOT EXISTS} statement using the dialect's text column type.
-     */
-    protected abstract String createTableSql();
-
-    /**
-     * @return an insert-or-replace statement with two parameters: name, data.
-     */
-    protected abstract String upsertSql();
-
-    private void createTable() {
+    private void createTable(String createTableSql) {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-            statement.execute(createTableSql());
+            statement.execute(createTableSql);
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to create mines table", e);
         }
@@ -89,10 +80,14 @@ public abstract class SqlDatabase implements IDatabase {
 
                     if (mine != null) {
                         mines.add(mine);
+                    } else {
+                        plugin.getLogger().warning(
+                                "Mine '" + mineName + "' was skipped and its row remains in the database.");
                     }
                 } catch (Exception e) {
                     plugin.getLogger().warning(
                             "Failed to load mine '" + mineName + "': " + e.getMessage()
+                                    + " (its row remains in the database)"
                     );
                 }
             }
@@ -105,19 +100,17 @@ public abstract class SqlDatabase implements IDatabase {
     }
 
     @Override
-    public boolean saveMine(@NotNull BasicMine mine) {
-
-        String data = GSON.toJson(serializer.serialize(mine));
+    public boolean saveMine(@NotNull String mineName, @NotNull JsonObject data) {
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(upsertSql())) {
+             PreparedStatement statement = connection.prepareStatement(upsertSql)) {
 
-            statement.setString(1, mine.getName());
-            statement.setString(2, data);
+            statement.setString(1, mineName);
+            statement.setString(2, GSON.toJson(data));
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to save mine " + mine.getName(), e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to save mine " + mineName, e);
             return false;
         }
         return true;

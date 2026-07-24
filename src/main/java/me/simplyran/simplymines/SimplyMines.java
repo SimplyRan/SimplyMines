@@ -77,7 +77,7 @@ public final class SimplyMines extends JavaPlugin {
         IDatabase database = DatabaseFactory.create(this, mineSerializer);
 
         //Creating MineManager - depending on the database
-        this.mineManager = new MineManager(this, database);
+        this.mineManager = new MineManager(this, mineSerializer, database);
 
 
         //Creating GUIManager
@@ -85,7 +85,7 @@ public final class SimplyMines extends JavaPlugin {
 
 
         //Creating RunnableManager - depending on mineManager
-        this.runnableManager = new RunnableManager(this, mineManager, configManager);
+        this.runnableManager = new RunnableManager(mineManager, configManager);
 
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
@@ -133,14 +133,12 @@ public final class SimplyMines extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("Saving All Mines...");
-        //TODO Change to other class
-        runnableManager.saveAllMines();
-
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
 
-        mineManager.closeDatabase();
+        getLogger().info("Saving All Mines...");
+        //Drains pending async saves, saves everything sync, then closes the database.
+        mineManager.shutdown();
     }
 
     private void registerBStats(){

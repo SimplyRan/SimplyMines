@@ -8,7 +8,6 @@ import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -45,7 +44,7 @@ public class WarnSecondsGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getWarnSettingsGUI().open(player, mine));
         });
 

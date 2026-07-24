@@ -10,7 +10,6 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -70,7 +69,7 @@ public class MineEditorGUI {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMainMenuGUI().open(player));
-            MineSaver.saveAsync(plugin,mineManager, mine);
+            mineManager.saveMineAsync(mine);
         });
 
         GuiUtils.fillBorder(mineGUI);
@@ -143,33 +142,33 @@ public class MineEditorGUI {
 
         // Toggle buttons — each owns a distinct slot, no collisions
         new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
-                mine::isEnabled, mine::setEnabled, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isEnabled, mine::setEnabled, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 4, 4, "Warn Global",
-                mine::isWarnGlobal, mine::setWarnGlobal, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isWarnGlobal, mine::setWarnGlobal, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 4, 5, "Warn Near",
-                mine::isWarnNear, mine::setWarnNear, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isWarnNear, mine::setWarnNear, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 4, 6, "Teleport Players",
-                mine::isTeleportPlayers, mine::setTeleportPlayers, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isTeleportPlayers, mine::setTeleportPlayers, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 4, 7, "Use Physics",
-                mine::isUsePhysics, mine::setUsePhysics, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isUsePhysics, mine::setUsePhysics, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 5, 4, "Auto Pickup",
-                mine::isAutoPickup, mine::setAutoPickup, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isAutoPickup, mine::setAutoPickup, () -> mineManager.saveMineAsync(mine)).render();
 
 
         new ToggleButton(mineGUI, 5, 5, "Replace Mode",
-                mine::isReplaceMode, mine::setReplaceMode, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isReplaceMode, mine::setReplaceMode, () -> mineManager.saveMineAsync(mine)).render();
 
         new ToggleButton(mineGUI, 5, 6, "Normal Drops Enabled",
-                mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, () -> mineManager.saveMineAsync(mine)).render();
 
 
         new ToggleButton(mineGUI, 5, 7, "Fortune Enabled",
-                mine::isFortuneEnabled, mine::setFortuneEnabled, () -> MineSaver.saveAsync(plugin,mineManager, mine)).render();
+                mine::isFortuneEnabled, mine::setFortuneEnabled, () -> mineManager.saveMineAsync(mine)).render();
 
 
         mineGUI.open(player);

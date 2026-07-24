@@ -2,17 +2,15 @@ package me.simplyran.simplymines.objects;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.ItemUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.*;
-import me.simplyran.simplymines.workload.impl.PlaceableBlock;
+import me.simplyran.simplymines.workload.impl.RegionResetWorkload;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class BasicMine{
@@ -174,28 +173,20 @@ public class BasicMine{
             blockCache.put(blockName, block);
         }
 
-        // Queue a placement task for every block position in the region
-        for (int x = region.getMinX(); x <= region.getMaxX(); x++) {
-            for (int y = region.getMinY(); y <= region.getMaxY(); y++) {
-                for (int z = region.getMinZ(); z <= region.getMaxZ(); z++) {
+        // If replaceMode is false, we ONLY change air blocks (unless forced).
+        boolean onlyReplaceAir = !force && !replaceMode;
 
-                    String material = pickMaterial();
-                    IBlock block = blockCache.get(material);
-                    if (block == null) block = new Block(Material.AIR);
-                    Location loc = new Location(world, x, y, z);
-
-                    // If replaceMode is false, we ONLY change air blocks.
-                    // Therefore, if it's not forced, replaceMode is false, and the block is NOT empty -> skip it.
-                    if (!force && !replaceMode && !loc.getBlock().isEmpty()) {
-                        continue;
-                    }
-
-                    workloadRunnable.addWorkload(
-                            new PlaceableBlock(loc, block)
-                    );
+        workloadRunnable.addWorkload(new RegionResetWorkload(
+                workloadRunnable,
+                world,
+                region.getMinX(), region.getMinY(), region.getMinZ(),
+                region.getMaxX(), region.getMaxY(), region.getMaxZ(),
+                onlyReplaceAir,
+                () -> {
+                    IBlock block = blockCache.get(pickMaterial());
+                    return block == null ? new Block(Material.AIR) : block;
                 }
-            }
-        }
+        ));
 
         for (IResetRequirement resetRequirement : resetRequirements){
             resetRequirement.update();
@@ -213,7 +204,7 @@ public class BasicMine{
             return materials.keySet().iterator().next();
         }
 
-        double x = Math.random();
+        double x = ThreadLocalRandom.current().nextDouble();
         double cumulativeSum = 0.0d;
         for (Map.Entry<String, Double> entry : materials.entrySet()) {
             cumulativeSum += entry.getValue();
@@ -298,15 +289,13 @@ public class BasicMine{
     This Makes sure when you change name it delete the old file and create new one.
      */
     public void setName(@NotNull String newName,
-                        @NotNull MineManager mineManager,
-                        @NotNull SimplyMines plugin){
+                        @NotNull MineManager mineManager){
         //Mine with this name already exist!
         if (mineManager.getMine(newName) != null) return;
-        //Deleting the old file/entry while the name is still the old one.
-        mineManager.deleteMine(name);
+        String oldName = name;
         this.name = newName;
-        mineManager.addMine(this);
-        MineSaver.saveAsync(plugin, mineManager, this);
+        //Saves under the new name first; old record is deleted only on success.
+        mineManager.renameMine(this, oldName);
     }
 
     public void addAction(String block, IAction action) {

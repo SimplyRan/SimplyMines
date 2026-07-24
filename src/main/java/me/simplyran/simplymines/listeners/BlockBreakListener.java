@@ -36,6 +36,7 @@ public class BlockBreakListener implements Listener {
         String blockID = ItemUtils.getIDFromBlock(block);
 
         for (BasicMine mine : mineManager.getMines()){
+            if (!mine.isEnabled()) continue;
             if (!mine.isInsideMine(location)) continue;
             if (!mine.isNormalDropsEnabled() && e.isDropItems()) e.setDropItems(false);
 

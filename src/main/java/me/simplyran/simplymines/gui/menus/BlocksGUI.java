@@ -13,7 +13,6 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -66,7 +65,7 @@ public class BlocksGUI {
                         && currentItem.getType() != Material.AIR) {
                     mine.removeBlock(ItemUtils.getIDFromItemStack(currentItem));
                     Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
-                    MineSaver.saveAsync(plugin, mineManager, mine);
+                    mineManager.saveMineAsync(mine);
                 }
             }
         });

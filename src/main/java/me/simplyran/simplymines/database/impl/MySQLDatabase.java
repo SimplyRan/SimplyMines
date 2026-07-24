@@ -13,25 +13,40 @@ import org.jetbrains.annotations.NotNull;
  */
 public class MySQLDatabase extends SqlDatabase {
 
+    private static final String CREATE_TABLE_SQL =
+            "CREATE TABLE IF NOT EXISTS " + TABLE + " ("
+                    + "name VARCHAR(255) PRIMARY KEY, "
+                    + "data LONGTEXT NOT NULL"
+                    + ") DEFAULT CHARSET=utf8mb4";
+
+    private static final String UPSERT_SQL =
+            "INSERT INTO " + TABLE + " (name, data) VALUES (?, ?) "
+                    + "ON DUPLICATE KEY UPDATE data = VALUES(data)";
+
     public MySQLDatabase(@NotNull SimplyMines plugin,
                          @NotNull MineSerializer serializer) {
-        super(plugin, serializer);
+        super(plugin, serializer, buildConfig(plugin), CREATE_TABLE_SQL, UPSERT_SQL);
     }
 
-    @Override
-    protected HikariConfig buildHikariConfig() {
+    private static HikariConfig buildConfig(SimplyMines plugin) {
         ConfigurationSection mysql = plugin.getConfig().getConfigurationSection("database.mysql");
-        if (mysql == null) {
-            mysql = plugin.getConfig().createSection("database.mysql");
-        }
 
-        String host = mysql.getString("host", "localhost");
-        int port = mysql.getInt("port", 3306);
-        String database = mysql.getString("database", "simplymines");
-        String username = mysql.getString("username", "root");
-        String password = mysql.getString("password", "");
-        boolean useSsl = mysql.getBoolean("useSSL", false);
-        int poolSize = mysql.getInt("pool-size", 10);
+        String host = mysql != null ? mysql.getString("host", "localhost") : "localhost";
+        int port = mysql != null ? mysql.getInt("port", 3306) : 3306;
+        String database = mysql != null ? mysql.getString("database", "simplymines") : "simplymines";
+        String username = mysql != null ? mysql.getString("username", "root") : "root";
+        String password = mysql != null ? mysql.getString("password", "") : "";
+        boolean useSsl = mysql != null && mysql.getBoolean("useSSL", false);
+        int poolSize = mysql != null ? mysql.getInt("pool-size", 10) : 10;
+
+        if (!host.matches("[A-Za-z0-9.\\[\\]:_-]+")) {
+            plugin.getLogger().severe("Invalid MySQL host '" + host + "', falling back to localhost.");
+            host = "localhost";
+        }
+        if (!database.matches("[A-Za-z0-9_-]+")) {
+            plugin.getLogger().severe("Invalid MySQL database name '" + database + "', falling back to simplymines.");
+            database = "simplymines";
+        }
 
         HikariConfig hikari = new HikariConfig();
         hikari.setPoolName("SimplyMines-MySQL");
@@ -45,27 +60,12 @@ public class MySQLDatabase extends SqlDatabase {
         hikari.addDataSourceProperty("prepStmtCacheSize", "250");
         hikari.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        // Optional advanced JDBC properties from config.
-        ConfigurationSection properties = mysql.getConfigurationSection("properties");
+        ConfigurationSection properties = mysql != null ? mysql.getConfigurationSection("properties") : null;
         if (properties != null) {
             for (String key : properties.getKeys(false)) {
                 hikari.addDataSourceProperty(key, String.valueOf(properties.get(key)));
             }
         }
         return hikari;
-    }
-
-    @Override
-    protected String createTableSql() {
-        return "CREATE TABLE IF NOT EXISTS " + TABLE + " ("
-                + "name VARCHAR(255) PRIMARY KEY, "
-                + "data LONGTEXT NOT NULL"
-                + ") DEFAULT CHARSET=utf8mb4";
-    }
-
-    @Override
-    protected String upsertSql() {
-        return "INSERT INTO " + TABLE + " (name, data) VALUES (?, ?) "
-                + "ON DUPLICATE KEY UPDATE data = VALUES(data)";
     }
 }

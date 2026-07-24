@@ -47,7 +47,10 @@ public class CommandAction implements IAction {
 
     @Override
     public void perform(@NotNull Location location, @NotNull BasicMine mine, @NotNull Player player) {
-        if (command == null) return;
+        if (command == null) {
+            command = Bukkit.getCommandMap().getCommand(commandName);
+            if (command == null) return;
+        }
 
         String[] resolvedArgs = new String[args.length];
         for (int i = 0; i < args.length; i++) {

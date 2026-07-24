@@ -1,6 +1,5 @@
 package me.simplyran.simplymines.commands.subcommands;
 
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -8,7 +7,6 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +17,6 @@ import java.util.List;
 public class SaveSubCommand implements SubCommand {
 
     private final MineManager mineManager;
-    private final SimplyMines plugin;
 
     private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
             "messages.missing-mine-name", "<red>You need to specify a mine name!");
@@ -27,9 +24,8 @@ public class SaveSubCommand implements SubCommand {
             "messages.mine-not-found", "<red>Mine <mine> not found!");
 
     public SaveSubCommand(@NotNull MineManager mineManager,
-                          @NotNull ConfigManager configManager, @NotNull SimplyMines plugin) {
+                          @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        this.plugin = plugin;
         configManager.register(missingMineName);
         configManager.register(mineNotFound);
     }
@@ -72,7 +68,7 @@ public class SaveSubCommand implements SubCommand {
             return;
         }
 
-        MineSaver.saveAsync(plugin, mineManager, mine);
+        mineManager.saveMineAsync(mine);
         sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Saved to disk " + mineName + "!"));
     }
 }

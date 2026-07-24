@@ -12,7 +12,6 @@ import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -54,7 +53,7 @@ public class ResetRequirementsGUI {
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
 
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
-            MineSaver.saveAsync(plugin, mineManager, mine);
+            mineManager.saveMineAsync(mine);
         });
 
         GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
@@ -65,7 +64,7 @@ public class ResetRequirementsGUI {
                         .asGuiItem(event -> {
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
                             //Saving after opening
-                            MineSaver.saveAsync(plugin, mineManager, mine);
+                            mineManager.saveMineAsync(mine);
 
                         }));
 

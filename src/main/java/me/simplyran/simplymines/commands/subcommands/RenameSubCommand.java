@@ -1,6 +1,5 @@
 package me.simplyran.simplymines.commands.subcommands;
 
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -8,6 +7,7 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
+import me.simplyran.simplymines.utils.MineNameValidator;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -18,16 +18,15 @@ import java.util.List;
 public class RenameSubCommand implements SubCommand {
 
     private final MineManager mineManager;
-    private final SimplyMines plugin;
 
     private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
             "messages.missing-mine-name", "<red>You need to specify a mine name!");
     private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
             "messages.mine-not-found", "<red>Mine <mine> not found!");
 
-    public RenameSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager, @NotNull SimplyMines plugin) {
+    public RenameSubCommand(@NotNull MineManager mineManager,
+                            @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        this.plugin = plugin;
         configManager.register(missingMineName);
         configManager.register(mineNotFound);
     }
@@ -68,8 +67,12 @@ public class RenameSubCommand implements SubCommand {
         String oldMineName = args[1];
         String newMineName = args[2];
 
-
-
+        if (!MineNameValidator.isValid(newMineName)) {
+            //TODO maybe add to config
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(
+                    "<red>Invalid mine name! Use only letters, numbers, - and _ (max 32 characters)."));
+            return;
+        }
 
         BasicMine mine = mineManager.getMine(oldMineName);
         if (mine == null) {
@@ -82,7 +85,7 @@ public class RenameSubCommand implements SubCommand {
                     .formatted(newMineName)));
             return;
         }
-        mine.setName(newMineName, mineManager, plugin);
+        mine.setName(newMineName, mineManager);
         //TODO maybe add to config.
         sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Renamed Mine from %s to %s!"
                 .formatted(oldMineName, newMineName)));

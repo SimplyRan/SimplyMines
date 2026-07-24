@@ -27,6 +27,8 @@ database:
     username: root
     password: ""
     # Enable if your server requires an encrypted (TLS) connection.
+    # Strongly recommended when connecting to a REMOTE database server,
+    # otherwise your credentials travel the network unencrypted.
     useSSL: false
     # Max simultaneous connections kept open to the server.
     pool-size: 10
