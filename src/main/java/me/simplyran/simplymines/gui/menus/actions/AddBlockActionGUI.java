@@ -1,9 +1,8 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.actions;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
 import me.simplyran.simplymines.actions.impl.ItemDropAction;
@@ -53,7 +52,7 @@ public class AddBlockActionGUI {
                         .lore(Component.text("Drops an item when this block is mined").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                         .asGuiItem(event -> {
                             ItemStack held = player.getInventory().getItemInMainHand();
-                            ItemStack itemStack = (held == null || held.getType() == Material.AIR)
+                            ItemStack itemStack = held.getType() == Material.AIR
                                     ? new ItemStack(Material.STONE)
                                     : held.clone();
                             ItemDropAction action = new ItemDropAction(itemStack);
@@ -66,9 +65,9 @@ public class AddBlockActionGUI {
                         .name(Component.text("Command").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                         .lore(Component.text("Runs a command as the player when this block is mined").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                         .asGuiItem(event -> {
-                            IAction action = new CommandAction("", null, new String[0]);
+                            CommandAction action = new CommandAction("", null, new String[0]);
                             mine.addAction(block, action);
-                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditCommandActionGUI().open(player, block, mine, (CommandAction) action));
+                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditCommandActionGUI().open(player, block, mine, action));
                         }));
 
         gui.setItem(2, 7,

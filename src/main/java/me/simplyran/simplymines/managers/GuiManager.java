@@ -3,12 +3,17 @@ package me.simplyran.simplymines.managers;
 import lombok.Getter;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.menus.*;
+import me.simplyran.simplymines.gui.menus.actions.*;
+import me.simplyran.simplymines.gui.menus.blocks.*;
+import me.simplyran.simplymines.gui.menus.requirements.*;
+import me.simplyran.simplymines.gui.menus.settings.*;
 
 @Getter
 public class GuiManager {
 
     private final MainMenuGUI mainMenuGUI;
     private final MineEditorGUI mineEditorGUI;
+    private final MineSettingsGUI mineSettingsGUI;
     private final ResetSettingsGUI resetSettingsGUI;
     private final WarnSettingsGUI warnSettingsGUI;
     private final WarnDistanceGUI warnDistanceGUI;
@@ -33,6 +38,7 @@ public class GuiManager {
     public GuiManager(ConfigManager configManager, SimplyMines plugin, MineManager mineManager) {
         this.mainMenuGUI = new MainMenuGUI(mineManager, this);
         this.mineEditorGUI = new MineEditorGUI(plugin, mineManager, this);
+        this.mineSettingsGUI = new MineSettingsGUI(plugin, mineManager, this);
         this.resetSettingsGUI = new ResetSettingsGUI(plugin, mineManager, this);
         this.warnSettingsGUI = new WarnSettingsGUI(plugin, mineManager, this);
         this.warnDistanceGUI = new WarnDistanceGUI(plugin, mineManager, this);

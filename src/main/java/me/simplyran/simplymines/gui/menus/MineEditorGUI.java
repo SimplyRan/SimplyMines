@@ -3,11 +3,9 @@ package me.simplyran.simplymines.gui.menus;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
-import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
 import net.kyori.adventure.text.Component;
@@ -23,16 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The per-mine editor menu — hub for direct toggles plus links into the more
- * specific settings menus (blocks, reset, warn, min efficiency).
+ * The per-mine editor hub. Pure navigation: every group of options lives in
+ * its own sub-menu (settings, blocks, requirements, warnings).
  */
 public class MineEditorGUI {
 
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
-
-    //todo find new layout
 
     public MineEditorGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
@@ -41,48 +37,36 @@ public class MineEditorGUI {
     }
 
     public void open(Player player, String mineName) {
-        Gui mineGUI = Gui.gui()
-                .title(Component.text("Editing " + mineName))
-                .rows(6)
-                .disableAllInteractions()
-                .create();
-
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
             player.closeInventory();
             return;
         }
 
-        mineGUI.setItem(2, 5,
-                ItemBuilder.from(Material.ENDER_PEARL)
-                        .name(Component.text("Teleport To Mine")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.LIGHT_PURPLE))
-                        .asGuiItem(event -> {
-                            if (mine.getTeleportLocation() == null) return;
-                            event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
-                            player.teleportAsync(mine.getTeleportLocation());
-                        }));
+        Gui gui = Gui.gui()
+                .title(Component.text("Editing " + mineName))
+                .rows(4)
+                .disableAllInteractions()
+                .create();
 
         // Go back to main GUI, but only on a genuine player-initiated close
-        mineGUI.setCloseGuiAction(event -> {
+        gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMainMenuGUI().open(player));
             mineManager.saveMineAsync(mine);
         });
 
-        GuiUtils.fillBorder(mineGUI);
+        GuiUtils.fillBorder(gui);
 
-        mineGUI.setItem(6, 1,
+        gui.setItem(4, 1,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.WHITE))
                         .asGuiItem(event -> guiManager.getMainMenuGUI().open(player)));
 
-        // Info item
-        mineGUI.setItem(3, 3,
+        gui.setItem(2, 3,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
                         .name(Component.text(mineName + " Info")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -90,88 +74,81 @@ public class MineEditorGUI {
                         .lore(buildMineInfoLore(mine))
                         .asGuiItem());
 
-        // Edit blocks item
-        List<Component> loreOfEditBlocks = new ArrayList<>();
-        loreOfEditBlocks.add(Component.text("Materials: ")
-                .color(NamedTextColor.BLUE)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-        );
+        gui.setItem(2, 5,
+                ItemBuilder.from(Material.ENDER_PEARL)
+                        .name(Component.text("Teleport To Mine")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.LIGHT_PURPLE))
+                        .lore(hubLore("Requires a teleport location to be set"))
+                        .asGuiItem(event -> {
+                            if (mine.getTeleportLocation() == null) return;
+                            event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                            player.teleportAsync(mine.getTeleportLocation());
+                        }));
 
-        for (Map.Entry<String, Double> material : mine.getMaterials()) {
-            loreOfEditBlocks.add(Component.text("   " + material.getKey() + ": ")
-                    .color(NamedTextColor.BLUE)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                    .append(Component.text((material.getValue() * 100) + "%")
-                            .color(NamedTextColor.WHITE))
-            );
-        }
+        gui.setItem(2, 7,
+                ItemBuilder.from(Material.COMPARATOR)
+                        .name(Component.text("Mine Settings")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(hubLore("All toggles: drops, pickup, physics, warnings..."))
+                        .asGuiItem(event -> guiManager.getMineSettingsGUI().open(player, mine)));
 
-        mineGUI.setItem(3, 4,
+        gui.setItem(3, 2,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                         .name(Component.text("Edit Blocks")
                                 .color(NamedTextColor.YELLOW)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(loreOfEditBlocks)
+                        .lore(buildBlocksLore(mine))
                         .asGuiItem(event -> guiManager.getBlocksGUI().open(player, mine)));
 
-        // Reset Settings hub (Timed + Percentage)
-        mineGUI.setItem(3, 5,
+        gui.setItem(3, 4,
                 ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Requirements").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Configure how/when this mine resets").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
+                        .name(Component.text("Reset Requirements")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(hubLore("Configure how/when this mine resets"))
                         .asGuiItem(event -> guiManager.getResetRequirementsGUI().open(player, mine)));
 
-
-        // Warn Settings hub (Seconds + Distance)
-        mineGUI.setItem(3, 6,
+        gui.setItem(3, 6,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
                         .name(Component.text("Warn Settings")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                                 .color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Configure warn seconds & warn distance")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.GRAY))
+                        .lore(hubLore("Configure warn seconds & warn distance"))
                         .asGuiItem(event -> guiManager.getWarnSettingsGUI().open(player, mine)));
 
-        // Min Efficiency editor
-        mineGUI.setItem(3, 7,
+        gui.setItem(3, 8,
                 ItemBuilder.from(Material.GOLDEN_PICKAXE)
-                        .name(Component.text("Mine Requirements").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Configure who can mine here (tool/permission)").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
+                        .name(Component.text("Mine Requirements")
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .color(NamedTextColor.YELLOW))
+                        .lore(hubLore("Configure who can mine here (tool/permission)"))
                         .asGuiItem(event -> guiManager.getMineRequirementsGUI().open(player, mine)));
 
-        // Toggle buttons — each owns a distinct slot, no collisions
-        new ToggleButton(mineGUI, 4, 3, "Mine Enabled",
-                mine::isEnabled, mine::setEnabled, () -> mineManager.saveMineAsync(mine)).render();
+        gui.open(player);
+    }
 
-        new ToggleButton(mineGUI, 4, 4, "Warn Global",
-                mine::isWarnGlobal, mine::setWarnGlobal, () -> mineManager.saveMineAsync(mine)).render();
+    private List<Component> hubLore(String text) {
+        return List.of(Component.text(text)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                .color(NamedTextColor.GRAY));
+    }
 
-        new ToggleButton(mineGUI, 4, 5, "Warn Near",
-                mine::isWarnNear, mine::setWarnNear, () -> mineManager.saveMineAsync(mine)).render();
+    private List<Component> buildBlocksLore(BasicMine mine) {
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Materials: ")
+                .color(NamedTextColor.BLUE)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
 
-        new ToggleButton(mineGUI, 4, 6, "Teleport Players",
-                mine::isTeleportPlayers, mine::setTeleportPlayers, () -> mineManager.saveMineAsync(mine)).render();
-
-        new ToggleButton(mineGUI, 4, 7, "Use Physics",
-                mine::isUsePhysics, mine::setUsePhysics, () -> mineManager.saveMineAsync(mine)).render();
-
-        new ToggleButton(mineGUI, 5, 4, "Auto Pickup",
-                mine::isAutoPickup, mine::setAutoPickup, () -> mineManager.saveMineAsync(mine)).render();
-
-
-        new ToggleButton(mineGUI, 5, 5, "Replace Mode",
-                mine::isReplaceMode, mine::setReplaceMode, () -> mineManager.saveMineAsync(mine)).render();
-
-        new ToggleButton(mineGUI, 5, 6, "Normal Drops Enabled",
-                mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, () -> mineManager.saveMineAsync(mine)).render();
-
-
-        new ToggleButton(mineGUI, 5, 7, "Fortune Enabled",
-                mine::isFortuneEnabled, mine::setFortuneEnabled, () -> mineManager.saveMineAsync(mine)).render();
-
-
-        mineGUI.open(player);
+        for (Map.Entry<String, Double> material : mine.getMaterials()) {
+            lore.add(Component.text("   " + material.getKey() + ": ")
+                    .color(NamedTextColor.BLUE)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text((material.getValue() * 100) + "%")
+                            .color(NamedTextColor.WHITE)));
+        }
+        return lore;
     }
 
     private List<Component> buildMineInfoLore(BasicMine mine) {
@@ -213,17 +190,4 @@ public class MineEditorGUI {
                         .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
         );
     }
-
-
-    private boolean minEfficiencyEnabled(BasicMine mine) {
-        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
-        return req != null && req.isEnabled();
-    }
-
-    private String minEfficiencyLabel(BasicMine mine) {
-        EfficiencyMineRequirement req = mine.getMineRequirement(EfficiencyMineRequirement.class);
-        if (req == null || !req.isEnabled()) return "Disabled";
-        return "Level " + req.getEfficiencyLevel() + " (Enabled)";
-    }
-
 }

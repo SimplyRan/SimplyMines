@@ -1,8 +1,9 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.settings;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
@@ -15,32 +16,36 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
+import java.util.List;
+
 /**
- * Hub menu linking to Warn Seconds and Warn Distance settings.
+ * Menu for toggling which warn-second thresholds are active for a mine.
  */
-public class WarnSettingsGUI {
+public class WarnSecondsGUI {
+
+    private static final int[] WARN_SECOND_OPTIONS = {1, 2, 5, 10, 15, 30, 60};
 
     private final SimplyMines plugin;
-    private final GuiManager guiManager;
     private final MineManager mineManager;
+    private final GuiManager guiManager;
 
-    public WarnSettingsGUI(SimplyMines plugin,MineManager mineManager, GuiManager guiManager) {
+    public WarnSecondsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
-        this.guiManager = guiManager;
         this.mineManager = mineManager;
+        this.guiManager = guiManager;
     }
 
     public void open(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Warn Settings"))
+                .title(Component.text("Warn Seconds"))
                 .disableAllInteractions()
                 .create();
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             mineManager.saveMineAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getWarnSettingsGUI().open(player, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -52,22 +57,23 @@ public class WarnSettingsGUI {
                                 .color(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
-        gui.setItem(2, 4,
-                ItemBuilder.from(Material.REDSTONE_TORCH)
-                        .name(Component.text("Warn Seconds")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .asGuiItem(event -> guiManager.getWarnSecondsGUI().open(player, mine)));
+        List<Integer> warnSec = mine.getWarnSeconds();
 
-        gui.setItem(2, 6,
-                ItemBuilder.from(Material.SPYGLASS)
-                        .name(Component.text("Warn Distance")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
-                        .asGuiItem(event -> guiManager.getWarnDistanceGUI().open(player, mine)));
+        int col = 2;
+        for (int seconds : WARN_SECOND_OPTIONS) {
+            new ToggleButton(gui, 2, col, seconds + " Warn Seconds",
+                    () -> warnSec.contains(seconds),
+                    enabled -> {
+                        if (enabled) {
+                            if (!warnSec.contains(seconds)) warnSec.add(seconds);
+                        } else {
+                            warnSec.remove(Integer.valueOf(seconds));
+                        }
+                    },
+                    null
+            ).render();
+            col++;
+        }
 
         gui.open(player);
     }

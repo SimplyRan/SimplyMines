@@ -1,4 +1,4 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.settings;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;

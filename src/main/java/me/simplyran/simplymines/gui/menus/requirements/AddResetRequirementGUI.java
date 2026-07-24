@@ -1,7 +1,8 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.requirements;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
+import dev.triumphteam.gui.guis.GuiItem;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
@@ -43,7 +44,7 @@ public class AddResetRequirementGUI {
         boolean hasPercent = mine.getResetRequirement(PercentResetRequirement.class) != null;
 
         gui.setItem(2, 3, hasTime
-                ? unavailable(Material.BARRIER, "Time Reset (Already Added)")
+                ? unavailable("Time Reset (Already Added)")
                 : ItemBuilder.from(Material.CLOCK)
                 .name(Component.text("Time Reset").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                 .lore(Component.text("Resets on a fixed timer").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
@@ -53,7 +54,7 @@ public class AddResetRequirementGUI {
                 }));
 
         gui.setItem(2, 5, hasPercent
-                ? unavailable(Material.BARRIER, "Percent Reset (Already Added)")
+                ? unavailable("Percent Reset (Already Added)")
                 : ItemBuilder.from(Material.REPEATER)
                 .name(Component.text("Percent Reset").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                 .lore(Component.text("Resets once enough of the mine is broken").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
@@ -67,8 +68,8 @@ public class AddResetRequirementGUI {
         gui.open(player);
     }
 
-    private dev.triumphteam.gui.guis.GuiItem unavailable(Material material, String name) {
-        return ItemBuilder.from(material)
+    private GuiItem unavailable(String name) {
+        return ItemBuilder.from(Material.BARRIER)
                 .name(Component.text(name).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED))
                 .asGuiItem();
     }

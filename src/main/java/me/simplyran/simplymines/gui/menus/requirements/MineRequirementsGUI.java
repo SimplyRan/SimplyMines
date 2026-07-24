@@ -1,4 +1,4 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.requirements;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
@@ -8,9 +8,9 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
-import me.simplyran.simplymines.requirements.reset.IResetRequirement;
-import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
-import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
+import me.simplyran.simplymines.requirements.mine.IMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -24,17 +24,16 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import java.util.List;
 
 /**
- * Hub listing every IResetRequirement attached to a mine.
- * Left click a requirement to edit it, shift-right click to remove it,
- * or click "Add Requirement" to attach a new type.
+ * Hub listing every IMineRequirement attached to a mine (things a player
+ * must satisfy to mine here, e.g. tool efficiency or permission).
  */
-public class ResetRequirementsGUI {
+public class MineRequirementsGUI {
 
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public ResetRequirementsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
+    public MineRequirementsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.guiManager = guiManager;
@@ -42,7 +41,7 @@ public class ResetRequirementsGUI {
 
     public void open(Player player, BasicMine mine) {
         PaginatedGui gui = Gui.paginated()
-                .title(Component.text("Reset Requirements: " + mine.getName()))
+                .title(Component.text("Mine Requirements: " + mine.getName()))
                 .rows(2)
                 .pageSize(9)
                 .disableAllInteractions()
@@ -53,6 +52,7 @@ public class ResetRequirementsGUI {
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
 
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
+            //Saving after opening
             mineManager.saveMineAsync(mine);
         });
 
@@ -65,7 +65,6 @@ public class ResetRequirementsGUI {
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
                             //Saving after opening
                             mineManager.saveMineAsync(mine);
-
                         }));
 
         gui.setItem(2, 3,
@@ -81,60 +80,62 @@ public class ResetRequirementsGUI {
         gui.setItem(2, 9,
                 ItemBuilder.from(Material.EMERALD)
                         .name(Component.text("Add Requirement").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GREEN))
-                        .asGuiItem(event -> guiManager.getAddResetRequirementGUI().open(player, mine)));
+                        .asGuiItem(event -> guiManager.getAddMineRequirementGUI().open(player, mine)));
 
-        for (IResetRequirement requirement : mine.getResetRequirements()) {
+        for (IMineRequirement requirement : mine.getMineRequirements()) {
             gui.addItem(buildItem(player, mine, requirement));
         }
 
         gui.open(player);
     }
 
-    private GuiItem buildItem(Player player, BasicMine mine, IResetRequirement requirement) {
+    private GuiItem buildItem(Player player, BasicMine mine, IMineRequirement requirement) {
 
-        if (requirement instanceof TimeResetRequirement time) {
-            return ItemBuilder.from(Material.CLOCK)
-                    .name(Component.text("Time Reset").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
-                    .lore(List.of(
-                            Component.text("Resets every ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
-                                    .append(Component.text(time.getResetTime() + "s").color(NamedTextColor.WHITE)),
-                            Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
-                    ))
-                    .asGuiItem(event -> {
-                        if (event.getClick() == ClickType.SHIFT_RIGHT) {
-                            mine.removeResetRequirement(time);
-                            Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
-                            return;
-                        }
-                        guiManager.getResetTimeGUI().open(player, mine);
-                    });
-        }
-
-        if (requirement instanceof PercentResetRequirement percent) {
-            boolean enabled = percent.isEnabled();
-            return ItemBuilder.from(Material.REPEATER)
-                    .name(Component.text("Percent Reset: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE)
+        if (requirement instanceof EfficiencyMineRequirement efficiency) {
+            boolean enabled = efficiency.isEnabled();
+            return ItemBuilder.from(Material.GOLDEN_PICKAXE)
+                    .name(Component.text("Min Efficiency: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE)
                             .append(Component.text(enabled ? "Enabled" : "Disabled").color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
                     .lore(List.of(
-                            Component.text("Resets at ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
-                                    .append(Component.text(percent.getResetAtPercentage() + "% left").color(NamedTextColor.WHITE)),
+                            Component.text("Requires Level ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
+                                    .append(Component.text(efficiency.getEfficiencyLevel()).color(NamedTextColor.WHITE)),
                             Component.empty(),
                             Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
                             Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
                     ))
                     .asGuiItem(event -> {
                         if (event.getClick() == ClickType.SHIFT_RIGHT) {
-                            mine.removeResetRequirement(percent);
+                            mine.removeMineRequirement(efficiency);
                             Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
                             return;
                         }
-                        guiManager.getResetPercentageGUI().open(player, mine);
+                        guiManager.getMinEfficiencyGUI().open(player, mine);
                     });
         }
 
-        // Fallback for any future requirement type without a dedicated editor yet
+        if (requirement instanceof PermissionMineRequirement permission) {
+            boolean enabled = permission.isEnabled();
+            String perm = permission.getPermission();
+            return ItemBuilder.from(Material.WRITABLE_BOOK)
+                    .name(Component.text("Permission: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE)
+                            .append(Component.text(enabled ? "Enabled" : "Disabled").color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                    .lore(List.of(
+                            Component.text("Node: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
+                                    .append(Component.text(perm.isEmpty() ? "(not set)" : perm).color(NamedTextColor.WHITE)),
+                            Component.empty(),
+                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
+                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                    ))
+                    .asGuiItem(event -> {
+                        if (event.getClick() == ClickType.SHIFT_RIGHT) {
+                            mine.removeMineRequirement(permission);
+                            Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
+                            return;
+                        }
+                        guiManager.getPermissionRequirementGUI().open(player, mine);
+                    });
+        }
+
         return ItemBuilder.from(Material.PAPER)
                 .name(Component.text(requirement.getClass().getSimpleName())
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)

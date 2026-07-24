@@ -7,6 +7,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -20,6 +22,7 @@ public class ToggleButton {
     private final int row;
     private final int col;
     private final String label;
+    private final String description; // may be null
     private final BooleanSupplier getter;
     private final Consumer<Boolean> setter;
     private final Runnable onToggle; // e.g. save-to-disk, may be null
@@ -27,10 +30,17 @@ public class ToggleButton {
     public ToggleButton(BaseGui gui, int row, int col, String label,
                         BooleanSupplier getter, Consumer<Boolean> setter,
                         Runnable onToggle) {
+        this(gui, row, col, label, null, getter, setter, onToggle);
+    }
+
+    public ToggleButton(BaseGui gui, int row, int col, String label, String description,
+                        BooleanSupplier getter, Consumer<Boolean> setter,
+                        Runnable onToggle) {
         this.gui = gui;
         this.row = row;
         this.col = col;
         this.label = label;
+        this.description = description;
         this.getter = getter;
         this.setter = setter;
         this.onToggle = onToggle;
@@ -41,10 +51,23 @@ public class ToggleButton {
         boolean state = getter.getAsBoolean();
         Material material = state ? Material.LIME_DYE : Material.RED_DYE;
 
+        List<Component> lore = new ArrayList<>();
+        if (description != null) {
+            lore.add(Component.text(description)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .color(NamedTextColor.GRAY));
+        }
+        lore.add(Component.text("Click to toggle")
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                .color(NamedTextColor.DARK_GRAY));
+
         gui.setItem(row, col, ItemBuilder.from(material)
-                .name(Component.text(label + ": " + state)
+                .name(Component.text(label + ": ")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.YELLOW))
+                        .color(NamedTextColor.YELLOW)
+                        .append(Component.text(state ? "Enabled" : "Disabled")
+                                .color(state ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                .lore(lore)
                 .asGuiItem(event -> toggle()));
     }
 
