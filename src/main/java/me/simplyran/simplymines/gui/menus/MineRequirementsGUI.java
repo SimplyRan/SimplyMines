@@ -6,6 +6,7 @@ import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
@@ -30,10 +31,12 @@ import java.util.List;
 public class MineRequirementsGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public MineRequirementsGUI(SimplyMines plugin, GuiManager guiManager) {
+    public MineRequirementsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -51,7 +54,7 @@ public class MineRequirementsGUI {
 
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
             //Saving after opening
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
         });
 
         GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
@@ -62,7 +65,7 @@ public class MineRequirementsGUI {
                         .asGuiItem(event -> {
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
                             //Saving after opening
-                            MineSaver.saveAsync(plugin, mine);
+                            MineSaver.saveAsync(plugin, mineManager, mine);
                         }));
 
         gui.setItem(2, 3,

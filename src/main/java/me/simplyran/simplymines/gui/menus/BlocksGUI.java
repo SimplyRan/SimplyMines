@@ -9,6 +9,7 @@ import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
 import me.simplyran.simplymines.actions.impl.ItemDropAction;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -33,10 +34,12 @@ import java.util.Map;
 public class BlocksGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public BlocksGUI(SimplyMines plugin, GuiManager guiManager) {
+    public BlocksGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -63,7 +66,7 @@ public class BlocksGUI {
                         && currentItem.getType() != Material.AIR) {
                     mine.removeBlock(ItemUtils.getIDFromItemStack(currentItem));
                     Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
-                    MineSaver.saveAsync(plugin, mine);
+                    MineSaver.saveAsync(plugin, mineManager, mine);
                 }
             }
         });

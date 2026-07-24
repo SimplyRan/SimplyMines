@@ -10,6 +10,7 @@ import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
 import me.simplyran.simplymines.actions.impl.ItemDropAction;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MineSaver;
@@ -32,10 +33,12 @@ import java.util.List;
 public class BlockActionsGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public BlockActionsGUI(SimplyMines plugin, GuiManager guiManager) {
+    public BlockActionsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -50,7 +53,7 @@ public class BlockActionsGUI {
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
         });
 
@@ -60,7 +63,7 @@ public class BlockActionsGUI {
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
                         .asGuiItem(event -> {
-                            MineSaver.saveAsync(plugin, mine);
+                            MineSaver.saveAsync(plugin, mineManager, mine);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
                         }));
 
@@ -139,7 +142,7 @@ public class BlockActionsGUI {
     private void handleClick(Player player, String block, BasicMine mine, IAction action, ClickType click, Runnable openEditor) {
         if (click == ClickType.SHIFT_RIGHT) {
             mine.removeAction(block, action);
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> open(player, block, mine));
             return;
         }

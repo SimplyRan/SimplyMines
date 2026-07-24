@@ -8,7 +8,7 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.utils.ItemUtils;
-import me.simplyran.simplymines.utils.JsonUtils;
+import me.simplyran.simplymines.utils.MineSaver;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.*;
@@ -302,19 +302,11 @@ public class BasicMine{
                         @NotNull SimplyMines plugin){
         //Mine with this name already exist!
         if (mineManager.getMine(newName) != null) return;
-        String oldName = name;
+        //Deleting the old file/entry while the name is still the old one.
+        mineManager.deleteMine(name);
         this.name = newName;
-        saveAndDelete(plugin, oldName);
-        mineManager.deleteMine(oldName);
         mineManager.addMine(this);
-    }
-
-    private void saveAndDelete(SimplyMines plugin, String oldName){
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (JsonUtils.saveMine(plugin, this)) {
-                JsonUtils.deleteMine(plugin, oldName);
-            }
-        });
+        MineSaver.saveAsync(plugin, mineManager, this);
     }
 
     public void addAction(String block, IAction action) {

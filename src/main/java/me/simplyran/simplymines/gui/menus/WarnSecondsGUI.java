@@ -5,6 +5,7 @@ import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MineSaver;
@@ -26,10 +27,12 @@ public class WarnSecondsGUI {
     private static final int[] WARN_SECOND_OPTIONS = {1, 2, 5, 10, 15, 30, 60};
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public WarnSecondsGUI(SimplyMines plugin, GuiManager guiManager) {
+    public WarnSecondsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -42,7 +45,7 @@ public class WarnSecondsGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getWarnSettingsGUI().open(player, mine));
         });
 

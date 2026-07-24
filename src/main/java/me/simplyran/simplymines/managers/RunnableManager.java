@@ -4,7 +4,6 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
-import me.simplyran.simplymines.utils.JsonUtils;
 import me.simplyran.simplymines.utils.WarnUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +51,7 @@ public class RunnableManager implements Runnable{
             warnUtils.checkWarnings(mine, now);
 
             if (shouldSaveMines) {
-                JsonUtils.saveMine(plugin, mine);
+                mineManager.saveMine(mine);
             }
         });
 
@@ -63,7 +62,7 @@ public class RunnableManager implements Runnable{
     public void saveAllMines(){
         mineManager.getMines().forEach(mine -> {
             lastMineSaves = System.currentTimeMillis()/1000;
-            JsonUtils.saveMine(plugin, mine);
+            mineManager.saveMine(mine);
         });
     }
 

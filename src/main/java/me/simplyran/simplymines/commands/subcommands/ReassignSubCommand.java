@@ -94,6 +94,6 @@ public class ReassignSubCommand implements SubCommand {
         mine.setRegion(new BoxedRegion(corners.first().getWorld(), corners.first(), corners.second()));
         sender.sendMessage(MessageUtils.format(sender, mineMoved,
                 "mine", mineName));
-        MineSaver.saveAsync(plugin, mine);
+        MineSaver.saveAsync(plugin, mineManager, mine);
     }
 }

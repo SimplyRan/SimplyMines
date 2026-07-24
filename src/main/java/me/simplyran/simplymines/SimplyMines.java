@@ -9,6 +9,9 @@ import me.simplyran.simplymines.api.SimplyMinesAPI;
 import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
+import me.simplyran.simplymines.database.DatabaseFactory;
+import me.simplyran.simplymines.database.IDatabase;
+import me.simplyran.simplymines.database.MineSerializer;
 import me.simplyran.simplymines.listeners.BlockBreakListener;
 import me.simplyran.simplymines.listeners.BlockDropItemListener;
 import me.simplyran.simplymines.listeners.ChatInputListener;
@@ -36,8 +39,7 @@ public final class SimplyMines extends JavaPlugin {
     private GuiManager guiManager;
     private SelectionManager selectionManager;
     private ConfigManager configManager;
-    @Getter
-    private static Economy economy;
+    @Getter private static Economy economy;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
 
@@ -70,8 +72,12 @@ public final class SimplyMines extends JavaPlugin {
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable(configManager);
 
-        //Creating MineManager - depending on workloadRunnable
-        this.mineManager = new MineManager(this, workloadRunnable, configManager);
+        //Creating the database backend and injecting it into the MineManager
+        MineSerializer mineSerializer = new MineSerializer(workloadRunnable, configManager, getLogger());
+        IDatabase database = DatabaseFactory.create(this, mineSerializer);
+
+        //Creating MineManager - depending on the database
+        this.mineManager = new MineManager(this, database);
 
 
         //Creating GUIManager
@@ -133,6 +139,8 @@ public final class SimplyMines extends JavaPlugin {
 
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
+
+        mineManager.closeDatabase();
     }
 
     private void registerBStats(){

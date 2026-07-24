@@ -7,6 +7,7 @@ import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.ChatInputManager;
 import me.simplyran.simplymines.utils.GuiUtils;
@@ -27,10 +28,12 @@ import java.util.List;
 public class EditCommandActionGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public EditCommandActionGUI(SimplyMines plugin, GuiManager guiManager) {
+    public EditCommandActionGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -47,7 +50,7 @@ public class EditCommandActionGUI {
             if (action.getCommandName().isEmpty()) {
                 mine.removeAction(block, action);
             }
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
         });
 
@@ -91,7 +94,7 @@ public class EditCommandActionGUI {
                         .name(Component.text("Remove Action").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED))
                         .asGuiItem(event -> {
                             mine.removeAction(block, action);
-                            MineSaver.saveAsync(plugin, mine);
+                            MineSaver.saveAsync(plugin, mineManager, mine);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
                         }));
 

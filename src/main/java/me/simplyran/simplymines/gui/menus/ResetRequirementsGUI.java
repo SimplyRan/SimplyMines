@@ -6,6 +6,7 @@ import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
@@ -31,10 +32,12 @@ import java.util.List;
 public class ResetRequirementsGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public ResetRequirementsGUI(SimplyMines plugin, GuiManager guiManager) {
+    public ResetRequirementsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -51,7 +54,7 @@ public class ResetRequirementsGUI {
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
 
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
         });
 
         GuiUtils.fillRow(gui, 2, Material.WHITE_STAINED_GLASS_PANE);
@@ -62,7 +65,7 @@ public class ResetRequirementsGUI {
                         .asGuiItem(event -> {
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
                             //Saving after opening
-                            MineSaver.saveAsync(plugin, mine);
+                            MineSaver.saveAsync(plugin, mineManager, mine);
 
                         }));
 

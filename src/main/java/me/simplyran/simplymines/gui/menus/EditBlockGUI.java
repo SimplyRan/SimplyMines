@@ -5,6 +5,7 @@ import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -27,10 +28,12 @@ import java.util.Map;
 public class EditBlockGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public EditBlockGUI(SimplyMines plugin, GuiManager guiManager) {
+    public EditBlockGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -44,7 +47,7 @@ public class EditBlockGUI {
         // Go back to blocks GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
         });
 

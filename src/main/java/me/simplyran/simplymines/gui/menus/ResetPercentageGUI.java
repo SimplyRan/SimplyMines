@@ -5,6 +5,7 @@ import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
@@ -23,10 +24,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 public class ResetPercentageGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public ResetPercentageGUI(SimplyMines plugin, GuiManager guiManager) {
+    public ResetPercentageGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -37,7 +40,7 @@ public class ResetPercentageGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getResetRequirementsGUI().open(player, mine));
         });
 
@@ -73,7 +76,7 @@ public class ResetPercentageGUI {
     }
 
     private void adjust(Gui gui, PercentResetRequirement req, double delta) {
-        double newValue = Math.max(0, Math.min(100, req.getResetAtPercentage() + delta));
+        double newValue = Math.clamp(req.getResetAtPercentage() + delta, 0, 100);
         req.setResetAtPercentage(newValue);
         renderDisplay(gui, req);
         gui.update();

@@ -72,7 +72,7 @@ public class SaveSubCommand implements SubCommand {
             return;
         }
 
-        MineSaver.saveAsync(plugin, mine);
+        MineSaver.saveAsync(plugin, mineManager, mine);
         sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Saved to disk " + mineName + "!"));
     }
 }

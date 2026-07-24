@@ -1,9 +1,9 @@
 package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.database.IDatabase;
 import me.simplyran.simplymines.objects.BasicMine;
-import me.simplyran.simplymines.utils.JsonUtils;
-import me.simplyran.simplymines.workload.WorkloadRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -15,24 +15,17 @@ public class MineManager {
 
     private final HashMap<String, BasicMine> mines;
     private final SimplyMines plugin;
-    private final WorkloadRunnable workloadRunnable;
-    private final ConfigManager configManager;
+    private final IDatabase database;
 
-    public MineManager(SimplyMines plugin,
-                       WorkloadRunnable workloadRunnable,
-                       ConfigManager configManager){
+    public MineManager(@NotNull SimplyMines plugin,
+                       @NotNull IDatabase database){
         this.plugin = plugin;
-        this.workloadRunnable = workloadRunnable;
-        this.configManager = configManager;
+        this.database = database;
         mines = new HashMap<>();
 
 
         //Loading Mines then starting the Workload
-        JsonUtils.loadMines(plugin.getDataFolder(),
-                workloadRunnable,
-                this,
-                configManager,
-                plugin.getLogger());
+        loadMines();
 
 
     }
@@ -44,11 +37,23 @@ public class MineManager {
 
     public void reloadMines(){
         mines.clear();
-        JsonUtils.loadMines(plugin.getDataFolder(),
-                workloadRunnable,
-                this,
-                configManager,
-                plugin.getLogger());
+        loadMines();
+    }
+
+    private void loadMines(){
+        for (BasicMine mine : database.loadMines()){
+            addMine(mine);
+        }
+        plugin.getLogger().info("Loaded " + mines.size() + " mine(s).");
+    }
+
+    /**
+     * Persists a mine through the configured backend.
+     *
+     * @return true if the mine was saved successfully.
+     */
+    public boolean saveMine(@NotNull BasicMine mine){
+        return database.saveMine(mine);
     }
 
     @Nullable
@@ -58,7 +63,7 @@ public class MineManager {
 
     public void deleteMine(String name){
         mines.remove(name);
-        JsonUtils.deleteMine(plugin, name);
+        database.deleteMine(name);
     }
 
     public Collection<BasicMine> getMines(){
@@ -73,12 +78,11 @@ public class MineManager {
         return minesName;
     }
 
-
-
-
-
-
-
-
+    /**
+     * Releases the underlying database resources. Called on plugin disable.
+     */
+    public void closeDatabase(){
+        database.close();
+    }
 
 }

@@ -79,7 +79,7 @@ public class SimplyMinesAPI {
      * Registers a factory for a custom IMineRequirement type so it can be
      * saved to and loaded from disk. Your class must also expose a
      * {@code public static final String NAME} field matching the id you
-     * register here — JsonUtils uses it via reflection when serializing.
+     * register here — the database uses it via reflection when serializing.
      */
     public void registerMineRequirement(@NotNull String id, @NotNull MineRequirementFactory factory){
         MineRequirementRegistry.register(id, factory);

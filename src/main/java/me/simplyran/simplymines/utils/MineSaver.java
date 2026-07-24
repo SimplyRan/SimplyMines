@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.utils;
 
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import org.bukkit.Bukkit;
 
@@ -13,7 +14,8 @@ public final class MineSaver {
     private MineSaver() {
     }
 
-    public static void saveAsync(SimplyMines plugin, BasicMine mine) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> JsonUtils.saveMine(plugin, mine));
+    public static void saveAsync(SimplyMines plugin, MineManager mineManager, BasicMine mine) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                () -> mineManager.saveMine(mine));
     }
 }

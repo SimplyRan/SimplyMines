@@ -6,6 +6,7 @@ import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
@@ -24,13 +25,16 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 public class MinEfficiencyGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
     private final ConfigManager configManager;
 
     public MinEfficiencyGUI(ConfigManager configManager,
                             SimplyMines plugin,
+                            MineManager mineManager,
                             GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
         this.configManager = configManager;
     }
@@ -42,7 +46,7 @@ public class MinEfficiencyGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
+            MineSaver.saveAsync(plugin, mineManager, mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineRequirementsGUI().open(player, mine));
         });
 

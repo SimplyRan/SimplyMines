@@ -3,6 +3,37 @@ max_workload: 20000000
 save_mines_seconds: 1800
 max_milles_per_tick: 2.5
 
+# Where mines are stored. Pick ONE backend with 'type', then fill in that
+# backend's own settings section below. Sections for the other backends are
+# ignored, so you can leave them as-is.
+#   JSON   - one file per mine in the /mines folder (default, no setup).
+#   SQLITE - a single local database file (no server needed).
+#   MYSQL  - a MySQL/MariaDB server, local OR remote, shareable across servers.
+database:
+  type: JSON
+
+  # Settings for type: SQLITE
+  sqlite:
+    # Database file name, stored inside the plugin folder.
+    file: mines.db
+
+  # Settings for type: MYSQL
+  # Point 'host' at any reachable machine (an IP or hostname) to connect to a
+  # remote database server. The account needs CREATE TABLE + read/write rights.
+  mysql:
+    host: localhost
+    port: 3306
+    database: simplymines
+    username: root
+    password: ""
+    # Enable if your server requires an encrypted (TLS) connection.
+    useSSL: false
+    # Max simultaneous connections kept open to the server.
+    pool-size: 10
+    # Extra JDBC connection properties, as key: value pairs (advanced, optional).
+    properties:
+      allowPublicKeyRetrieval: true
+
 messages:
   only-players: "<red>Only players can use this command."
   no-permission: "<red>You do not have permission to use this command."
