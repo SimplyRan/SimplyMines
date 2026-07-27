@@ -61,7 +61,7 @@ public class BlockOptionsGUI {
                         .asGuiItem(event -> guiManager.getEditBlockGUI().open(player, block, mine)));
 
         int actionCount = mine.getActions(block).size();
-        gui.setItem(2, 6,
+        gui.setItem(2, 7,
                 ItemBuilder.from(Material.CHEST)
                         .name(Component.text("Edit Actions")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)

@@ -45,7 +45,7 @@ public class MineEditorGUI {
 
         Gui gui = Gui.gui()
                 .title(Component.text("Editing " + mineName))
-                .rows(4)
+                .rows(3)
                 .disableAllInteractions()
                 .create();
 
@@ -59,7 +59,7 @@ public class MineEditorGUI {
 
         GuiUtils.fillBorder(gui);
 
-        gui.setItem(4, 1,
+        gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
                         .name(Component.text("Back")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -94,7 +94,7 @@ public class MineEditorGUI {
                         .lore(hubLore("All toggles: drops, pickup, physics, warnings..."))
                         .asGuiItem(event -> guiManager.getMineSettingsGUI().open(player, mine)));
 
-        gui.setItem(3, 2,
+        gui.setItem(2, 2,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
                         .name(Component.text("Edit Blocks")
                                 .color(NamedTextColor.YELLOW)
@@ -102,7 +102,7 @@ public class MineEditorGUI {
                         .lore(buildBlocksLore(mine))
                         .asGuiItem(event -> guiManager.getBlocksGUI().open(player, mine)));
 
-        gui.setItem(3, 4,
+        gui.setItem(2, 4,
                 ItemBuilder.from(Material.CLOCK)
                         .name(Component.text("Reset Requirements")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -110,7 +110,7 @@ public class MineEditorGUI {
                         .lore(hubLore("Configure how/when this mine resets"))
                         .asGuiItem(event -> guiManager.getResetRequirementsGUI().open(player, mine)));
 
-        gui.setItem(3, 6,
+        gui.setItem(2, 6,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
                         .name(Component.text("Warn Settings")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
@@ -118,7 +118,7 @@ public class MineEditorGUI {
                         .lore(hubLore("Configure warn seconds & warn distance"))
                         .asGuiItem(event -> guiManager.getWarnSettingsGUI().open(player, mine)));
 
-        gui.setItem(3, 8,
+        gui.setItem(2, 8,
                 ItemBuilder.from(Material.GOLDEN_PICKAXE)
                         .name(Component.text("Mine Requirements")
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
