@@ -20,4 +20,7 @@ public interface IResetRequirement {
      //right is value
      List<Pair<String, Object>> serialize();
 
+     /** The registry key used to identify this requirement type in saved data. */
+     String getSerializationKey();
+
 }

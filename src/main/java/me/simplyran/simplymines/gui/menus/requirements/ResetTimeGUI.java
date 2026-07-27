@@ -76,7 +76,7 @@ public class ResetTimeGUI {
     private TimeResetRequirement getOrCreate(BasicMine mine) {
         TimeResetRequirement req = mine.getResetRequirement(TimeResetRequirement.class);
         if (req == null) {
-            req = new TimeResetRequirement(mine, 30);
+            req = new TimeResetRequirement(30);
             mine.addResetRequirement(req);
         }
         return req;

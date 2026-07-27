@@ -60,7 +60,7 @@ public class ReassignSubCommand implements SubCommand {
 
     @Override
     public List<String> tabcomplete() {
-        return mineManager.getMinesNames();
+        return mineManager.getMinesNames().stream().toList();
     }
 
 

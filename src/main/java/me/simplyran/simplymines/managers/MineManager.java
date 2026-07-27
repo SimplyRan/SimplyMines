@@ -11,10 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -119,12 +116,8 @@ public class MineManager {
         return mines.values();
     }
 
-    public List<String> getMinesNames(){
-        List<String> minesName = new ArrayList<>();
-        for (BasicMine mine : getMines()){
-            minesName.add(mine.getName());
-        }
-        return minesName;
+    public Set<String> getMinesNames(){
+        return mines.keySet();
     }
 
     /**

@@ -73,7 +73,8 @@ public class CreateSubCommand implements SubCommand {
 
     @Override
     public List<String> tabcomplete() {
-        return mineManager.getMinesNames();
+        return mineManager.getMinesNames()
+                .stream().toList();
     }
 
     @Override
@@ -105,7 +106,7 @@ public class CreateSubCommand implements SubCommand {
         }
         BasicMine basicMine = MineFactory.createDefaultMin(mineName, corners, workloadRunnable);
 
-        basicMine.addResetRequirement(new TimeResetRequirement(basicMine, 30));
+        basicMine.addResetRequirement(new TimeResetRequirement(30));
 
         PercentResetRequirement percentReq = new PercentResetRequirement(basicMine, 10.0);
         percentReq.setEnabled(false);

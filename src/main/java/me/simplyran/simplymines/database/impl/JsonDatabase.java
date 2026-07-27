@@ -51,18 +51,17 @@ public class JsonDatabase implements IDatabase {
 
         File[] files = minesFolder.listFiles((dir, fileName) -> fileName.endsWith(".json"));
 
-        if (files == null || files.length == 0) {
+        if (files == null) {
             return mines;
         }
 
-        Gson gson = new Gson();
 
         for (File file : files) {
             String mineName = file.getName().replace(".json", "");
 
             try (FileReader reader = new FileReader(file)) {
 
-                JsonObject json = gson.fromJson(reader, JsonObject.class);
+                JsonObject json = GSON.fromJson(reader, JsonObject.class);
 
                 BasicMine mine = serializer.deserialize(mineName, json);
 

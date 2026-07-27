@@ -227,7 +227,7 @@ public class SimplyMinesAPI {
 
         TimeResetRequirement requirement = mine.getResetRequirement(TimeResetRequirement.class);
         if (requirement == null) {
-            requirement = new TimeResetRequirement(mine, resetTimeSeconds);
+            requirement = new TimeResetRequirement(resetTimeSeconds);
             mine.addResetRequirement(requirement);
         } else {
             requirement.setResetTime(resetTimeSeconds);

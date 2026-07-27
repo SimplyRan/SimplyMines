@@ -15,8 +15,9 @@ import java.util.function.Supplier;
  */
 public class RegionResetWorkload implements Workload {
 
+    private static final Location location = new Location(null, 0 , 0 , 0);
+
     private final WorkloadRunnable workloadRunnable;
-    private final World world;
     private final int minY, minZ, maxX, maxY, maxZ;
     private final boolean onlyReplaceAir;
     private final Supplier<IBlock> blockPicker;
@@ -30,7 +31,6 @@ public class RegionResetWorkload implements Workload {
                                boolean onlyReplaceAir,
                                Supplier<IBlock> blockPicker) {
         this.workloadRunnable = workloadRunnable;
-        this.world = world;
         this.minY = minY;
         this.minZ = minZ;
         this.maxX = maxX;
@@ -41,12 +41,12 @@ public class RegionResetWorkload implements Workload {
         this.x = minX;
         this.y = minY;
         this.z = minZ;
+        location.setWorld(world);
     }
 
     @Override
     public void compute() {
-        Location location = new Location(world, x, y, z);
-
+        location.set(x, y, z);
         if (!onlyReplaceAir || location.getBlock().isEmpty()) {
             blockPicker.get().place(location);
         }

@@ -51,6 +51,11 @@ public class PermissionMineRequirement implements IMineRequirement {
     }
 
     @Override
+    public String getSerializationKey() {
+        return NAME;
+    }
+
+    @Override
     public List<Pair<String, Object>> serialize() {
         return List.of(
                 Pair.of("permission", permission),

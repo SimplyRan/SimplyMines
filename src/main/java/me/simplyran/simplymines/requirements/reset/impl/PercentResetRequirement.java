@@ -50,6 +50,11 @@ public class PercentResetRequirement implements IResetRequirement {
     }
 
     @Override
+    public String getSerializationKey() {
+        return NAME;
+    }
+
+    @Override
     public List<Pair<String, Object>> serialize() {
         return List.of(
                 Pair.of("reset_percentage", resetAtPercentage),

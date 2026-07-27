@@ -49,7 +49,7 @@ public class AddResetRequirementGUI {
                 .name(Component.text("Time Reset").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
                 .lore(Component.text("Resets on a fixed timer").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
                 .asGuiItem(event -> {
-                    mine.addResetRequirement(new TimeResetRequirement(mine, 30));
+                    mine.addResetRequirement(new TimeResetRequirement(30));
                     Bukkit.getScheduler().runTask(plugin, () -> guiManager.getResetRequirementsGUI().open(player, mine));
                 }));
 

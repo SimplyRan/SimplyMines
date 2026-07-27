@@ -11,6 +11,7 @@ import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.mine.MineRequirementRegistry;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
+import me.simplyran.simplymines.settings.MineSettings;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,12 +19,10 @@ import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -34,12 +33,6 @@ import java.util.logging.Logger;
 public class MineSerializer {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
-    private static final List<Integer> DEFAULT_WARN_SECONDS = List.of(30, 15, 5, 3, 2, 1);
-    private static final boolean DEFAULT_WARN_NEAR = true;
-    private static final boolean DEFAULT_WARN_GLOBAL = false;
-    private static final boolean DEFAULT_TELEPORT_PLAYERS = true;
-    private static final int DEFAULT_WARN_DISTANCE = 50;
 
     private final WorkloadRunnable workloadRunnable;
     private final ConfigManager configManager;
@@ -60,8 +53,6 @@ public class MineSerializer {
      */
     @Nullable
     public BasicMine deserialize(@NotNull String mineName, @NotNull JsonObject json) {
-
-        boolean enabled = json.get("enabled").getAsBoolean();
 
         String worldName = json.get("world").getAsString();
         World world = Bukkit.getWorld(worldName);
@@ -89,97 +80,42 @@ public class MineSerializer {
         );
 
         Map<String, Double> materials = new HashMap<>();
-
         JsonObject materialsJson = json.getAsJsonObject("materials");
-
         if (materialsJson != null) {
             for (Map.Entry<String, JsonElement> entry : materialsJson.entrySet()) {
                 materials.put(entry.getKey(), entry.getValue().getAsDouble());
             }
         }
 
-        List<Integer> warnSeconds = new ArrayList<>(DEFAULT_WARN_SECONDS);
-
-        if (json.has("warnSeconds")) {
-            warnSeconds.clear();
-
-            for (JsonElement element : json.getAsJsonArray("warnSeconds")) {
-                warnSeconds.add(element.getAsInt());
-            }
-        }
-
-        boolean warnNear = json.has("warnNear")
-                ? json.get("warnNear").getAsBoolean()
-                : DEFAULT_WARN_NEAR;
-
-        boolean warnGlobal = json.has("warnGlobal")
-                ? json.get("warnGlobal").getAsBoolean()
-                : DEFAULT_WARN_GLOBAL;
-
-        boolean teleportPlayers = json.has("teleportPlayers")
-                ? json.get("teleportPlayers").getAsBoolean()
-                : DEFAULT_TELEPORT_PLAYERS;
-
-        int warnDistance = json.has("warnDistance")
-                ? json.get("warnDistance").getAsInt()
-                : DEFAULT_WARN_DISTANCE;
-
-        boolean usePhysics = json.has("usePhysics")
-                && json.get("usePhysics").getAsBoolean();
-
-        boolean replaceMode = json.has("replaceMode")
-                && json.get("replaceMode").getAsBoolean();
-
-        boolean normalDropsEnabled = json.has("normalDropsEnabled")
-                && json.get("normalDropsEnabled").getAsBoolean();
-
-        boolean autoPickup = json.has("autoPickup")
-                && json.get("autoPickup").getAsBoolean();
-
+        // Build settings, falling back to MineSettings defaults for old saves.
+        MineSettings settings = new MineSettings(
+                getBool(json, "enabled",            MineSettings.DEFAULT_ENABLED),
+                getBool(json, "warnNear",           MineSettings.DEFAULT_WARN_NEAR),
+                getBool(json, "warnGlobal",         MineSettings.DEFAULT_WARN_GLOBAL),
+                readWarnSeconds(json),
+                getBool(json, "teleportPlayers",    MineSettings.DEFAULT_TELEPORT_PLAYERS),
+                getInt (json, "warnDistance",       MineSettings.DEFAULT_WARN_DISTANCE),
+                getBool(json, "usePhysics",         MineSettings.DEFAULT_USE_PHYSICS),
+                getBool(json, "replaceMode",        MineSettings.DEFAULT_REPLACE_MODE),
+                getBool(json, "normalDropsEnabled", MineSettings.DEFAULT_NORMAL_DROPS_ENABLED),
+                getBool(json, "fortuneEnabled",     MineSettings.DEFAULT_FORTUNE_ENABLED),
+                getBool(json, "autoPickup",         MineSettings.DEFAULT_AUTO_PICKUP),
+                readTeleportLocation(json, world)
+        );
 
         BasicMine mine = new BasicMine(
-                enabled,
                 mineName,
                 corner1,
                 corner2,
                 materials,
                 workloadRunnable,
-                warnSeconds,
-                warnNear,
-                warnGlobal,
-                teleportPlayers,
-                warnDistance,
-                usePhysics,
-                replaceMode,
-                normalDropsEnabled,
-                autoPickup
+                settings
         );
 
-        if (json.has("teleportLocation")) {
-            JsonObject tp = json.getAsJsonObject("teleportLocation");
-
-            mine.setTeleportLocation(
-                    new Location(
-                            world,
-                            tp.get("x").getAsDouble(),
-                            tp.get("y").getAsDouble(),
-                            tp.get("z").getAsDouble(),
-                            tp.has("yaw") ? tp.get("yaw").getAsFloat() : 0f,
-                            tp.has("pitch") ? tp.get("pitch").getAsFloat() : 0f
-                    )
-            );
-        }
-
         if (json.has("mine_requirements")) {
-            JsonArray requirements = json.getAsJsonArray("mine_requirements");
-
-            for (JsonElement element : requirements) {
+            for (JsonElement element : json.getAsJsonArray("mine_requirements")) {
                 IMineRequirement requirement =
-                        MineRequirementRegistry.deserialize(
-                                configManager,
-                                element.getAsJsonObject()
-                        );
-
+                        MineRequirementRegistry.deserialize(configManager, element.getAsJsonObject());
                 if (requirement != null) {
                     mine.addMineRequirement(requirement);
                 }
@@ -187,27 +123,20 @@ public class MineSerializer {
         }
 
         if (json.has("reset_requirements")) {
-            JsonArray requirements = json.getAsJsonArray("reset_requirements");
-
-            for (JsonElement element : requirements) {
+            for (JsonElement element : json.getAsJsonArray("reset_requirements")) {
                 IResetRequirement requirement =
-                        ResetRequirementRegistry.deserialize(
-                                mine,
-                                element.getAsJsonObject()
-                        );
-
+                        ResetRequirementRegistry.deserialize(mine, element.getAsJsonObject());
                 if (requirement != null) {
                     mine.addResetRequirement(requirement);
                 }
             }
         }
+
         if (json.has("block_actions")) {
             JsonObject blockActionsJson = json.getAsJsonObject("block_actions");
             for (Map.Entry<String, JsonElement> entry : blockActionsJson.entrySet()) {
                 String blockKey = entry.getKey();
-                JsonArray actionsArray = entry.getValue().getAsJsonArray();
-
-                for (JsonElement element : actionsArray) {
+                for (JsonElement element : entry.getValue().getAsJsonArray()) {
                     IAction action = ActionRegistry.deserialize(element.getAsJsonObject());
                     if (action != null) {
                         mine.addAction(blockKey, action);
@@ -224,11 +153,11 @@ public class MineSerializer {
 
         JsonObject json = new JsonObject();
 
-        json.addProperty("enabled", mine.isEnabled());
-
         BoxedRegion region = mine.getRegion();
+        MineSettings s = mine.getSettings();
 
-        json.addProperty("world", region.getWorld().getName());
+        json.addProperty("enabled",           s.isEnabled());
+        json.addProperty("world",             region.getWorld().getName());
 
         JsonObject c1 = new JsonObject();
         c1.addProperty("x", region.getMaxX());
@@ -243,86 +172,58 @@ public class MineSerializer {
         json.add("corner2", c2);
 
         JsonObject materials = new JsonObject();
-
         for (Map.Entry<String, Double> entry : mine.getMaterials()) {
             materials.addProperty(entry.getKey(), entry.getValue());
         }
-
         json.add("materials", materials);
 
         JsonArray warnSeconds = new JsonArray();
-
-        for (Integer second : mine.getWarnSeconds()) {
+        for (Integer second : s.getWarnSeconds()) {
             warnSeconds.add(second);
         }
-
         json.add("warnSeconds", warnSeconds);
 
-        json.addProperty("warnNear", mine.isWarnNear());
-        json.addProperty("warnGlobal", mine.isWarnGlobal());
-        json.addProperty("teleportPlayers", mine.isTeleportPlayers());
-        json.addProperty("warnDistance", mine.getWarnDistance());
-        json.addProperty("usePhysics", mine.isUsePhysics());
-        json.addProperty("replaceMode", mine.isReplaceMode());
-        json.addProperty("normalDropsEnabled", mine.isNormalDropsEnabled());
-        json.addProperty("autoPickup", mine.isAutoPickup());
+        json.addProperty("warnNear",           s.isWarnNear());
+        json.addProperty("warnGlobal",         s.isWarnGlobal());
+        json.addProperty("teleportPlayers",    s.isTeleportPlayers());
+        json.addProperty("warnDistance",       s.getWarnDistance());
+        json.addProperty("usePhysics",         s.isUsePhysics());
+        json.addProperty("replaceMode",        s.isReplaceMode());
+        json.addProperty("normalDropsEnabled", s.isNormalDropsEnabled());
+        json.addProperty("fortuneEnabled",     s.isFortuneEnabled());
+        json.addProperty("autoPickup",         s.isAutoPickup());
 
+        // Mine requirements — use getSerializationKey() instead of reflection
         JsonArray mineRequirements = new JsonArray();
-
         for (IMineRequirement requirement : mine.getMineRequirements()) {
-
             JsonObject requirementJson = new JsonObject();
-
-            requirementJson.addProperty(
-                    "type",
-                    getRequirementName(requirement)
-            );
-
+            requirementJson.addProperty("type", requirement.getSerializationKey());
             for (Pair<String, Object> pair : requirement.serialize()) {
-                addProperty(
-                        requirementJson,
-                        pair.first(),
-                        pair.right()
-                );
+                addProperty(requirementJson, pair.first(), pair.right());
             }
-
             mineRequirements.add(requirementJson);
         }
-
         json.add("mine_requirements", mineRequirements);
 
+        // Reset requirements
         JsonArray resetRequirements = new JsonArray();
-
         for (IResetRequirement requirement : mine.getResetRequirements()) {
-
             JsonObject requirementJson = new JsonObject();
-
-            requirementJson.addProperty(
-                    "type",
-                    getRequirementName(requirement)
-            );
-
+            requirementJson.addProperty("type", requirement.getSerializationKey());
             for (Pair<String, Object> pair : requirement.serialize()) {
-                addProperty(
-                        requirementJson,
-                        pair.first(),
-                        pair.right()
-                );
+                addProperty(requirementJson, pair.first(), pair.right());
             }
-
             resetRequirements.add(requirementJson);
         }
-
         json.add("reset_requirements", resetRequirements);
 
-
+        // Block actions
         JsonObject blockActionsJson = new JsonObject();
         for (Map.Entry<String, List<IAction>> entry : mine.getAllActions().entrySet()) {
             JsonArray actionList = new JsonArray();
             for (IAction action : entry.getValue()) {
                 JsonObject actionJson = new JsonObject();
                 actionJson.addProperty("type", action.name());
-
                 for (Pair<String, Object> pair : action.serialize()) {
                     if (pair.right() instanceof Map || pair.right() instanceof List) {
                         actionJson.add(pair.first(), GSON.toJsonTree(pair.right()));
@@ -336,59 +237,63 @@ public class MineSerializer {
         }
         json.add("block_actions", blockActionsJson);
 
-        Location teleportLocation = mine.getTeleportLocation();
-
+        // Teleport location
+        Location teleportLocation = s.getTeleportLocation();
         if (teleportLocation != null) {
-
             JsonObject teleport = new JsonObject();
-
-            teleport.addProperty("x", teleportLocation.getX());
-            teleport.addProperty("y", teleportLocation.getY());
-            teleport.addProperty("z", teleportLocation.getZ());
-            teleport.addProperty("yaw", teleportLocation.getYaw());
+            teleport.addProperty("x",     teleportLocation.getX());
+            teleport.addProperty("y",     teleportLocation.getY());
+            teleport.addProperty("z",     teleportLocation.getZ());
+            teleport.addProperty("yaw",   teleportLocation.getYaw());
             teleport.addProperty("pitch", teleportLocation.getPitch());
-
             json.add("teleportLocation", teleport);
         }
 
         return json;
     }
 
-    private static final Map<Class<?>, String> NAME_CACHE = new ConcurrentHashMap<>();
+    // ── Private helpers ───────────────────────────────────────────────────────
 
-    private static String getRequirementName(Object requirement) {
-        return NAME_CACHE.computeIfAbsent(requirement.getClass(), clazz -> {
-            try {
-                Field field = clazz.getField("NAME");
-                return (String) field.get(null);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Requirement " + clazz.getName()
-                                + " is missing public static final String NAME",
-                        e
-                );
-            }
-        });
+    private static boolean getBool(JsonObject json, String key, boolean fallback) {
+        return json.has(key) ? json.get(key).getAsBoolean() : fallback;
     }
 
-    private static void addProperty(JsonObject json,
-                                    String key,
-                                    Object value) {
+    private static int getInt(JsonObject json, String key, int fallback) {
+        return json.has(key) ? json.get(key).getAsInt() : fallback;
+    }
 
-        if (value instanceof String s) {
-            json.addProperty(key, s);
-        } else if (value instanceof Integer i) {
-            json.addProperty(key, i);
-        } else if (value instanceof Long l) {
-            json.addProperty(key, l);
-        } else if (value instanceof Double d) {
-            json.addProperty(key, d);
-        } else if (value instanceof Float f) {
-            json.addProperty(key, f);
-        } else if (value instanceof Boolean b) {
-            json.addProperty(key, b);
-        } else if (value instanceof Character c) {
-            json.addProperty(key, c);
+    private static List<Integer> readWarnSeconds(JsonObject json) {
+        if (!json.has("warnSeconds")) {
+            return new ArrayList<>(MineSettings.DEFAULT_WARN_SECONDS);
         }
+        List<Integer> list = new ArrayList<>();
+        for (JsonElement element : json.getAsJsonArray("warnSeconds")) {
+            list.add(element.getAsInt());
+        }
+        return list;
+    }
+
+    @Nullable
+    private static Location readTeleportLocation(JsonObject json, World world) {
+        if (!json.has("teleportLocation")) return null;
+        JsonObject tp = json.getAsJsonObject("teleportLocation");
+        return new Location(
+                world,
+                tp.get("x").getAsDouble(),
+                tp.get("y").getAsDouble(),
+                tp.get("z").getAsDouble(),
+                tp.has("yaw")   ? tp.get("yaw").getAsFloat()   : 0f,
+                tp.has("pitch") ? tp.get("pitch").getAsFloat() : 0f
+        );
+    }
+
+    private static void addProperty(JsonObject json, String key, Object value) {
+        if (value instanceof String s)         json.addProperty(key, s);
+        else if (value instanceof Integer i)   json.addProperty(key, i);
+        else if (value instanceof Long l)      json.addProperty(key, l);
+        else if (value instanceof Double d)    json.addProperty(key, d);
+        else if (value instanceof Float f)     json.addProperty(key, f);
+        else if (value instanceof Boolean b)   json.addProperty(key, b);
+        else if (value instanceof Character c) json.addProperty(key, c);
     }
 }
