@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -15,13 +14,10 @@ public class TimeResetRequirement implements IResetRequirement {
     public final static String NAME = "time_reset_requirement";
 
 
-    private final BasicMine mine;
     @Getter private long lastReset;
     @Getter @Setter private int resetTime;
 
-    public TimeResetRequirement(@NotNull BasicMine mine,
-                                int resetTime){
-        this.mine = mine;
+    public TimeResetRequirement(int resetTime){
         this.resetTime = resetTime;
     }
 
@@ -50,15 +46,17 @@ public class TimeResetRequirement implements IResetRequirement {
     }
 
     @Override
+    public String getSerializationKey() {
+        return NAME;
+    }
+
+    @Override
     public List<Pair<String, Object>> serialize() {
         return List.of(Pair.of("reset_time", resetTime));
     }
 
     public static IResetRequirement deserialize(BasicMine mine, JsonObject json) {
-        return new TimeResetRequirement(
-                mine,
-                json.get("reset_time").getAsInt()
-        );
+        return new TimeResetRequirement(json.get("reset_time").getAsInt());
     }
 
 

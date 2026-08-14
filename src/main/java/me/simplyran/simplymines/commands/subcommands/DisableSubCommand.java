@@ -5,7 +5,7 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +48,7 @@ public class DisableSubCommand implements SubCommand {
 
     @Override
     public List<String> tabcomplete() {
-        return mineManager.getMinesNames();
+        return mineManager.getMinesNames().stream().toList();
     }
 
 

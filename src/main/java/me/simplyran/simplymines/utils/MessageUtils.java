@@ -38,6 +38,16 @@ public class MessageUtils {
         return MINI_MESSAGE.deserialize(raw, resolvers.build());
     }
 
+    public static String applyPlaceholders(@NotNull Player player, @NotNull String raw) {
+        String result = raw.replace("%player%", player.getName());
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            result = PlaceholderAPI.setPlaceholders(player, result);
+        }
+
+        return result;
+    }
+
     private static String normalize(@NotNull String placeholder) {
         String result = placeholder;
         if (result.startsWith("%")) result = result.substring(1);

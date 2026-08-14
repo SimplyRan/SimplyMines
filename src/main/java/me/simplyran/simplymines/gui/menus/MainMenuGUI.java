@@ -4,7 +4,6 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
@@ -25,12 +24,10 @@ import java.util.Map;
 
 public class MainMenuGUI {
 
-    private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public MainMenuGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
-        this.plugin = plugin;
+    public MainMenuGUI(MineManager mineManager, GuiManager guiManager) {
         this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
@@ -104,12 +101,6 @@ public class MainMenuGUI {
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                 .append(Component.text(mine.isTeleportPlayers())
                         .color(mine.isTeleportPlayers() ? NamedTextColor.GREEN : NamedTextColor.RED))
-        );
-
-        lore.add(Component.text("Reset Time: ")
-                .color(NamedTextColor.AQUA)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .append(Component.text(resetTimeLabel(mine)).color(NamedTextColor.WHITE))
         );
 
         lore.add(Component.text("Reset At Percentage: ")

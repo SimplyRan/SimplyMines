@@ -3,6 +3,7 @@ package me.simplyran.simplymines.utils;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import me.simplyran.simplymines.SimplyMines;
@@ -12,6 +13,7 @@ import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.item.BukkitItemDefinition;
 import net.momirealms.craftengine.core.block.BlockDefinition;
+import net.momirealms.craftengine.core.block.ImmutableBlockState;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -146,6 +148,29 @@ public class ItemUtils {
         if (block instanceof CraftEngineBlock(Key key))
             block = new NoPhysicsCraftEngineBlock(key);
         return block;
+    }
+
+    public static String getIDFromBlock(org.bukkit.block.Block block){
+        if (SimplyMines.isNEXO_LOADED()){
+            if (NexoBlocks.isCustomBlock(block)){
+                CustomBlockMechanic customBlockMechanic = NexoBlocks.customBlockMechanic(block);
+                if (customBlockMechanic != null) return customBlockMechanic.getItemID();
+            }
+        }
+        if (SimplyMines.isCRAFTENGINE_LOADED()){
+            if (CraftEngineBlocks.isCustomBlock(block)){
+                ImmutableBlockState customBlockState = CraftEngineBlocks.getCustomBlockState(block);
+                if (customBlockState != null) return ItemUtils.keyToName(
+                        customBlockState.customBlockState().ownerId());
+            }
+        }
+        if (SimplyMines.isITEMSADDER_LOADED()){
+            CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
+            if (customBlock != null){
+                return customBlock.getId();
+            }
+        }
+        return block.getType().name();
     }
 
     public static Key keyFromName(String name){

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
@@ -51,6 +51,11 @@ public class EfficiencyMineRequirement implements IMineRequirement {
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @Override
+    public String getSerializationKey() {
+        return NAME;
     }
 
     @Override

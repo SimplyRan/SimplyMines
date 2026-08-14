@@ -1,14 +1,14 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.blocks;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -27,10 +27,12 @@ import java.util.Map;
 public class EditBlockGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public EditBlockGUI(SimplyMines plugin, GuiManager guiManager) {
+    public EditBlockGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -44,8 +46,8 @@ public class EditBlockGUI {
         // Go back to blocks GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlocksGUI().open(player, mine));
+            mineManager.saveMineAsync(mine);
+            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
         });
 
         GuiUtils.fillBorder(gui);
@@ -92,7 +94,7 @@ public class EditBlockGUI {
             if (totalWithoutCurrent + newPercent > 1.0) {
                 newPercent = 1.0 - totalWithoutCurrent;
             }
-            newPercent = Math.max(0, Math.min(1, newPercent));
+            newPercent = Math.clamp(newPercent, 0, 1);
         }
 
         mine.setPercentage(block, newPercent);

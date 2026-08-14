@@ -1,9 +1,10 @@
 package me.simplyran.simplymines.listeners;
 
+import it.unimi.dsi.fastutil.Pair;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.objects.ConfigFactory;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,31 +34,39 @@ public class SelectionListener implements Listener {
     @EventHandler
     public void onSelectEvent(PlayerInteractEvent event){
         Player player = event.getPlayer();
-        if (player.hasPermission("simplymines.select") && !selectionManager.isToolDisabled(player.getUniqueId())){
+        if (!player.hasPermission("simplymines.select")) return;
+        if (selectionManager.isToolDisabled(player.getUniqueId())) return;
+        if (player.getInventory().getItemInMainHand().getType() != Material.WOODEN_HOE) return;
 
+        Block block = event.getClickedBlock();
+        if (block == null) return;
 
-            if (player.getInventory().getItemInMainHand().getType() != Material.WOODEN_HOE) return;
-            Block block = event.getClickedBlock();
-            if (block == null) return;
-            Location location = block.getLocation();
+        Location location = block.getLocation();
+        Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());
 
-            String x = String.valueOf(location.getX());
-            String y = String.valueOf(location.getY());
-            String z = String.valueOf(location.getZ());
-
-            if (event.getAction().isLeftClick()) {
-                event.setCancelled(true);
-                selectionManager.setCorener(player.getUniqueId(), location, 1);
-                player.sendMessage(MessageUtils.format(player, selectedCorner1,
-                        "x", x, "y", y, "z", z));
-            }
-            if (event.getAction().isRightClick()) {
-                event.setCancelled(true);
-                selectionManager.setCorener(player.getUniqueId(), location, 2);
-                player.sendMessage(MessageUtils.format(player, selectedCorner2,
-                        "x", x, "y", y, "z", z));
-            }
+        if (corners != null){
+            if (corners.first() != null && corners.first().equals(location)) return;
+            if (corners.second() != null && corners.second().equals(location)) return;
         }
+
+
+        String x = String.valueOf(location.getX());
+        String y = String.valueOf(location.getY());
+        String z = String.valueOf(location.getZ());
+
+        if (event.getAction().isLeftClick()) {
+            event.setCancelled(true);
+            selectionManager.setCorener(player.getUniqueId(), location, 1);
+            player.sendMessage(MessageUtils.format(player, selectedCorner1,
+                    "x", x, "y", y, "z", z));
+        }
+        if (event.getAction().isRightClick()) {
+            event.setCancelled(true);
+            selectionManager.setCorener(player.getUniqueId(), location, 2);
+            player.sendMessage(MessageUtils.format(player, selectedCorner2,
+                    "x", x, "y", y, "z", z));
+        }
+
     }
 
     @EventHandler

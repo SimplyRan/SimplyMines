@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * ------------------------------------------------------------------
  * PLACEHOLDERS
@@ -31,6 +33,12 @@ import org.jetbrains.annotations.Nullable;
  * ------------------------------------------------------------------
  */
 public class MinePlaceholder extends PlaceholderExpansion {
+
+    // Longest suffix first so "timeleft_formatted"/"timeleft_hms" match before the shorter "timeleft".
+    private static final List<String> SUB_PLACEHOLDER_SUFFIXES = List.of(
+            "timeleft_formatted", "timeleft_hms", "blocks_broken", "blocks_count",
+            "warndistance", "precent_left", "resettime", "timeleft", "enabled", "status"
+    );
 
     private final MineManager mineManager;
 
@@ -93,7 +101,13 @@ public class MinePlaceholder extends PlaceholderExpansion {
                 return "";
             }
 
-            long secondsLeft = secondsUntilReset(currentMine);
+            TimeResetRequirement currentTimeResetRequirement =
+                    currentMine.getResetRequirement(TimeResetRequirement.class);
+            if (currentTimeResetRequirement == null) {
+                return "";
+            }
+
+            long secondsLeft = secondsUntilReset(currentTimeResetRequirement);
 
             if (params.equalsIgnoreCase("currentmine_timeleft")) {
                 return String.valueOf(Math.max(0, secondsLeft));
@@ -102,48 +116,46 @@ public class MinePlaceholder extends PlaceholderExpansion {
             return formatMMSS(secondsLeft);
         }
 
-        String[] parts = params.split("_", 2);
-        if (parts.length != 2) {
-            return null; // unknown placeholder
+        String sub = null;
+        for (String suffix : SUB_PLACEHOLDER_SUFFIXES) {
+            if (params.length() > suffix.length() + 1
+                    && params.regionMatches(true, params.length() - suffix.length(), suffix, 0, suffix.length())
+                    && params.charAt(params.length() - suffix.length() - 1) == '_') {
+                sub = suffix;
+                break;
+            }
+        }
+        if (sub == null) {
+            return null;
         }
 
-        String mineName = parts[0];
-        String sub = parts[1];
-
-        BasicMine mine = findMineIgnoreCase(mineName);
+        String mineName = params.substring(0, params.length() - sub.length() - 1);
+        BasicMine mine = mineManager.getMineIgnoreCase(mineName);
         if (mine == null) {
             return null;
         }
 
-        return switch (sub.toLowerCase()) {
-            case "timeleft" -> String.valueOf(Math.max(0, secondsUntilReset(mine)));
-            case "timeleft_formatted" -> formatMMSS(secondsUntilReset(mine));
-            case "timeleft_hms" -> formatHMS(secondsUntilReset(mine));
-            case "resettime" -> {
-                TimeResetRequirement timeResetRequirement =
-                        mine.getResetRequirement(TimeResetRequirement.class);
-                yield String.valueOf(timeResetRequirement.getResetTime());
-            }
+        TimeResetRequirement timeResetRequirement = mine.getResetRequirement(TimeResetRequirement.class);
+
+        return switch (sub) {
+            case "timeleft" -> timeResetRequirement == null
+                    ? null : String.valueOf(Math.max(0, secondsUntilReset(timeResetRequirement)));
+            case "timeleft_formatted" -> timeResetRequirement == null
+                    ? null : formatMMSS(secondsUntilReset(timeResetRequirement));
+            case "timeleft_hms" -> timeResetRequirement == null
+                    ? null : formatHMS(secondsUntilReset(timeResetRequirement));
+            case "resettime" -> timeResetRequirement == null
+                    ? null : String.valueOf(timeResetRequirement.getResetTime());
             case "enabled" -> String.valueOf(mine.isEnabled());
             case "status" -> mine.isEnabled() ? "Enabled" : "Disabled";
             case "warndistance" -> String.valueOf(mine.getWarnDistance());
             case "blocks_broken" -> String.valueOf(mine.getBlocksBroken());
             case "blocks_count" -> String.valueOf(mine.getRegion().getBlockCount());
-            case "precent_left" -> String.valueOf(Math.round(mine.getPercentageOfMineLeft() * 10000) / 10000);
+            case "precent_left" -> String.valueOf(Math.round(mine.getPercentageOfMineLeft() * 10000.0) / 10000.0);
             default -> null;
         };
     }
 
-
-    @Nullable
-    private BasicMine findMineIgnoreCase(@NotNull String name) {
-        for (BasicMine mine : mineManager.getMines()) {
-            if (mine.getName().equalsIgnoreCase(name)) {
-                return mine;
-            }
-        }
-        return null;
-    }
 
     @Nullable
     private BasicMine findMineAt(@NotNull Player player) {
@@ -156,11 +168,8 @@ public class MinePlaceholder extends PlaceholderExpansion {
     }
 
 
-    private long secondsUntilReset(@NotNull BasicMine mine) {
+    private long secondsUntilReset(@NotNull TimeResetRequirement timeResetRequirement) {
         long now = System.currentTimeMillis() / 1000;
-        TimeResetRequirement timeResetRequirement =
-                mine.getResetRequirement(TimeResetRequirement.class);
-
         return timeResetRequirement.getResetTime() - (now - timeResetRequirement.getLastReset());
     }
 

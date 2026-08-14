@@ -2,6 +2,9 @@ package me.simplyran.simplymines.api;
 
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
+import me.simplyran.simplymines.actions.ActionFactory;
+import me.simplyran.simplymines.actions.ActionRegistry;
+import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
@@ -76,7 +79,7 @@ public class SimplyMinesAPI {
      * Registers a factory for a custom IMineRequirement type so it can be
      * saved to and loaded from disk. Your class must also expose a
      * {@code public static final String NAME} field matching the id you
-     * register here — JsonUtils uses it via reflection when serializing.
+     * register here — the database uses it via reflection when serializing.
      */
     public void registerMineRequirement(@NotNull String id, @NotNull MineRequirementFactory factory){
         MineRequirementRegistry.register(id, factory);
@@ -89,6 +92,29 @@ public class SimplyMinesAPI {
     public void registerResetRequirement(@NotNull String id, @NotNull ResetRequirementFactory factory){
         ResetRequirementRegistry.register(id, factory);
     }
+
+    /**
+     * Registers a factory for a custom IAction type so it can be
+     * saved to and loaded from disk.
+     */
+    public void registerAction(@NotNull String id, @NotNull ActionFactory factory){
+        ActionRegistry.register(id, factory);
+    }
+
+    public void addAction(@NotNull String mineName,
+                          @NotNull String blockName,
+                          @NotNull IAction action){
+        BasicMine mine = getMine(mineName);
+        if (mine != null) mine.addAction(blockName, action);
+    }
+
+    public void removeAction(@NotNull String mineName,
+                          @NotNull String blockName,
+                          @NotNull IAction action){
+        BasicMine mine = getMine(mineName);
+        if (mine != null) mine.removeAction(blockName, action);
+    }
+
 
     // ------------------------------------------------------------------
     // Mine Requirements (things a player must satisfy to mine in a mine)
@@ -107,6 +133,7 @@ public class SimplyMinesAPI {
         BasicMine mine = getMine(mineName);
         if (mine != null) mine.removeMineRequirement(requirement);
     }
+
 
     @Nullable
     public List<IMineRequirement> getMineRequirements(@NotNull String mineName){
@@ -200,7 +227,7 @@ public class SimplyMinesAPI {
 
         TimeResetRequirement requirement = mine.getResetRequirement(TimeResetRequirement.class);
         if (requirement == null) {
-            requirement = new TimeResetRequirement(mine, resetTimeSeconds);
+            requirement = new TimeResetRequirement(resetTimeSeconds);
             mine.addResetRequirement(requirement);
         } else {
             requirement.setResetTime(resetTimeSeconds);

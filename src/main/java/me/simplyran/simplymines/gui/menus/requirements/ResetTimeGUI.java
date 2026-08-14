@@ -1,14 +1,14 @@
-package me.simplyran.simplymines.gui.menus;
+package me.simplyran.simplymines.gui.menus.requirements;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
 import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
-import me.simplyran.simplymines.utils.MineSaver;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -23,10 +23,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 public class ResetTimeGUI {
 
     private final SimplyMines plugin;
+    private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public ResetTimeGUI(SimplyMines plugin, GuiManager guiManager) {
+    public ResetTimeGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
+        this.mineManager = mineManager;
         this.guiManager = guiManager;
     }
 
@@ -41,7 +43,7 @@ public class ResetTimeGUI {
 
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            MineSaver.saveAsync(plugin, mine);
+            mineManager.saveMineAsync(mine);
             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getResetRequirementsGUI().open(player, mine));
         });
 
@@ -74,7 +76,7 @@ public class ResetTimeGUI {
     private TimeResetRequirement getOrCreate(BasicMine mine) {
         TimeResetRequirement req = mine.getResetRequirement(TimeResetRequirement.class);
         if (req == null) {
-            req = new TimeResetRequirement(mine, 30);
+            req = new TimeResetRequirement(30);
             mine.addResetRequirement(req);
         }
         return req;

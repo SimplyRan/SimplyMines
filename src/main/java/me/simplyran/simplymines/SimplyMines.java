@@ -1,11 +1,19 @@
 package me.simplyran.simplymines;
 
 import lombok.Getter;
+import me.simplyran.simplymines.actions.ActionRegistry;
+import me.simplyran.simplymines.actions.impl.CommandAction;
+import me.simplyran.simplymines.actions.impl.EconomyAction;
+import me.simplyran.simplymines.actions.impl.ItemDropAction;
 import me.simplyran.simplymines.api.SimplyMinesAPI;
 import me.simplyran.simplymines.bstats.Metrics;
 import me.simplyran.simplymines.commands.MainCommand;
 import me.simplyran.simplymines.commands.MainCommandTabComplete;
+import me.simplyran.simplymines.database.DatabaseFactory;
+import me.simplyran.simplymines.database.IDatabase;
+import me.simplyran.simplymines.database.MineSerializer;
 import me.simplyran.simplymines.listeners.BlockBreakListener;
+import me.simplyran.simplymines.listeners.BlockDropItemListener;
 import me.simplyran.simplymines.listeners.ChatInputListener;
 import me.simplyran.simplymines.listeners.SelectionListener;
 import me.simplyran.simplymines.managers.*;
@@ -17,8 +25,10 @@ import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SimplyMines extends JavaPlugin {
@@ -29,6 +39,7 @@ public final class SimplyMines extends JavaPlugin {
     private GuiManager guiManager;
     private SelectionManager selectionManager;
     private ConfigManager configManager;
+    @Getter private static Economy economy;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
 
@@ -44,10 +55,15 @@ public final class SimplyMines extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        if(!setupEconomy()){
+            getLogger().info("Vault is not installed. Cannot use economy.");
+        }
+
         checkLoadedTextureManagers();
         //Loading first requirements
         loadMineRequirements();
         loadResetRequirements();
+        loadActions();
 
 
         //Creating ConfigManager
@@ -56,8 +72,12 @@ public final class SimplyMines extends JavaPlugin {
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable(configManager);
 
-        //Creating MineManager - depending on workloadRunnable
-        this.mineManager = new MineManager(this, workloadRunnable, configManager);
+        //Creating the database backend and injecting it into the MineManager
+        MineSerializer mineSerializer = new MineSerializer(workloadRunnable, configManager, getLogger());
+        IDatabase database = DatabaseFactory.create(this, mineSerializer);
+
+        //Creating MineManager - depending on the database
+        this.mineManager = new MineManager(this, mineSerializer, database);
 
 
         //Creating GUIManager
@@ -65,7 +85,7 @@ public final class SimplyMines extends JavaPlugin {
 
 
         //Creating RunnableManager - depending on mineManager
-        this.runnableManager = new RunnableManager(this, mineManager, configManager);
+        this.runnableManager = new RunnableManager(mineManager, configManager);
 
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
@@ -113,17 +133,34 @@ public final class SimplyMines extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("Saving All Mines...");
-        //TODO Change to other class
-        runnableManager.saveAllMines();
-
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
+
+        getLogger().info("Saving All Mines...");
+        //Drains pending async saves, saves everything sync, then closes the database.
+        mineManager.shutdown();
     }
 
     private void registerBStats(){
         int pluginId = 32650;
         new Metrics(this, pluginId);
+    }
+
+    private void loadActions(){
+        ActionRegistry.register(
+                ItemDropAction.NAME,
+                ItemDropAction::deserialize
+        );
+
+        ActionRegistry.register(
+                CommandAction.NAME,
+                CommandAction::deserialize
+        );
+
+        ActionRegistry.register(
+                EconomyAction.NAME,
+                EconomyAction::deserialize
+        );
     }
 
     private void loadMineRequirements(){
@@ -163,6 +200,11 @@ public final class SimplyMines extends JavaPlugin {
                 new BlockBreakListener(mineManager, this),
                 this
         );
+
+        getServer().getPluginManager().registerEvents(
+                new BlockDropItemListener(mineManager),
+                this
+        );
     }
 
     private void registerCommands(){
@@ -171,8 +213,7 @@ public final class SimplyMines extends JavaPlugin {
                 guiManager,
                 workloadRunnable,
                 selectionManager,
-                configManager,
-                this);
+                configManager);
 
         PluginCommand simplyminesCommand = this.getCommand("sm");
         if (simplyminesCommand == null){
@@ -182,5 +223,18 @@ public final class SimplyMines extends JavaPlugin {
         simplyminesCommand.setExecutor(mainCommand);
         simplyminesCommand.setTabCompleter(new MainCommandTabComplete(mainCommand.getSubCommands()));
     }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        economy = rsp.getProvider();
+        return true;
+    }
+
 
 }
