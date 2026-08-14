@@ -80,6 +80,7 @@ public class MainCommand implements CommandExecutor {
                     else {
                         sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
                     }
+                    foundCmd = true;
                     break;
                 }
             }

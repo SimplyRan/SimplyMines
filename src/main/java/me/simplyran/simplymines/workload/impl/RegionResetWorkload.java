@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  */
 public class RegionResetWorkload implements Workload {
 
-    private static final Location location = new Location(null, 0 , 0 , 0);
+    private final Location location = new Location(null, 0 , 0 , 0);
 
     private final WorkloadRunnable workloadRunnable;
     private final int minY, minZ, maxX, maxY, maxZ;

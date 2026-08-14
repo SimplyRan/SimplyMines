@@ -29,6 +29,7 @@ public class BlockBreakListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e){
+        if (e.isCancelled()) return;
         Location location = e.getBlock().getLocation();
         Player player = e.getPlayer();
         Block block = e.getBlock();
@@ -59,9 +60,8 @@ public class BlockBreakListener implements Listener {
                             player,
                             block)
             );
-
-
-
+            //disable looking for other mines.
+            break;
         }
     }
 

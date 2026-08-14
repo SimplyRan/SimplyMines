@@ -2,6 +2,7 @@ package me.simplyran.simplymines.database.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.database.IDatabase;
@@ -14,8 +15,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -95,14 +98,31 @@ public class JsonDatabase implements IDatabase {
         File mineFile = resolveMineFile(minesFolder, mineName);
         if (mineFile == null) return false;
 
-        try (FileWriter writer = new FileWriter(mineFile)) {
+        File tempFile = new File(minesFolder, mineName + ".json.tmp");
+
+        try (FileWriter writer = new FileWriter(tempFile)) {
             GSON.toJson(data, writer);
-        } catch (IOException e) {
+        } catch (IOException | JsonIOException e) {
             plugin.getLogger().log(
                     Level.SEVERE,
                     "Failed to save mine " + mineName,
                     e
             );
+            return false;
+        }
+
+        try {
+            Files.move(tempFile.toPath(), mineFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            try {
+                Files.move(tempFile.toPath(), mineFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ex) {
+                plugin.getLogger().log(Level.SEVERE, "Failed to save mine " + mineName, ex);
+                return false;
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to save mine " + mineName, e);
             return false;
         }
         return true;

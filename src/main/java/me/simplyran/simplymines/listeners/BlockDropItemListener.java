@@ -8,7 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class BlockDropItemListener implements Listener {
 
@@ -26,8 +29,14 @@ public class BlockDropItemListener implements Listener {
         for (BasicMine mine : mineManager.getMines()){
             if (mine.isInsideMine(location) && mine.isAutoPickup()){
                 for (Item item : event.getItems()){
-                    player.getInventory().addItem(item.getItemStack());
+                    ItemStack itemStack = item.getItemStack();
+                    Map<Integer, ItemStack> leftover = player.getInventory().addItem(itemStack);
                     item.remove();
+                    if (!leftover.isEmpty() && location.getWorld() != null) {
+                        for (ItemStack remaining : leftover.values()) {
+                            location.getWorld().dropItem(location, remaining);
+                        }
+                    }
                 }
                 break;
             }

@@ -20,15 +20,11 @@ import java.util.logging.Level;
 public class MineManager {
 
     private final HashMap<String, BasicMine> mines;
+    private final HashMap<String, BasicMine> minesByLowerName;
     private final SimplyMines plugin;
     private final MineSerializer serializer;
     private final IDatabase database;
 
-    /**
-     * All storage writes go through this single-threaded executor: it keeps
-     * blocking I/O off the main thread while guaranteeing per-mine write
-     * ordering (a save queued before a delete always hits disk first).
-     */
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor(
             runnable -> new Thread(runnable, "SimplyMines-Save"));
 
@@ -39,6 +35,7 @@ public class MineManager {
         this.serializer = serializer;
         this.database = database;
         mines = new HashMap<>();
+        minesByLowerName = new HashMap<>();
 
 
         //Loading Mines then starting the Workload
@@ -49,6 +46,7 @@ public class MineManager {
 
     public void addMine(BasicMine mine){
         mines.put(mine.getName(), mine);
+        minesByLowerName.put(mine.getName().toLowerCase(Locale.ROOT), mine);
     }
 
 
@@ -59,6 +57,7 @@ public class MineManager {
             }
         }
         mines.clear();
+        minesByLowerName.clear();
         loadMines();
     }
 
@@ -89,7 +88,9 @@ public class MineManager {
      */
     public void renameMine(@NotNull BasicMine mine, @NotNull String oldName){
         mines.remove(oldName);
+        minesByLowerName.remove(oldName.toLowerCase(Locale.ROOT));
         mines.put(mine.getName(), mine);
+        minesByLowerName.put(mine.getName().toLowerCase(Locale.ROOT), mine);
 
         String newName = mine.getName();
         JsonObject snapshot = snapshot(mine);
@@ -107,8 +108,14 @@ public class MineManager {
         return mines.get(name);
     }
 
+    @Nullable
+    public BasicMine getMineIgnoreCase(String name){
+        return minesByLowerName.get(name.toLowerCase(Locale.ROOT));
+    }
+
     public void deleteMine(String name){
-        mines.remove(name);
+        BasicMine removed = mines.remove(name);
+        if (removed != null) minesByLowerName.remove(removed.getName().toLowerCase(Locale.ROOT));
         saveExecutor.submit(() -> database.deleteMine(name));
     }
 
