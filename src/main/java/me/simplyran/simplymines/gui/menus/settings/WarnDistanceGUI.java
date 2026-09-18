@@ -3,12 +3,16 @@ package me.simplyran.simplymines.gui.menus.settings;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
 import me.simplyran.simplymines.gui.buttons.AdjustButton;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
-import net.kyori.adventure.text.Component;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -21,24 +25,52 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
  */
 public class WarnDistanceGUI {
 
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.title", "Change Warn Distance");
+    private final ConfigData<String> warnDistanceName = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.warn-distance-name", "<white>Warn Distance");
+    private final ConfigData<String> warnDistanceLore = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.warn-distance-lore", "<white><amount> Blocks");
+    private final ConfigData<String> removeTenLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.remove-ten-label", "Remove 10 blocks from Warn Distance");
+    private final ConfigData<String> removeFiveLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.remove-five-label", "Remove 5 blocks from Warn Distance");
+    private final ConfigData<String> removeOneLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.remove-one-label", "Remove 1 block from Warn Distance");
+    private final ConfigData<String> addOneLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.add-one-label", "Add 1 block to Warn Distance");
+    private final ConfigData<String> addFiveLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.add-five-label", "Add 5 blocks to Warn Distance");
+    private final ConfigData<String> addTenLabel = ConfigFactory.newConfigData(
+            "menus.settings.warn-distance.add-ten-label", "Add 10 blocks to Warn Distance");
+
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public WarnDistanceGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
+    public WarnDistanceGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.guiManager = guiManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(warnDistanceName);
+        configManager.registerLang(warnDistanceLore);
+        configManager.registerLang(removeTenLabel);
+        configManager.registerLang(removeFiveLabel);
+        configManager.registerLang(removeOneLabel);
+        configManager.registerLang(addOneLabel);
+        configManager.registerLang(addFiveLabel);
+        configManager.registerLang(addTenLabel);
     }
 
     public void open(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Change Warn Distance"))
+                .title(MessageUtils.format(title))
                 .disableAllInteractions()
                 .create();
 
-        // Go back to warn settings hub, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
             mineManager.saveMineAsync(mine);
@@ -49,27 +81,25 @@ public class WarnDistanceGUI {
 
         gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back")
+                        .name(MessageUtils.format(MenuCommonText.BACK)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                                .colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
         renderDisplay(gui, mine);
 
-        // Remove buttons
-        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, "Remove 10 blocks from Warn Distance", NamedTextColor.RED,
+        new AdjustButton(gui, 2, 2, Material.RED_DYE, 10, removeTenLabel, NamedTextColor.RED,
                 delta -> adjust(gui, mine, -delta)).render();
-        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, "Remove 5 blocks from Warn Distance", NamedTextColor.RED,
+        new AdjustButton(gui, 2, 3, Material.RED_DYE, 5, removeFiveLabel, NamedTextColor.RED,
                 delta -> adjust(gui, mine, -delta)).render();
-        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, "Remove 1 block from Warn Distance", NamedTextColor.RED,
+        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, removeOneLabel, NamedTextColor.RED,
                 delta -> adjust(gui, mine, -delta)).render();
 
-        // Add buttons
-        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, "Add 1 block to Warn Distance", NamedTextColor.GREEN,
+        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, addOneLabel, NamedTextColor.GREEN,
                 delta -> adjust(gui, mine, delta)).render();
-        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, "Add 5 blocks to Warn Distance", NamedTextColor.GREEN,
+        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 5, addFiveLabel, NamedTextColor.GREEN,
                 delta -> adjust(gui, mine, delta)).render();
-        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, "Add 10 blocks to Warn Distance", NamedTextColor.GREEN,
+        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 10, addTenLabel, NamedTextColor.GREEN,
                 delta -> adjust(gui, mine, delta)).render();
 
         gui.open(player);
@@ -85,11 +115,9 @@ public class WarnDistanceGUI {
     private void renderDisplay(Gui gui, BasicMine mine) {
         gui.setItem(2, 5,
                 ItemBuilder.from(Material.COMPASS)
-                        .name(Component.text("Warn Distance")
-                                .color(NamedTextColor.WHITE)
+                        .name(MessageUtils.format(warnDistanceName)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
-                                .color(NamedTextColor.WHITE)
+                        .lore(MessageUtils.format(warnDistanceLore, "amount", String.valueOf(mine.getWarnDistance()))
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem());
     }

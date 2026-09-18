@@ -26,9 +26,9 @@ public class ResetSubCommand implements SubCommand {
 
     public ResetSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineReset);
-        configManager.register(mineNotFound);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineReset);
+        configManager.registerLang(mineNotFound);
     }
 
     @Override

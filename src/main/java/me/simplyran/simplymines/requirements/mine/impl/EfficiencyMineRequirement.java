@@ -30,7 +30,7 @@ public class EfficiencyMineRequirement implements IMineRequirement {
     public EfficiencyMineRequirement(@NotNull ConfigManager configManager, int efficiencyLevel) {
         this.efficiencyLevel = efficiencyLevel;
         if (!registered) {
-            configManager.register(HIGHER_EFFICIENCY_LEVEL);
+            configManager.registerLang(HIGHER_EFFICIENCY_LEVEL);
             registered = true;
         }
     }

@@ -3,11 +3,16 @@ package me.simplyran.simplymines.gui.menus;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -20,20 +25,69 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * The per-mine editor hub. Pure navigation: every group of options lives in
- * its own sub-menu (settings, blocks, requirements, warnings).
- */
 public class MineEditorGUI {
+
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.mine-editor.title", "<yellow>Editing <mine>");
+    private final ConfigData<String> infoButtonName = ConfigFactory.newConfigData(
+            "menus.mine-editor.info-button-name", "<white><mine> Info");
+    private final ConfigData<String> teleportButtonName = ConfigFactory.newConfigData(
+            "menus.mine-editor.teleport-button-name", "<light_purple>Teleport To Mine");
+    private final ConfigData<String> teleportButtonLore = ConfigFactory.newConfigData(
+            "menus.mine-editor.teleport-button-lore", "<gray>Requires a teleport location to be set");
+    private final ConfigData<String> settingsButtonName = ConfigFactory.newConfigData(
+            "menus.mine-editor.settings-button-name", "<yellow>Mine Settings");
+    private final ConfigData<String> settingsButtonLore = ConfigFactory.newConfigData(
+            "menus.mine-editor.settings-button-lore", "<gray>All toggles: drops, pickup, physics, warnings...");
+    private final ConfigData<String> editBlocksName = ConfigFactory.newConfigData(
+            "menus.mine-editor.edit-blocks-name", "<yellow>Edit Blocks");
+    private final ConfigData<String> resetRequirementsName = ConfigFactory.newConfigData(
+            "menus.mine-editor.reset-requirements-name", "<yellow>Reset Requirements");
+    private final ConfigData<String> resetRequirementsLore = ConfigFactory.newConfigData(
+            "menus.mine-editor.reset-requirements-lore", "<gray>Configure how/when this mine resets");
+    private final ConfigData<String> warnSettingsName = ConfigFactory.newConfigData(
+            "menus.mine-editor.warn-settings-name", "<yellow>Warn Settings");
+    private final ConfigData<String> warnSettingsLore = ConfigFactory.newConfigData(
+            "menus.mine-editor.warn-settings-lore", "<gray>Configure warn seconds & warn distance");
+    private final ConfigData<String> mineRequirementsName = ConfigFactory.newConfigData(
+            "menus.mine-editor.mine-requirements-name", "<yellow>Mine Requirements");
+    private final ConfigData<String> mineRequirementsLore = ConfigFactory.newConfigData(
+            "menus.mine-editor.mine-requirements-lore", "<gray>Configure who can mine here (tool/permission)");
+    private final ConfigData<String> infoWorld = ConfigFactory.newConfigData(
+            "menus.mine-editor.info-lore.world", "<gray>▸ World: <yellow><world>");
+    private final ConfigData<String> infoCorner1 = ConfigFactory.newConfigData(
+            "menus.mine-editor.info-lore.corner-1", "<gold><bold>Corner 1");
+    private final ConfigData<String> infoCorner2 = ConfigFactory.newConfigData(
+            "menus.mine-editor.info-lore.corner-2", "<gold><bold>Corner 2");
+    private final ConfigData<String> infoCoords = ConfigFactory.newConfigData(
+            "menus.mine-editor.info-lore.coords", "<gray>  X: <white><x><gray>  Y: <white><y><gray>  Z: <white><z>");
 
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public MineEditorGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
+    public MineEditorGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.guiManager = guiManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(infoButtonName);
+        configManager.registerLang(teleportButtonName);
+        configManager.registerLang(teleportButtonLore);
+        configManager.registerLang(settingsButtonName);
+        configManager.registerLang(settingsButtonLore);
+        configManager.registerLang(editBlocksName);
+        configManager.registerLang(resetRequirementsName);
+        configManager.registerLang(resetRequirementsLore);
+        configManager.registerLang(warnSettingsName);
+        configManager.registerLang(warnSettingsLore);
+        configManager.registerLang(mineRequirementsName);
+        configManager.registerLang(mineRequirementsLore);
+        configManager.registerLang(infoWorld);
+        configManager.registerLang(infoCorner1);
+        configManager.registerLang(infoCorner2);
+        configManager.registerLang(infoCoords);
     }
 
     public void open(Player player, String mineName) {
@@ -44,12 +98,11 @@ public class MineEditorGUI {
         }
 
         Gui gui = Gui.gui()
-                .title(Component.text("Editing " + mineName))
+                .title(MessageUtils.format(title, "mine", mineName))
                 .rows(3)
                 .disableAllInteractions()
                 .create();
 
-        // Go back to main GUI, but only on a genuine player-initiated close
         gui.setCloseGuiAction(event -> {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
@@ -61,25 +114,24 @@ public class MineEditorGUI {
 
         gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back")
+                        .name(MessageUtils.format(MenuCommonText.BACK)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                                .colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> guiManager.getMainMenuGUI().open(player)));
 
         gui.setItem(2, 3,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
-                        .name(Component.text(mineName + " Info")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                        .name(MessageUtils.format(infoButtonName, "mine", mineName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .lore(buildMineInfoLore(mine))
                         .asGuiItem());
 
         gui.setItem(2, 5,
                 ItemBuilder.from(Material.ENDER_PEARL)
-                        .name(Component.text("Teleport To Mine")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.LIGHT_PURPLE))
-                        .lore(hubLore("Requires a teleport location to be set"))
+                        .name(MessageUtils.format(teleportButtonName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(List.of(MessageUtils.format(teleportButtonLore)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> {
                             if (mine.getTeleportLocation() == null) return;
                             event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
@@ -88,106 +140,84 @@ public class MineEditorGUI {
 
         gui.setItem(2, 7,
                 ItemBuilder.from(Material.COMPARATOR)
-                        .name(Component.text("Mine Settings")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(hubLore("All toggles: drops, pickup, physics, warnings..."))
+                        .name(MessageUtils.format(settingsButtonName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(List.of(MessageUtils.format(settingsButtonLore)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> guiManager.getMineSettingsGUI().open(player, mine)));
 
         gui.setItem(2, 2,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(mine.getMainMaterial()))
-                        .name(Component.text("Edit Blocks")
-                                .color(NamedTextColor.YELLOW)
+                        .name(MessageUtils.format(editBlocksName)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .lore(buildBlocksLore(mine))
                         .asGuiItem(event -> guiManager.getBlocksGUI().open(player, mine)));
 
         gui.setItem(2, 4,
                 ItemBuilder.from(Material.CLOCK)
-                        .name(Component.text("Reset Requirements")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(hubLore("Configure how/when this mine resets"))
+                        .name(MessageUtils.format(resetRequirementsName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(List.of(MessageUtils.format(resetRequirementsLore)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> guiManager.getResetRequirementsGUI().open(player, mine)));
 
         gui.setItem(2, 6,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
-                        .name(Component.text("Warn Settings")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(hubLore("Configure warn seconds & warn distance"))
+                        .name(MessageUtils.format(warnSettingsName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(List.of(MessageUtils.format(warnSettingsLore)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> guiManager.getWarnSettingsGUI().open(player, mine)));
 
         gui.setItem(2, 8,
                 ItemBuilder.from(Material.GOLDEN_PICKAXE)
-                        .name(Component.text("Mine Requirements")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(hubLore("Configure who can mine here (tool/permission)"))
+                        .name(MessageUtils.format(mineRequirementsName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(List.of(MessageUtils.format(mineRequirementsLore)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> guiManager.getMineRequirementsGUI().open(player, mine)));
 
         gui.open(player);
     }
 
-    private List<Component> hubLore(String text) {
-        return List.of(Component.text(text)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .color(NamedTextColor.GRAY));
-    }
-
     private List<Component> buildBlocksLore(BasicMine mine) {
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Materials: ")
-                .color(NamedTextColor.BLUE)
+        lore.add(MessageUtils.format(MenuCommonText.MATERIALS_HEADER)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
 
         for (Map.Entry<String, Double> material : mine.getMaterials()) {
-            lore.add(Component.text("   " + material.getKey() + ": ")
-                    .color(NamedTextColor.BLUE)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                    .append(Component.text((material.getValue() * 100) + "%")
-                            .color(NamedTextColor.WHITE)));
+            lore.add(MessageUtils.format(MenuCommonText.MATERIAL_LINE,
+                            "material", material.getKey(),
+                            "percent", String.valueOf(material.getValue() * 100))
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
         }
         return lore;
     }
 
     private List<Component> buildMineInfoLore(BasicMine mine) {
         return List.of(
-                Component.text("▸ World: ")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GRAY)
-                        .append(Component.text(mine.getRegion().getWorld().getName())
-                                .color(NamedTextColor.YELLOW)),
+                MessageUtils.format(infoWorld, "world", mine.getRegion().getWorld().getName())
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
 
                 Component.empty(),
 
-                Component.text("Corner 1")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .decorate(TextDecoration.BOLD)
-                        .color(NamedTextColor.GOLD),
-                Component.text("  X: ")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GRAY)
-                        .append(Component.text(mine.getRegion().getMaxX()).color(NamedTextColor.WHITE))
-                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
-                        .append(Component.text(mine.getRegion().getMaxY()).color(NamedTextColor.WHITE))
-                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
-                        .append(Component.text(mine.getRegion().getMaxZ()).color(NamedTextColor.WHITE)),
+                MessageUtils.format(infoCorner1)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                MessageUtils.format(infoCoords,
+                                "x", String.valueOf(mine.getRegion().getMaxX()),
+                                "y", String.valueOf(mine.getRegion().getMaxY()),
+                                "z", String.valueOf(mine.getRegion().getMaxZ()))
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
 
                 Component.empty(),
 
-                Component.text("Corner 2")
+                MessageUtils.format(infoCorner2)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                MessageUtils.format(infoCoords,
+                                "x", String.valueOf(mine.getRegion().getMinX()),
+                                "y", String.valueOf(mine.getRegion().getMinY()),
+                                "z", String.valueOf(mine.getRegion().getMinZ()))
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .decorate(TextDecoration.BOLD)
-                        .color(NamedTextColor.GOLD),
-                Component.text("  X: ")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.GRAY)
-                        .append(Component.text(mine.getRegion().getMinX()).color(NamedTextColor.WHITE))
-                        .append(Component.text("  Y: ").color(NamedTextColor.GRAY))
-                        .append(Component.text(mine.getRegion().getMinY()).color(NamedTextColor.WHITE))
-                        .append(Component.text("  Z: ").color(NamedTextColor.GRAY))
-                        .append(Component.text(mine.getRegion().getMinZ()).color(NamedTextColor.WHITE))
         );
     }
 }

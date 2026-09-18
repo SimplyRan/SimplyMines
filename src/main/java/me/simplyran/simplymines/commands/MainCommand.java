@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.commands;
 
 import lombok.Getter;
+import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.commands.subcommands.*;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
@@ -8,6 +9,7 @@ import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.managers.SelectionManager;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.updater.UpdateChecker;
 import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.command.Command;
@@ -36,11 +38,13 @@ public class MainCommand implements CommandExecutor {
                        @NotNull GuiManager guiManager,
                        @NotNull WorkloadRunnable workloadRunnable,
                        @NotNull SelectionManager selectionManager,
-                       @NotNull ConfigManager configManager) {
+                       @NotNull ConfigManager configManager,
+                       @NotNull SimplyMines plugin,
+                       @NotNull UpdateChecker updateChecker) {
         this.guiManager = guiManager;
-        configManager.register(onlyPlayers);
-        configManager.register(unknownSubcommand);
-        configManager.register(noPermission);
+        configManager.registerLang(onlyPlayers);
+        configManager.registerLang(unknownSubcommand);
+        configManager.registerLang(noPermission);
 
         this.subCommands = new ArrayList<>();
 
@@ -57,6 +61,7 @@ public class MainCommand implements CommandExecutor {
         subCommands.add(new SaveSubCommand(mineManager, configManager));
         subCommands.add(new EditSubCommand(mineManager, configManager, guiManager));
         subCommands.add(new RenameSubCommand(mineManager, configManager));
+        subCommands.add(new VersionSubCommand(configManager, plugin, updateChecker));
     }
 
 

@@ -26,9 +26,9 @@ public class DisableSubCommand implements SubCommand {
 
     public DisableSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
-        configManager.register(mineDisabled);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(mineDisabled);
     }
 
     @Override

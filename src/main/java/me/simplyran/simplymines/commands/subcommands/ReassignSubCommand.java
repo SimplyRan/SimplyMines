@@ -37,10 +37,10 @@ public class ReassignSubCommand implements SubCommand {
                               @NotNull SelectionManager selectionManager) {
         this.mineManager = mineManager;
         this.selectionManager = selectionManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
-        configManager.register(noSelection);
-        configManager.register(mineMoved);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(noSelection);
+        configManager.registerLang(mineMoved);
     }
 
     @Override

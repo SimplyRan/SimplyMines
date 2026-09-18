@@ -3,11 +3,15 @@ package me.simplyran.simplymines.gui.menus.settings;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
-import net.kyori.adventure.text.Component;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -20,20 +24,34 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
  */
 public class WarnSettingsGUI {
 
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.settings.warn-settings.title", "Warn Settings");
+    private final ConfigData<String> warnSecondsName = ConfigFactory.newConfigData(
+            "menus.settings.warn-settings.warn-seconds-name", "<yellow>Warn Seconds");
+    private final ConfigData<String> warnDistanceName = ConfigFactory.newConfigData(
+            "menus.settings.warn-settings.warn-distance-name", "<yellow>Warn Distance");
+    private final ConfigData<String> warnDistanceLore = ConfigFactory.newConfigData(
+            "menus.settings.warn-settings.warn-distance-lore", "<white><amount> Blocks");
+
     private final SimplyMines plugin;
     private final GuiManager guiManager;
     private final MineManager mineManager;
 
-    public WarnSettingsGUI(SimplyMines plugin,MineManager mineManager, GuiManager guiManager) {
+    public WarnSettingsGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.guiManager = guiManager;
         this.mineManager = mineManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(warnSecondsName);
+        configManager.registerLang(warnDistanceName);
+        configManager.registerLang(warnDistanceLore);
     }
 
     public void open(Player player, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Warn Settings"))
+                .title(MessageUtils.format(title))
                 .disableAllInteractions()
                 .create();
 
@@ -47,26 +65,23 @@ public class WarnSettingsGUI {
 
         gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back")
+                        .name(MessageUtils.format(MenuCommonText.BACK)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                                .colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
         gui.setItem(2, 4,
                 ItemBuilder.from(Material.REDSTONE_TORCH)
-                        .name(Component.text("Warn Seconds")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
+                        .name(MessageUtils.format(warnSecondsName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getWarnSecondsGUI().open(player, mine)));
 
         gui.setItem(2, 6,
                 ItemBuilder.from(Material.SPYGLASS)
-                        .name(Component.text("Warn Distance")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(mine.getWarnDistance() + " Blocks")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                        .name(MessageUtils.format(warnDistanceName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(MessageUtils.format(warnDistanceLore, "amount", String.valueOf(mine.getWarnDistance()))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getWarnDistanceGUI().open(player, mine)));
 
         gui.open(player);

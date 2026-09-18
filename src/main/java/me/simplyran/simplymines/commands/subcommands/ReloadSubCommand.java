@@ -28,7 +28,7 @@ public class ReloadSubCommand implements SubCommand {
         this.mineManager = mineManager;
         this.workloadRunnable = workloadRunnable;
         this.configManager = configManager;
-        configManager.register(reloaded);
+        configManager.registerLang(reloaded);
     }
 
     @Override

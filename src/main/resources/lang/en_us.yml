@@ -1,0 +1,295 @@
+messages:
+  only-players: "<red>Only players can use this command."
+  no-permission: "<red>You do not have permission to use this command."
+
+  no-permission-reload: "<red>You do not have permission to reload."
+  reloaded: "<green>Mines and Config have been reloaded!"
+
+  unknown-subcommand: "<red>Unknown subcommand: <yellow><input>"
+  usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]"
+
+  no-permission-reset: "<red>You do not have permission to reset mines."
+  mine-reset: "<green>Mine <mine> has been reset!"
+  mine-not-found: "<red>Mine <mine> not found!"
+
+  no-permission-create: "<red>You do not have permission to create mines."
+  only-players-create: "<red>Only players can create mines."
+  mine-already-exists: "<red>Mine <mine> already exists."
+  no-selection: "<red>No Selection found! Use a Wooden Hoe to select 2 corners."
+
+  selected-corner-1: "<green>Selected Corner 1 at <x>, <y>, <z>"
+  selected-corner-2: "<green>Selected Corner 2 at <x>, <y>, <z>"
+
+  no-permission-delete: "<red>You do not have permission to delete mines."
+  mine-deleted: "<green>Mine <mine> has been deleted."
+
+  no-permission-disable: "<red>You do not have permission to disable mines."
+  mine-disabled: "<red>Disabled <mine>."
+
+  no-permission-enable: "<red>You do not have permission to enable mines."
+  mine-enabled: "<green>Enabled <mine>."
+
+  no-permission-move: "<red>You do not have permission to move mines."
+  mine-moved: "<green>Mine <mine> has been moved."
+
+  no-permission-setteleport: "<red>You do not have permission to set mine teleport locations."
+  teleport-set: "<green>Teleport location for <mine> has been set to your current position."
+
+  no-permission-teleport: "<red>You do not have permission to teleport to mines."
+  no-teleport-location: "<red>Mine <mine> does not have a teleport location set."
+  mine-teleported: "<green>Teleported to <mine>."
+
+  warn-global: "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!"
+  warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"
+
+  only-players-can-tool: "<green>Only players can use tool"
+  disabled-tool: "<red>Disabled selection tool."
+  enabled-tool: "<green>Enabled selection tool."
+  no-permission-tool: "<red>no permission to toggle tool."
+
+  missing-mine-name: "<red>You need to specify a mine name!"
+
+  higher-efficiency-level: "<red>You need a tool with Efficiency <level> or higher to mine here."
+  no-permission-mine: "<red>You don't have permission to mine here."
+
+  action-edit-prompt-command: "<yellow>Type the command in chat (without leading /), or 'cancel'."
+  action-edit-command-not-registered: "<red>Warning: '<command>' is not a registered command, it will not run."
+  action-edit-command-set: "<green>Command set to <command>"
+  action-edit-item-drop-must-hold: "<red>You must be holding an item."
+
+  update-available: "<yellow>[SimplyMines] Update available: <latest> (you're on <current>)."
+  version-current: "<gray>Running SimplyMines <white><current>"
+  version-up-to-date: "<green>You are running the latest version."
+  version-update-available: "<yellow>Update available: <white><latest>"
+  version-check-failed: "<red>Could not check for updates."
+
+  permission-requirement-prompt-node: "<yellow>Type the permission node in chat, or 'cancel'."
+  permission-requirement-node-set: "<green>Permission node set to <node>"
+
+menus:
+  common:
+    back: "Back"
+    previous: "Previous"
+    next: "Next"
+    remove-action: "<red>Remove Action"
+    left-click-edit: "<gray>Left click to edit"
+    shift-right-click-remove: "<red>Shift-right click to remove"
+    chance-lore: "Chance: <percent>%"
+    amount-lore: "Amount: <amount>"
+    adjust-remove-percent: "Remove <amount>% Chance"
+    adjust-add-percent: "Add <amount>% Chance"
+    adjust-remove-amount: "Remove <amount> Amount"
+    adjust-add-amount: "Add <amount> Amount"
+    not-set: "(not set)"
+    materials-header: "<blue>Materials:"
+    material-line: "<blue>   <material>: <white><percent>%"
+    toggle-enabled: "Enabled"
+    toggle-disabled: "Disabled"
+    click-to-toggle: "Click to toggle"
+
+  main-menu:
+    title: "Select Mine"
+    mine-item:
+      lore:
+        enabled-true: "<aqua>Mine Enabled: <green>Yes"
+        enabled-false: "<aqua>Mine Enabled: <red>No"
+        reset-time: "<aqua>Reset Time: <white><value>"
+        warn-global-true: "<aqua>Warn Global: <green>Yes"
+        warn-global-false: "<aqua>Warn Global: <red>No"
+        warn-near-true: "<aqua>Warn Near: <green>Yes"
+        warn-near-false: "<aqua>Warn Near: <red>No"
+        warn-distance: "<aqua>Warn Distance: <white><value>"
+        teleport-players-true: "<aqua>Teleport Players: <green>Yes"
+        teleport-players-false: "<aqua>Teleport Players: <red>No"
+        reset-percentage-enabled: "<aqua>Reset At Percentage: <green><percent>% left (Enabled)"
+        reset-percentage-disabled: "<aqua>Reset At Percentage: <red>Disabled"
+        min-efficiency-enabled: "<aqua>Min Efficiency: <green>Level <level> (Enabled)"
+        min-efficiency-disabled: "<aqua>Min Efficiency: <red>Disabled"
+
+  mine-editor:
+    title: "<yellow>Editing <mine>"
+    info-button-name: "<white><mine> Info"
+    teleport-button-name: "<light_purple>Teleport To Mine"
+    teleport-button-lore: "<gray>Requires a teleport location to be set"
+    settings-button-name: "<yellow>Mine Settings"
+    settings-button-lore: "<gray>All toggles: drops, pickup, physics, warnings..."
+    edit-blocks-name: "<yellow>Edit Blocks"
+    reset-requirements-name: "<yellow>Reset Requirements"
+    reset-requirements-lore: "<gray>Configure how/when this mine resets"
+    warn-settings-name: "<yellow>Warn Settings"
+    warn-settings-lore: "<gray>Configure warn seconds & warn distance"
+    mine-requirements-name: "<yellow>Mine Requirements"
+    mine-requirements-lore: "<gray>Configure who can mine here (tool/permission)"
+    info-lore:
+      world: "<gray>▸ World: <yellow><world>"
+      corner-1: "<gold><bold>Corner 1"
+      corner-2: "<gold><bold>Corner 2"
+      coords: "<gray>  X: <white><x><gray>  Y: <white><y><gray>  Z: <white><z>"
+
+  actions:
+    add-block-action:
+      title: "Add Action"
+      item-drop-name: "<yellow>Item Drop"
+      item-drop-lore: "<gray>Drops an item when this block is mined"
+      command-name: "<yellow>Command"
+      command-lore: "<gray>Runs a command as the player when this block is mined"
+      economy-name: "<yellow>Economy"
+      economy-lore: "<gray>Grants a currency amount when this block is mined"
+    block-actions:
+      title: "<white>Actions: <block>"
+      add-action-name: "<green>Add Action"
+      type-item-drop: "<gray>Type: Item Drop"
+      command-name-line: "<white>Command: <command>"
+      economy-name-line: "<white>Economy: <amount>"
+    edit-command:
+      title: "Edit Command Action"
+      set-command-name: "<yellow>Set Command"
+      set-command-lore-1: "<gray>Click, then type the command in chat"
+      set-command-lore-2: "<dark_gray>e.g. give %player% diamond 1"
+      run-as-console-label: "Run As Console"
+      command-display-name: "<white>Command Display"
+      command-display-line: "<gray><command>"
+    edit-economy:
+      title: "Edit Economy Action"
+      amount-display-name: "<white>Amount: <amount>"
+    edit-item-drop:
+      title: "Edit Item Drop"
+      set-held-name: "<yellow>Set to Held Item"
+      set-held-lore-1: "<gray>Click while holding an item"
+      set-held-lore-2: "<dark_gray>(or click an item in your inventory below)"
+
+  blocks:
+    block-options:
+      title: "Edit <block>"
+      edit-spawn-chance-name: "<yellow>Edit Spawn Chance"
+      edit-spawn-chance-lore: "<gray>Current: <percent>%"
+      edit-actions-name: "<yellow>Edit Actions"
+      edit-actions-lore-singular: "<gray><amount> action configured"
+      edit-actions-lore-plural: "<gray><amount> actions configured"
+    blocks:
+      title: "Edit Blocks"
+      block-chances-lore: "<yellow>Block Chances: <percent>%"
+      actions-count-lore: "<aqua>Actions: <amount>"
+      action-line: "<gray>   <action> (<percent>%)"
+      action-item-drop-label: "Item Drop: <amount>x <material>"
+      action-command-label: "Command: <command>"
+      action-economy-label: "Economy: <amount>"
+    edit-block:
+      title: "Edit Block Chances"
+      block-percent-name: "Block Percent: <percent>%"
+      all-blocks-name: "<aqua>All Blocks: "
+      all-blocks-lore: "<gold>   <material>: <percent>%"
+
+  requirements:
+    add-mine-requirement:
+      title: "Add Mine Requirement"
+      min-efficiency-unavailable: "<red>Min Efficiency (Already Added)"
+      min-efficiency-name: "<yellow>Min Efficiency"
+      min-efficiency-lore: "<gray>Requires a minimum tool efficiency level"
+      permission-unavailable: "<red>Permission (Already Added)"
+      permission-name: "<yellow>Permission"
+      permission-lore: "<gray>Requires a permission node"
+    add-reset-requirement:
+      title: "Add Reset Requirement"
+      time-reset-unavailable: "<red>Time Reset (Already Added)"
+      time-reset-name: "<yellow>Time Reset"
+      time-reset-lore: "<gray>Resets on a fixed timer"
+      percent-reset-unavailable: "<red>Percent Reset (Already Added)"
+      percent-reset-name: "<yellow>Percent Reset"
+      percent-reset-lore: "<gray>Resets once enough of the mine is broken"
+    min-efficiency:
+      title: "Min Efficiency"
+      adjust-remove-levels: "Remove <amount> Level"
+      adjust-add-levels: "Add <amount> Level"
+      display-name: "<white>Required Efficiency Level"
+      display-lore: "<white>Level <level>"
+      toggle-label: "Min Efficiency"
+    mine-requirements:
+      title: "Mine Requirements: <mine>"
+      add-requirement: "<green>Add Requirement"
+      efficiency-enabled: "<white>Min Efficiency: <green>Enabled"
+      efficiency-disabled: "<white>Min Efficiency: <red>Disabled"
+      efficiency-lore: "<gray>Requires Level <white><level>"
+      permission-enabled: "<white>Permission: <green>Enabled"
+      permission-disabled: "<white>Permission: <red>Disabled"
+      permission-lore: "<gray>Node: <white><node>"
+      unknown-requirement: "<white><type>"
+    permission-requirement:
+      title: "Permission Requirement"
+      set-node-name: "<yellow>Set Permission Node"
+      set-node-lore: "<gray>Click, then type it in chat"
+      current-node-name: "<white>Current Node"
+      current-node-lore: "<white><node>"
+      toggle-label: "Permission Requirement"
+    reset-percentage:
+      title: "Reset At Percentage"
+      adjust-remove: "Remove <amount>% from Reset Threshold"
+      adjust-add: "Add <amount>% to Reset Threshold"
+      display-name: "<white>Reset Threshold"
+      display-lore: "<white><percent>% left"
+      toggle-label: "Reset At Percentage"
+    reset-requirements:
+      title: "Reset Requirements: <mine>"
+      add-requirement: "<green>Add Requirement"
+      time-reset-name: "<yellow>Time Reset"
+      time-reset-lore: "<gray>Resets every <white><seconds>s"
+      percent-reset-enabled: "<white>Percent Reset: <green>Enabled"
+      percent-reset-disabled: "<white>Percent Reset: <red>Disabled"
+      percent-reset-lore: "<gray>Resets at <white><percent>% left"
+      unknown-requirement: "<white><type>"
+    reset-time:
+      title: "Change Reset Time"
+      adjust-remove: "Remove <amount> seconds from Reset Time"
+      adjust-add: "Add <amount> seconds to Reset Time"
+      display-name: "<white>Reset Time"
+      display-lore: "<white><seconds>s"
+
+  settings:
+    mine-settings:
+      title: "Settings: <mine>"
+      general-section-label: "<gold>General"
+      mining-section-label: "<gold>Mining"
+      reset-warnings-section-label: "<gold>Reset & Warnings"
+      mine-enabled-label: "Mine Enabled"
+      mine-enabled-description: "Master switch - disabled mines never reset."
+      teleport-players-label: "Teleport Players"
+      teleport-players-description: "Teleport players out of the mine before a reset."
+      normal-drops-label: "Normal Drops"
+      normal-drops-description: "Broken blocks drop their vanilla items."
+      auto-pickup-label: "Auto Pickup"
+      auto-pickup-description: "Drops go straight into the player's inventory."
+      fortune-label: "Fortune"
+      fortune-description: "Fortune on the tool multiplies item drops."
+      replace-mode-label: "Replace Mode"
+      replace-mode-description: "Reset overwrites every block, not just air."
+      use-physics-label: "Use Physics"
+      use-physics-description: "Placed blocks trigger physics updates."
+      warn-global-label: "Warn Global"
+      warn-global-description: "Broadcast reset warnings to the whole server."
+      warn-near-label: "Warn Near"
+      warn-near-description: "Warn only players near the mine before a reset."
+    reset-settings:
+      title: "Reset Settings"
+      reset-time-name: "<yellow>Reset Time (Timed)"
+      reset-time-lore: "<white><value>"
+      reset-percentage-name: "<yellow>Reset At Percentage"
+      reset-percentage-enabled-lore: "<green><percent>% left (Enabled)"
+      reset-percentage-disabled-lore: "<red>Disabled"
+    warn-distance:
+      title: "Change Warn Distance"
+      warn-distance-name: "<white>Warn Distance"
+      warn-distance-lore: "<white><amount> Blocks"
+      remove-ten-label: "Remove 10 blocks from Warn Distance"
+      remove-five-label: "Remove 5 blocks from Warn Distance"
+      remove-one-label: "Remove 1 block from Warn Distance"
+      add-one-label: "Add 1 block to Warn Distance"
+      add-five-label: "Add 5 blocks to Warn Distance"
+      add-ten-label: "Add 10 blocks to Warn Distance"
+    warn-seconds:
+      title: "Warn Seconds"
+      toggle-label: "<seconds> Warn Seconds"
+    warn-settings:
+      title: "Warn Settings"
+      warn-seconds-name: "<yellow>Warn Seconds"
+      warn-distance-name: "<yellow>Warn Distance"
+      warn-distance-lore: "<white><amount> Blocks"

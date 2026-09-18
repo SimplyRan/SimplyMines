@@ -3,14 +3,18 @@ package me.simplyran.simplymines.gui.menus.requirements;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.utils.ChatInputManager;
 import me.simplyran.simplymines.utils.GuiUtils;
-import net.kyori.adventure.text.Component;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -19,6 +23,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 public class PermissionRequirementGUI {
+
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.title", "Permission Requirement");
+    private final ConfigData<String> setNodeName = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.set-node-name", "<yellow>Set Permission Node");
+    private final ConfigData<String> setNodeLore = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.set-node-lore", "<gray>Click, then type it in chat");
+    private final ConfigData<String> currentNodeName = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.current-node-name", "<white>Current Node");
+    private final ConfigData<String> currentNodeLore = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.current-node-lore", "<white><node>");
+    private final ConfigData<String> toggleLabel = ConfigFactory.newConfigData(
+            "menus.requirements.permission-requirement.toggle-label", "Permission Requirement");
+
+    private final ConfigData<String> promptNode = ConfigFactory.newConfigData(
+            "messages.permission-requirement-prompt-node", "<yellow>Type the permission node in chat, or 'cancel'.");
+    private final ConfigData<String> nodeSet = ConfigFactory.newConfigData(
+            "messages.permission-requirement-node-set", "<green>Permission node set to <node>");
 
     private final SimplyMines plugin;
     private final MineManager mineManager;
@@ -30,6 +52,15 @@ public class PermissionRequirementGUI {
         this.mineManager = mineManager;
         this.guiManager = guiManager;
         this.configManager = configManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(setNodeName);
+        configManager.registerLang(setNodeLore);
+        configManager.registerLang(currentNodeName);
+        configManager.registerLang(currentNodeLore);
+        configManager.registerLang(toggleLabel);
+        configManager.registerLang(promptNode);
+        configManager.registerLang(nodeSet);
     }
 
     public void open(Player player, BasicMine mine) {
@@ -43,7 +74,7 @@ public class PermissionRequirementGUI {
 
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Permission Requirement"))
+                .title(MessageUtils.format(title))
                 .disableAllInteractions()
                 .create();
 
@@ -58,24 +89,24 @@ public class PermissionRequirementGUI {
 
         gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                        .name(MessageUtils.format(MenuCommonText.BACK).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
-        renderToggle(gui, requirement);
+        new ToggleButton(gui, 1, 3, MessageUtils.plainFormat(toggleLabel), requirement::isEnabled, requirement::setEnabled, null).render();
         renderDisplay(gui, requirement);
 
         gui.setItem(2, 5,
                 ItemBuilder.from(Material.WRITABLE_BOOK)
-                        .name(Component.text("Set Permission Node").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Click, then type it in chat").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
+                        .name(MessageUtils.format(setNodeName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(MessageUtils.format(setNodeLore).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> {
                             event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
-                            player.sendMessage(Component.text("Type the permission node in chat, or 'cancel'.").color(NamedTextColor.YELLOW));
+                            player.sendMessage(MessageUtils.format(player, promptNode));
 
                             ChatInputManager.awaitInput(player, input -> {
                                 if (!input.equalsIgnoreCase("cancel")) {
                                     requirement.setPermission(input.trim());
-                                    player.sendMessage(Component.text("Permission node set to " + input.trim()).color(NamedTextColor.GREEN));
+                                    player.sendMessage(MessageUtils.format(player, nodeSet, "node", input.trim()));
                                 }
                                 Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
                             });
@@ -85,26 +116,13 @@ public class PermissionRequirementGUI {
     }
 
     private void renderDisplay(Gui gui, PermissionMineRequirement req) {
+        String node = req.getPermission().isEmpty() ? MessageUtils.plainFormat(MenuCommonText.NOT_SET) : req.getPermission();
         gui.setItem(1, 5,
                 ItemBuilder.from(Material.PAPER)
-                        .name(Component.text("Current Node").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(Component.text(req.getPermission().isEmpty() ? "(not set)" : req.getPermission())
-                                .color(NamedTextColor.WHITE)
+                        .name(MessageUtils.format(currentNodeName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(MessageUtils.format(currentNodeLore, "node", node)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem());
     }
 
-    private void renderToggle(Gui gui, PermissionMineRequirement req) {
-        boolean enabled = req.isEnabled();
-        gui.setItem(1, 3,
-                ItemBuilder.from(Material.LEVER)
-                        .name(Component.text("Permission Requirement: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE)
-                                .append(Component.text(enabled ? "Enabled" : "Disabled").color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
-                        .lore(Component.text("Click to toggle").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY))
-                        .asGuiItem(event -> {
-                            req.setEnabled(!req.isEnabled());
-                            renderToggle(gui, req);
-                            gui.update();
-                        }));
-    }
 }

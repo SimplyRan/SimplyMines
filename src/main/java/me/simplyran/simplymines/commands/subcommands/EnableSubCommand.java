@@ -26,9 +26,9 @@ public class EnableSubCommand implements SubCommand {
 
     public EnableSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
-        configManager.register(mineEnabled);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(mineEnabled);
     }
 
     @Override

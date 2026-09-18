@@ -26,9 +26,9 @@ public class DeleteSubCommand implements SubCommand {
 
     public DeleteSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
-        configManager.register(mineDeleted);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(mineDeleted);
     }
 
     @Override

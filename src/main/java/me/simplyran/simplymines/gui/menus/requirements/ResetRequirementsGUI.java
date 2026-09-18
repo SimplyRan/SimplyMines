@@ -5,13 +5,18 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -30,19 +35,45 @@ import java.util.List;
  */
 public class ResetRequirementsGUI {
 
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.title", "Reset Requirements: <mine>");
+    private final ConfigData<String> addRequirement = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.add-requirement", "<green>Add Requirement");
+    private final ConfigData<String> timeResetName = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.time-reset-name", "<yellow>Time Reset");
+    private final ConfigData<String> timeResetLore = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.time-reset-lore", "<gray>Resets every <white><seconds>s");
+    private final ConfigData<String> percentResetEnabled = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.percent-reset-enabled", "<white>Percent Reset: <green>Enabled");
+    private final ConfigData<String> percentResetDisabled = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.percent-reset-disabled", "<white>Percent Reset: <red>Disabled");
+    private final ConfigData<String> percentResetLore = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.percent-reset-lore", "<gray>Resets at <white><percent>% left");
+    private final ConfigData<String> unknownRequirement = ConfigFactory.newConfigData(
+            "menus.requirements.reset-requirements.unknown-requirement", "<white><type>");
+
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public ResetRequirementsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
+    public ResetRequirementsGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.guiManager = guiManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(addRequirement);
+        configManager.registerLang(timeResetName);
+        configManager.registerLang(timeResetLore);
+        configManager.registerLang(percentResetEnabled);
+        configManager.registerLang(percentResetDisabled);
+        configManager.registerLang(percentResetLore);
+        configManager.registerLang(unknownRequirement);
     }
 
     public void open(Player player, BasicMine mine) {
         PaginatedGui gui = Gui.paginated()
-                .title(Component.text("Reset Requirements: " + mine.getName()))
+                .title(MessageUtils.format(title, "mine", mine.getName()))
                 .rows(2)
                 .pageSize(9)
                 .disableAllInteractions()
@@ -60,27 +91,25 @@ public class ResetRequirementsGUI {
 
         gui.setItem(2, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                        .name(MessageUtils.format(MenuCommonText.BACK).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> {
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
-                            //Saving after opening
                             mineManager.saveMineAsync(mine);
-
                         }));
 
         gui.setItem(2, 3,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Previous").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .name(MessageUtils.format(MenuCommonText.PREVIOUS).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.previous()));
 
         gui.setItem(2, 7,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Next").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .name(MessageUtils.format(MenuCommonText.NEXT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.next()));
 
         gui.setItem(2, 9,
                 ItemBuilder.from(Material.EMERALD)
-                        .name(Component.text("Add Requirement").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GREEN))
+                        .name(MessageUtils.format(addRequirement).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getAddResetRequirementGUI().open(player, mine)));
 
         for (IResetRequirement requirement : mine.getResetRequirements()) {
@@ -94,13 +123,13 @@ public class ResetRequirementsGUI {
 
         if (requirement instanceof TimeResetRequirement time) {
             return ItemBuilder.from(Material.CLOCK)
-                    .name(Component.text("Time Reset").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.YELLOW))
+                    .name(MessageUtils.format(timeResetName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                     .lore(List.of(
-                            Component.text("Resets every ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
-                                    .append(Component.text(time.getResetTime() + "s").color(NamedTextColor.WHITE)),
+                            MessageUtils.format(timeResetLore, "seconds", String.valueOf(time.getResetTime()))
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                             Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                            MessageUtils.format(MenuCommonText.LEFT_CLICK_EDIT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                            MessageUtils.format(MenuCommonText.SHIFT_RIGHT_CLICK_REMOVE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                     ))
                     .asGuiItem(event -> {
                         if (event.getClick() == ClickType.SHIFT_RIGHT) {
@@ -115,14 +144,13 @@ public class ResetRequirementsGUI {
         if (requirement instanceof PercentResetRequirement percent) {
             boolean enabled = percent.isEnabled();
             return ItemBuilder.from(Material.REPEATER)
-                    .name(Component.text("Percent Reset: ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE)
-                            .append(Component.text(enabled ? "Enabled" : "Disabled").color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                    .name(MessageUtils.format(enabled ? percentResetEnabled : percentResetDisabled).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                     .lore(List.of(
-                            Component.text("Resets at ").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY)
-                                    .append(Component.text(percent.getResetAtPercentage() + "% left").color(NamedTextColor.WHITE)),
+                            MessageUtils.format(percentResetLore, "percent", String.valueOf(percent.getResetAtPercentage()))
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                             Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                            MessageUtils.format(MenuCommonText.LEFT_CLICK_EDIT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                            MessageUtils.format(MenuCommonText.SHIFT_RIGHT_CLICK_REMOVE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                     ))
                     .asGuiItem(event -> {
                         if (event.getClick() == ClickType.SHIFT_RIGHT) {
@@ -134,11 +162,9 @@ public class ResetRequirementsGUI {
                     });
         }
 
-        // Fallback for any future requirement type without a dedicated editor yet
         return ItemBuilder.from(Material.PAPER)
-                .name(Component.text(requirement.getClass().getSimpleName())
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.WHITE))
+                .name(MessageUtils.format(unknownRequirement, "type", requirement.getClass().getSimpleName())
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                 .asGuiItem();
     }
 }

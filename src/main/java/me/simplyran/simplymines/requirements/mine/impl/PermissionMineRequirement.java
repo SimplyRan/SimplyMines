@@ -29,7 +29,7 @@ public class PermissionMineRequirement implements IMineRequirement {
     public PermissionMineRequirement(@NotNull ConfigManager configManager, @NotNull String permission) {
         this.permission = permission;
         if (!registered) {
-            configManager.register(NO_PERMISSION_MINE);
+            configManager.registerLang(NO_PERMISSION_MINE);
             registered = true;
         }
     }

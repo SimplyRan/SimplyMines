@@ -16,8 +16,10 @@ import me.simplyran.simplymines.listeners.BlockBreakListener;
 import me.simplyran.simplymines.listeners.BlockDropItemListener;
 import me.simplyran.simplymines.listeners.ChatInputListener;
 import me.simplyran.simplymines.listeners.SelectionListener;
+import me.simplyran.simplymines.listeners.UpdateNotifyListener;
 import me.simplyran.simplymines.managers.*;
 import me.simplyran.simplymines.placeholders.MinePlaceholder;
+import me.simplyran.simplymines.updater.UpdateChecker;
 import me.simplyran.simplymines.requirements.mine.MineRequirementRegistry;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
@@ -39,6 +41,7 @@ public final class SimplyMines extends JavaPlugin {
     private GuiManager guiManager;
     private SelectionManager selectionManager;
     private ConfigManager configManager;
+    private UpdateChecker updateChecker;
     @Getter private static Economy economy;
 
     @Getter private static boolean ITEMSADDER_LOADED = false;
@@ -68,6 +71,9 @@ public final class SimplyMines extends JavaPlugin {
 
         //Creating ConfigManager
         this.configManager = new ConfigManager(this);
+
+        //Creating UpdateChecker
+        this.updateChecker = new UpdateChecker(this);
 
         //Creating WorkloadRunnable
         this.workloadRunnable = new WorkloadRunnable(configManager);
@@ -111,6 +117,8 @@ public final class SimplyMines extends JavaPlugin {
         registerCommands();
 
         registerBStats();
+
+        updateChecker.checkAsync();
     }
 
     private void loadPlaceholders(){
@@ -205,6 +213,11 @@ public final class SimplyMines extends JavaPlugin {
                 new BlockDropItemListener(mineManager),
                 this
         );
+
+        getServer().getPluginManager().registerEvents(
+                new UpdateNotifyListener(configManager, updateChecker),
+                this
+        );
     }
 
     private void registerCommands(){
@@ -213,7 +226,9 @@ public final class SimplyMines extends JavaPlugin {
                 guiManager,
                 workloadRunnable,
                 selectionManager,
-                configManager);
+                configManager,
+                this,
+                updateChecker);
 
         PluginCommand simplyminesCommand = this.getCommand("sm");
         if (simplyminesCommand == null){
