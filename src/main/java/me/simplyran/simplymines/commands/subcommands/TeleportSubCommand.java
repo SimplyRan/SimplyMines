@@ -32,11 +32,11 @@ public class TeleportSubCommand implements SubCommand {
 
     public TeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(noPermissionTeleport);
-        configManager.register(mineNotFound);
-        configManager.register(noTeleportLocation);
-        configManager.register(mineTeleported);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(noPermissionTeleport);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(noTeleportLocation);
+        configManager.registerLang(mineTeleported);
     }
 
     @Override

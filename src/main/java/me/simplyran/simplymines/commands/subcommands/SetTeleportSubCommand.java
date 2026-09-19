@@ -27,9 +27,9 @@ public class SetTeleportSubCommand implements SubCommand {
 
     public SetTeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
-        configManager.register(teleportSet);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
+        configManager.registerLang(teleportSet);
     }
 
     @Override

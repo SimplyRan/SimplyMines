@@ -20,8 +20,8 @@ public class WarnUtils {
             "messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
 
     public WarnUtils(@NotNull ConfigManager configManager) {
-        configManager.register(warnGlobal);
-        configManager.register(warnNear);
+        configManager.registerLang(warnGlobal);
+        configManager.registerLang(warnNear);
     }
 
     public void checkWarnings(@NotNull BasicMine mine, long now) {

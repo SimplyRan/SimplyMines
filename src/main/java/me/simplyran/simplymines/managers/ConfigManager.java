@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.objects.ConfigData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -12,12 +13,18 @@ public class ConfigManager {
 
     private final SimplyMines plugin;
     private final List<ConfigData<?>> registry = new ArrayList<>();
+    private final LangManager langManager;
     private boolean initialized = false;
 
     public ConfigManager(@NotNull SimplyMines plugin) {
         this.plugin = plugin;
         plugin.saveDefaultConfig();
-        reloadConfig();
+
+        ConfigData<String> langKey = ConfigFactory.newConfigData("lang", "en_us");
+        registry.add(langKey);
+        loadConfigData();
+
+        this.langManager = new LangManager(plugin, langKey);
     }
 
     public void register(@NotNull ConfigData<?> data) {
@@ -27,9 +34,14 @@ public class ConfigManager {
         }
     }
 
+    public void registerLang(@NotNull ConfigData<String> data) {
+        langManager.register(data);
+    }
+
     public void reloadConfig() {
         plugin.reloadConfig();
         loadConfigData();
+        langManager.reloadLang();
     }
 
     private void loadConfigData() {

@@ -3,11 +3,15 @@ package me.simplyran.simplymines.gui.menus.blocks;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
-import net.kyori.adventure.text.Component;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -21,18 +25,38 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
  */
 public class BlockOptionsGUI {
 
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.title", "Edit <block>");
+    private final ConfigData<String> editSpawnChanceName = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.edit-spawn-chance-name", "<yellow>Edit Spawn Chance");
+    private final ConfigData<String> editSpawnChanceLore = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.edit-spawn-chance-lore", "<gray>Current: <percent>%");
+    private final ConfigData<String> editActionsName = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.edit-actions-name", "<yellow>Edit Actions");
+    private final ConfigData<String> editActionsLoreSingular = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.edit-actions-lore-singular", "<gray><amount> action configured");
+    private final ConfigData<String> editActionsLorePlural = ConfigFactory.newConfigData(
+            "menus.blocks.block-options.edit-actions-lore-plural", "<gray><amount> actions configured");
+
     private final SimplyMines plugin;
     private final GuiManager guiManager;
 
-    public BlockOptionsGUI(SimplyMines plugin, GuiManager guiManager) {
+    public BlockOptionsGUI(ConfigManager configManager, SimplyMines plugin, GuiManager guiManager) {
         this.plugin = plugin;
         this.guiManager = guiManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(editSpawnChanceName);
+        configManager.registerLang(editSpawnChanceLore);
+        configManager.registerLang(editActionsName);
+        configManager.registerLang(editActionsLoreSingular);
+        configManager.registerLang(editActionsLorePlural);
     }
 
     public void open(Player player, String block, BasicMine mine) {
         Gui gui = Gui.gui()
                 .rows(3)
-                .title(Component.text("Edit " + block))
+                .title(MessageUtils.format(title, "block", block))
                 .disableAllInteractions()
                 .create();
 
@@ -45,30 +69,27 @@ public class BlockOptionsGUI {
 
         gui.setItem(3, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back")
+                        .name(MessageUtils.format(MenuCommonText.BACK)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.WHITE))
+                                .colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> player.closeInventory()));
 
         gui.setItem(2, 3,
                 ItemBuilder.from(ItemUtils.getItemStackFromName(block))
-                        .name(Component.text("Edit Spawn Chance")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text("Current: " + Math.round(mine.getPercentage(block) * 100) + "%")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.GRAY))
+                        .name(MessageUtils.format(editSpawnChanceName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(MessageUtils.format(editSpawnChanceLore, "percent", String.valueOf(Math.round(mine.getPercentage(block) * 100)))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getEditBlockGUI().open(player, block, mine)));
 
         int actionCount = mine.getActions(block).size();
+        ConfigData<String> editActionsLore = actionCount == 1 ? editActionsLoreSingular : editActionsLorePlural;
         gui.setItem(2, 7,
                 ItemBuilder.from(Material.CHEST)
-                        .name(Component.text("Edit Actions")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.YELLOW))
-                        .lore(Component.text(actionCount + " action" + (actionCount == 1 ? "" : "s") + " configured")
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .color(NamedTextColor.GRAY))
+                        .name(MessageUtils.format(editActionsName)
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .lore(MessageUtils.format(editActionsLore, "amount", String.valueOf(actionCount))
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getBlockActionsGUI().open(player, block, mine)));
 
         gui.open(player);

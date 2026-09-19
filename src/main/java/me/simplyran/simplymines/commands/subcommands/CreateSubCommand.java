@@ -51,9 +51,9 @@ public class CreateSubCommand implements SubCommand {
         this.selectionManager = selectionManager;
         this.guiManager = guiManager;
         this.workloadRunnable = workloadRunnable;
-        configManager.register(missingMineName);
-        configManager.register(mineAlreadyExists);
-        configManager.register(noSelection);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineAlreadyExists);
+        configManager.registerLang(noSelection);
     }
 
     @Override

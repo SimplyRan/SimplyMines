@@ -1,3 +1,8 @@
+# The active translation file, without the .yml extension.
+# Matches a file in the plugin's lang/ folder (e.g. lang: en_us -> lang/en_us.yml).
+# Drop in your own lang/<name>.yml and point this at it to translate the plugin.
+lang: en_us
+
 #Change ONLY if you know what you are doing
 max_workload: 20000000
 save_mines_seconds: 1800
@@ -35,57 +40,3 @@ database:
     # Extra JDBC connection properties, as key: value pairs (advanced, optional).
     properties:
       allowPublicKeyRetrieval: true
-
-messages:
-  only-players: "<red>Only players can use this command."
-  no-permission: "<red>You do not have permission to use this command."
-
-  no-permission-reload: "<red>You do not have permission to reload."
-  reloaded: "<green>Mines and Config have been reloaded!"
-
-  unknown-subcommand: "<red>Unknown subcommand: <yellow><input>"
-  usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]"
-
-  no-permission-reset: "<red>You do not have permission to reset mines."
-  mine-reset: "<green>Mine <mine> has been reset!"
-  mine-not-found: "<red>Mine <mine> not found!"
-
-  no-permission-create: "<red>You do not have permission to create mines."
-  only-players-create: "<red>Only players can create mines."
-  mine-already-exists: "<red>Mine <mine> already exists."
-  no-selection: "<red>No Selection found! Use a Wooden Hoe to select 2 corners."
-
-  selected-corner-1: "<green>Selected Corner 1 at <x>, <y>, <z>"
-  selected-corner-2: "<green>Selected Corner 2 at <x>, <y>, <z>"
-
-  no-permission-delete: "<red>You do not have permission to delete mines."
-  mine-deleted: "<green>Mine <mine> has been deleted."
-
-  no-permission-disable: "<red>You do not have permission to disable mines."
-  mine-disabled: "<red>Disabled <mine>."
-
-  no-permission-enable: "<red>You do not have permission to enable mines."
-  mine-enabled: "<green>Enabled <mine>."
-
-  no-permission-move: "<red>You do not have permission to move mines."
-  mine-moved: "<green>Mine <mine> has been moved."
-
-  no-permission-setteleport: "<red>You do not have permission to set mine teleport locations."
-  teleport-set: "<green>Teleport location for <mine> has been set to your current position."
-
-  no-permission-teleport: "<red>You do not have permission to teleport to mines."
-  no-teleport-location: "<red>Mine <mine> does not have a teleport location set."
-  mine-teleported: "<green>Teleported to <mine>."
-
-  warn-global: "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!"
-  warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"
-
-  only-players-can-tool: "<green>Only players can use tool"
-  disabled-tool: "<red>Disabled selection tool."
-  enabled-tool: "<green>Enabled selection tool."
-  no-permission-tool: "<red>no permission to toggle tool."
-
-  missing-mine-name: "<red>You need to specify a mine name!"
-
-  higher-efficiency-level: "<red>You need a tool with Efficiency <level> or higher to mine here."
-  no-permission-mine: "<red>You don't have permission to mine here."

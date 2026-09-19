@@ -6,15 +6,21 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class MessageUtils {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final Set<String> LOGGED_BAD_KEYS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private MessageUtils() {}
 
@@ -35,7 +41,26 @@ public class MessageUtils {
         for (int i = 0; i + 1 < placeholderValuePairs.length; i += 2) {
             resolvers.resolver(Placeholder.unparsed(normalize(placeholderValuePairs[i]), placeholderValuePairs[i + 1]));
         }
-        return MINI_MESSAGE.deserialize(raw, resolvers.build());
+
+        TagResolver builtResolvers = resolvers.build();
+
+        try {
+            return MINI_MESSAGE.deserialize(raw, builtResolvers);
+        } catch (Exception e) {
+            if (LOGGED_BAD_KEYS.add(data.getPath())) {
+                Bukkit.getLogger().warning("Invalid MiniMessage formatting for lang key '"
+                        + data.getPath() + "': " + e.getMessage());
+            }
+            try {
+                return MINI_MESSAGE.deserialize(data.getDefaultValue(), builtResolvers);
+            } catch (Exception fallbackException) {
+                return Component.text(data.getDefaultValue());
+            }
+        }
+    }
+
+    public static String plainFormat(@NotNull ConfigData<String> data, @NotNull String... placeholderValuePairs) {
+        return PlainTextComponentSerializer.plainText().serialize(format(data, placeholderValuePairs));
     }
 
     public static String applyPlaceholders(@NotNull Player player, @NotNull String raw) {

@@ -100,6 +100,7 @@ public class MineSerializer {
                 getBool(json, "normalDropsEnabled", MineSettings.DEFAULT_NORMAL_DROPS_ENABLED),
                 getBool(json, "fortuneEnabled",     MineSettings.DEFAULT_FORTUNE_ENABLED),
                 getBool(json, "autoPickup",         MineSettings.DEFAULT_AUTO_PICKUP),
+                getBool(json, "autoSmelt",          MineSettings.DEFAULT_AUTO_SMELT),
                 readTeleportLocation(json, world)
         );
 
@@ -192,6 +193,7 @@ public class MineSerializer {
         json.addProperty("normalDropsEnabled", s.isNormalDropsEnabled());
         json.addProperty("fortuneEnabled",     s.isFortuneEnabled());
         json.addProperty("autoPickup",         s.isAutoPickup());
+        json.addProperty("autoSmelt",          s.isAutoSmelt());
 
         // Mine requirements — use getSerializationKey() instead of reflection
         JsonArray mineRequirements = new JsonArray();
@@ -199,7 +201,11 @@ public class MineSerializer {
             JsonObject requirementJson = new JsonObject();
             requirementJson.addProperty("type", requirement.getSerializationKey());
             for (Pair<String, Object> pair : requirement.serialize()) {
-                addProperty(requirementJson, pair.first(), pair.right());
+                if (pair.right() instanceof Map || pair.right() instanceof List) {
+                    requirementJson.add(pair.first(), GSON.toJsonTree(pair.right()));
+                } else {
+                    addProperty(requirementJson, pair.first(), pair.right());
+                }
             }
             mineRequirements.add(requirementJson);
         }

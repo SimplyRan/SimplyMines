@@ -31,6 +31,7 @@ public class MineSettings {
     public static final boolean DEFAULT_NORMAL_DROPS_ENABLED = true;
     public static final boolean DEFAULT_FORTUNE_ENABLED      = false;
     public static final boolean DEFAULT_AUTO_PICKUP          = false;
+    public static final boolean DEFAULT_AUTO_SMELT           = false;
 
     private boolean enabled;
     private boolean warnNear;
@@ -43,6 +44,7 @@ public class MineSettings {
     private boolean normalDropsEnabled;
     private boolean fortuneEnabled;
     private boolean autoPickup;
+    private boolean autoSmelt;
     @Nullable private Location teleportLocation;
 
     public MineSettings(
@@ -57,6 +59,7 @@ public class MineSettings {
             boolean normalDropsEnabled,
             boolean fortuneEnabled,
             boolean autoPickup,
+            boolean autoSmelt,
             @Nullable Location teleportLocation
     ) {
         this.enabled = enabled;
@@ -70,6 +73,7 @@ public class MineSettings {
         this.normalDropsEnabled = normalDropsEnabled;
         this.fortuneEnabled = fortuneEnabled;
         this.autoPickup = autoPickup;
+        this.autoSmelt = autoSmelt;
         this.teleportLocation = teleportLocation;
     }
 
@@ -87,6 +91,7 @@ public class MineSettings {
                 DEFAULT_NORMAL_DROPS_ENABLED,
                 DEFAULT_FORTUNE_ENABLED,
                 DEFAULT_AUTO_PICKUP,
+                DEFAULT_AUTO_SMELT,
                 null
         );
     }

@@ -2,6 +2,8 @@ package me.simplyran.simplymines.managers;
 
 import lombok.Getter;
 import me.simplyran.simplymines.SimplyMines;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.gui.menus.*;
 import me.simplyran.simplymines.gui.menus.actions.*;
 import me.simplyran.simplymines.gui.menus.blocks.*;
@@ -23,6 +25,8 @@ public class GuiManager {
     private final ResetTimeGUI resetTimeGUI;
     private final ResetPercentageGUI resetPercentageGUI;
     private final MinEfficiencyGUI minEfficiencyGUI;
+    private final MinEnchantmentsGUI minEnchantmentsGUI;
+    private final AddEnchantmentGUI addEnchantmentGUI;
     private final ResetRequirementsGUI resetRequirementsGUI;
     private final MineRequirementsGUI mineRequirementsGUI;
     private final AddResetRequirementGUI addResetRequirementGUI;
@@ -36,29 +40,34 @@ public class GuiManager {
     private final EditEconomyActionGUI editEconomyActionGUI;
 
     public GuiManager(ConfigManager configManager, SimplyMines plugin, MineManager mineManager) {
-        this.mainMenuGUI = new MainMenuGUI(mineManager, this);
-        this.mineEditorGUI = new MineEditorGUI(plugin, mineManager, this);
-        this.mineSettingsGUI = new MineSettingsGUI(plugin, mineManager, this);
-        this.resetSettingsGUI = new ResetSettingsGUI(plugin, mineManager, this);
-        this.warnSettingsGUI = new WarnSettingsGUI(plugin, mineManager, this);
-        this.warnDistanceGUI = new WarnDistanceGUI(plugin, mineManager, this);
-        this.warnSecondsGUI = new WarnSecondsGUI(plugin, mineManager, this);
-        this.blocksGUI = new BlocksGUI(plugin, mineManager, this);
-        this.editBlockGUI = new EditBlockGUI(plugin, mineManager, this);
-        this.resetTimeGUI = new ResetTimeGUI(plugin, mineManager, this);
-        this.resetPercentageGUI = new ResetPercentageGUI(plugin, mineManager, this);
+        MenuCommonText.register(configManager);
+        ToggleButton.register(configManager);
+
+        this.mainMenuGUI = new MainMenuGUI(configManager, mineManager, this);
+        this.mineEditorGUI = new MineEditorGUI(configManager, plugin, mineManager, this);
+        this.mineSettingsGUI = new MineSettingsGUI(configManager, plugin, mineManager, this);
+        this.resetSettingsGUI = new ResetSettingsGUI(configManager, plugin, mineManager, this);
+        this.warnSettingsGUI = new WarnSettingsGUI(configManager, plugin, mineManager, this);
+        this.warnDistanceGUI = new WarnDistanceGUI(configManager, plugin, mineManager, this);
+        this.warnSecondsGUI = new WarnSecondsGUI(configManager, plugin, mineManager, this);
+        this.blocksGUI = new BlocksGUI(configManager, plugin, mineManager, this);
+        this.editBlockGUI = new EditBlockGUI(configManager, plugin, mineManager, this);
+        this.resetTimeGUI = new ResetTimeGUI(configManager, plugin, mineManager, this);
+        this.resetPercentageGUI = new ResetPercentageGUI(configManager, plugin, mineManager, this);
         this.minEfficiencyGUI = new MinEfficiencyGUI(configManager, plugin, mineManager, this);
-        this.resetRequirementsGUI = new ResetRequirementsGUI(plugin, mineManager, this);
-        this.mineRequirementsGUI = new MineRequirementsGUI(plugin, mineManager, this);
-        this.addResetRequirementGUI = new AddResetRequirementGUI(plugin, this);
+        this.minEnchantmentsGUI = new MinEnchantmentsGUI(configManager, plugin, mineManager, this);
+        this.addEnchantmentGUI = new AddEnchantmentGUI(configManager, plugin, this);
+        this.resetRequirementsGUI = new ResetRequirementsGUI(configManager, plugin, mineManager, this);
+        this.mineRequirementsGUI = new MineRequirementsGUI(configManager, plugin, mineManager, this);
+        this.addResetRequirementGUI = new AddResetRequirementGUI(configManager, plugin, this);
         this.addMineRequirementGUI = new AddMineRequirementGUI(configManager, plugin, this);
         this.permissionRequirementGUI = new PermissionRequirementGUI(configManager, plugin, mineManager, this);
-        this.blockOptionsGUI = new BlockOptionsGUI(plugin, this);
-        this.blockActionsGUI = new BlockActionsGUI(plugin, mineManager, this);
-        this.addBlockActionGUI = new AddBlockActionGUI(plugin, this);
-        this.editItemDropActionGUI = new EditItemDropActionGUI(plugin, mineManager, this);
-        this.editCommandActionGUI = new EditCommandActionGUI(plugin, mineManager, this);
-        this.editEconomyActionGUI = new EditEconomyActionGUI(plugin, mineManager, this);
+        this.blockOptionsGUI = new BlockOptionsGUI(configManager, plugin, this);
+        this.blockActionsGUI = new BlockActionsGUI(configManager, plugin, mineManager, this);
+        this.addBlockActionGUI = new AddBlockActionGUI(configManager, plugin, this);
+        this.editItemDropActionGUI = new EditItemDropActionGUI(configManager, plugin, mineManager, this);
+        this.editCommandActionGUI = new EditCommandActionGUI(configManager, plugin, mineManager, this);
+        this.editEconomyActionGUI = new EditEconomyActionGUI(configManager, plugin, mineManager, this);
     }
 
 }

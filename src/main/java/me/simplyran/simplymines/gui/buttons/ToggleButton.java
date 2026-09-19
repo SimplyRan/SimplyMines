@@ -2,6 +2,10 @@ package me.simplyran.simplymines.gui.buttons;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.managers.ConfigManager;
+import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -12,20 +16,29 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-/**
- * A self-rendering on/off button for TriumphGUI menus.
- * Owns its own row/col so it can never drift out of sync with where it's drawn.
- */
 public class ToggleButton {
+
+    private static final ConfigData<String> ENABLED_TEXT = ConfigFactory.newConfigData(
+            "menus.common.toggle-enabled", "Enabled");
+    private static final ConfigData<String> DISABLED_TEXT = ConfigFactory.newConfigData(
+            "menus.common.toggle-disabled", "Disabled");
+    private static final ConfigData<String> CLICK_TO_TOGGLE = ConfigFactory.newConfigData(
+            "menus.common.click-to-toggle", "Click to toggle");
+
+    public static void register(ConfigManager configManager) {
+        configManager.registerLang(ENABLED_TEXT);
+        configManager.registerLang(DISABLED_TEXT);
+        configManager.registerLang(CLICK_TO_TOGGLE);
+    }
 
     private final BaseGui gui;
     private final int row;
     private final int col;
     private final String label;
-    private final String description; // may be null
+    private final String description;
     private final BooleanSupplier getter;
     private final Consumer<Boolean> setter;
-    private final Runnable onToggle; // e.g. save-to-disk, may be null
+    private final Runnable onToggle;
 
     public ToggleButton(BaseGui gui, int row, int col, String label,
                         BooleanSupplier getter, Consumer<Boolean> setter,
@@ -46,7 +59,6 @@ public class ToggleButton {
         this.onToggle = onToggle;
     }
 
-    /** Draws (or redraws) the button at its slot based on current state. */
     public void render() {
         boolean state = getter.getAsBoolean();
         Material material = state ? Material.LIME_DYE : Material.RED_DYE;
@@ -57,16 +69,16 @@ public class ToggleButton {
                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                     .color(NamedTextColor.GRAY));
         }
-        lore.add(Component.text("Click to toggle")
+        lore.add(MessageUtils.format(CLICK_TO_TOGGLE)
                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .color(NamedTextColor.DARK_GRAY));
+                .colorIfAbsent(NamedTextColor.DARK_GRAY));
 
         gui.setItem(row, col, ItemBuilder.from(material)
                 .name(Component.text(label + ": ")
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                         .color(NamedTextColor.YELLOW)
-                        .append(Component.text(state ? "Enabled" : "Disabled")
-                                .color(state ? NamedTextColor.GREEN : NamedTextColor.RED)))
+                        .append(MessageUtils.format(state ? ENABLED_TEXT : DISABLED_TEXT)
+                                .colorIfAbsent(state ? NamedTextColor.GREEN : NamedTextColor.RED)))
                 .lore(lore)
                 .asGuiItem(event -> toggle()));
     }

@@ -27,8 +27,8 @@ public class SelectionListener implements Listener {
 
     public SelectionListener(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager){
         this.selectionManager = selectionManager;
-        configManager.register(selectedCorner1);
-        configManager.register(selectedCorner2);
+        configManager.registerLang(selectedCorner1);
+        configManager.registerLang(selectedCorner2);
     }
 
     @EventHandler

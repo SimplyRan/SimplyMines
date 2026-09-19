@@ -9,10 +9,15 @@ import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
 import me.simplyran.simplymines.actions.impl.ItemDropAction;
+import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
+import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,26 +29,38 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.List;
 
-/**
- * Hub listing every {@link IAction} attached to a specific block within a mine.
- * Multiple actions of the same type (e.g. several ItemDropActions) are supported,
- * since each entry is tracked by its own object reference rather than by type/index.
- */
 public class BlockActionsGUI {
+
+    private final ConfigData<String> title = ConfigFactory.newConfigData(
+            "menus.actions.block-actions.title", "<white>Actions: <block>");
+    private final ConfigData<String> addActionName = ConfigFactory.newConfigData(
+            "menus.actions.block-actions.add-action-name", "<green>Add Action");
+    private final ConfigData<String> typeItemDrop = ConfigFactory.newConfigData(
+            "menus.actions.block-actions.type-item-drop", "<gray>Type: Item Drop");
+    private final ConfigData<String> commandNameLine = ConfigFactory.newConfigData(
+            "menus.actions.block-actions.command-name-line", "<white>Command: <command>");
+    private final ConfigData<String> economyNameLine = ConfigFactory.newConfigData(
+            "menus.actions.block-actions.economy-name-line", "<white>Economy: <amount>");
 
     private final SimplyMines plugin;
     private final MineManager mineManager;
     private final GuiManager guiManager;
 
-    public BlockActionsGUI(SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
+    public BlockActionsGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
         this.guiManager = guiManager;
+
+        configManager.registerLang(title);
+        configManager.registerLang(addActionName);
+        configManager.registerLang(typeItemDrop);
+        configManager.registerLang(commandNameLine);
+        configManager.registerLang(economyNameLine);
     }
 
     public void open(Player player, String block, BasicMine mine) {
         PaginatedGui gui = Gui.paginated()
-                .title(Component.text("Actions: " + block))
+                .title(MessageUtils.format(title, "block", block))
                 .rows(2)
                 .pageSize(9)
                 .disableAllInteractions()
@@ -60,7 +77,7 @@ public class BlockActionsGUI {
 
         gui.setItem(2, 1,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Back").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                        .name(MessageUtils.format(MenuCommonText.BACK).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
                         .asGuiItem(event -> {
                             mineManager.saveMineAsync(mine);
                             Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockOptionsGUI().open(player, block, mine));
@@ -68,17 +85,17 @@ public class BlockActionsGUI {
 
         gui.setItem(2, 3,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Previous").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .name(MessageUtils.format(MenuCommonText.PREVIOUS).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.previous()));
 
         gui.setItem(2, 7,
                 ItemBuilder.from(Material.ARROW)
-                        .name(Component.text("Next").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                        .name(MessageUtils.format(MenuCommonText.NEXT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> gui.next()));
 
         gui.setItem(2, 9,
                 ItemBuilder.from(Material.EMERALD)
-                        .name(Component.text("Add Action").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GREEN))
+                        .name(MessageUtils.format(addActionName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                         .asGuiItem(event -> guiManager.getAddBlockActionGUI().open(player, block, mine)));
 
         for (IAction action : List.copyOf(mine.getActions(block))) {
@@ -90,38 +107,44 @@ public class BlockActionsGUI {
 
     private GuiItem buildItem(Player player, String block, BasicMine mine, IAction action) {
         int chancePercent = (int) Math.round(action.getChance() * 100);
+        Component chanceLore = MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", String.valueOf(chancePercent))
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE);
+        Component leftClickLore = MessageUtils.format(MenuCommonText.LEFT_CLICK_EDIT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+        Component shiftRightClickLore = MessageUtils.format(MenuCommonText.SHIFT_RIGHT_CLICK_REMOVE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
         return switch (action) {
             case ItemDropAction itemDrop -> ItemBuilder.from(itemDrop.getItemStack())
                     .lore(List.of(
-                            Component.text("Type: Item Drop").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Amount: " + itemDrop.getAmount()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE),
-                            Component.text("Chance: " + chancePercent + "%").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE),
+                            MessageUtils.format(typeItemDrop).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                            MessageUtils.format(MenuCommonText.AMOUNT_LORE, "amount", String.valueOf(itemDrop.getAmount()))
+                                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE),
+                            chanceLore,
                             Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                            leftClickLore,
+                            shiftRightClickLore
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditItemDropActionGUI().open(player, block, mine, itemDrop)));
             case CommandAction commandAction -> ItemBuilder.from(Material.COMMAND_BLOCK)
-                    .name(Component.text("Command: " + (commandAction.getCommandName().isEmpty() ? "(not set)" : commandAction.getCommandName()))
-                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                    .name(MessageUtils.format(commandNameLine, "command",
+                                    commandAction.getCommandName().isEmpty() ? MessageUtils.plainFormat(MenuCommonText.NOT_SET) : commandAction.getCommandName())
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
                     .lore(List.of(
-                            Component.text("Chance: " + chancePercent + "%").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE),
+                            chanceLore,
                             Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                            leftClickLore,
+                            shiftRightClickLore
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditCommandActionGUI().open(player, block, mine, commandAction)));
             case EconomyAction economyAction -> ItemBuilder.from(Material.GOLD_INGOT)
-                    .name(Component.text("Economy: " + economyAction.getAmount())
-                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+                    .name(MessageUtils.format(economyNameLine, "amount", String.valueOf(economyAction.getAmount()))
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
                     .lore(List.of(
-                            Component.text("Chance: " + chancePercent + "%").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.WHITE),
+                            chanceLore,
                             Component.empty(),
-                            Component.text("Left click to edit").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.GRAY),
-                            Component.text("Shift-right click to remove").decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).color(NamedTextColor.RED)
+                            leftClickLore,
+                            shiftRightClickLore
                     ))
                     .asGuiItem(event -> handleClick(player, block, mine, action, event.getClick(),
                             () -> guiManager.getEditEconomyActionGUI().open(player, block, mine, economyAction)));

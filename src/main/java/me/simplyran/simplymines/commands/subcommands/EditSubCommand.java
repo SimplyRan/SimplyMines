@@ -28,8 +28,8 @@ public class EditSubCommand implements SubCommand {
     public EditSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager, @NotNull GuiManager guiManager) {
         this.mineManager = mineManager;
         this.guiManager = guiManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
     }
 
     @Override

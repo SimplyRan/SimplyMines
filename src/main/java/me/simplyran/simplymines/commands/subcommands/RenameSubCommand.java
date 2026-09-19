@@ -27,8 +27,8 @@ public class RenameSubCommand implements SubCommand {
     public RenameSubCommand(@NotNull MineManager mineManager,
                             @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.register(missingMineName);
-        configManager.register(mineNotFound);
+        configManager.registerLang(missingMineName);
+        configManager.registerLang(mineNotFound);
     }
 
     @Override

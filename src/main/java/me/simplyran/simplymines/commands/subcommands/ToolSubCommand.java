@@ -24,8 +24,8 @@ public class ToolSubCommand implements SubCommand {
 
     public ToolSubCommand(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager) {
         this.selectionManager = selectionManager;
-        configManager.register(enabledTool);
-        configManager.register(disabledTool);
+        configManager.registerLang(enabledTool);
+        configManager.registerLang(disabledTool);
     }
 
     @Override
