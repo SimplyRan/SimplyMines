@@ -53,7 +53,11 @@ public class MineSettingsGUI {
             "menus.settings.mine-settings.auto-pickup-label", "Auto Pickup");
     private final ConfigData<String> autoPickupDescription = ConfigFactory.newConfigData(
             "menus.settings.mine-settings.auto-pickup-description", "Drops go straight into the player's inventory.");
-    private final ConfigData<String> fortuneLabel = ConfigFactory.newConfigData(
+    private final ConfigData<String> autoSmeltLabel = ConfigFactory.newConfigData(
+            "menus.settings.mine-settings.auto-smelt-label", "Auto Smelt");
+    private final ConfigData<String> autoSmeltDescription = ConfigFactory.newConfigData(
+            "menus.settings.mine-settings.auto-smelt-description", "Drops are smelted like in a furnace.");
+    private final ConfigData<String> fortuneLabel =ConfigFactory.newConfigData(
             "menus.settings.mine-settings.fortune-label", "Fortune");
     private final ConfigData<String> fortuneDescription = ConfigFactory.newConfigData(
             "menus.settings.mine-settings.fortune-description", "Fortune on the tool multiplies item drops.");
@@ -96,6 +100,8 @@ public class MineSettingsGUI {
         configManager.registerLang(normalDropsDescription);
         configManager.registerLang(autoPickupLabel);
         configManager.registerLang(autoPickupDescription);
+        configManager.registerLang(autoSmeltLabel);
+        configManager.registerLang(autoSmeltDescription);
         configManager.registerLang(fortuneLabel);
         configManager.registerLang(fortuneDescription);
         configManager.registerLang(replaceModeLabel);
@@ -143,9 +149,12 @@ public class MineSettingsGUI {
         new ToggleButton(gui, 3, 4, MessageUtils.plainFormat(normalDropsLabel),
                 MessageUtils.plainFormat(normalDropsDescription),
                 mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, save(mine)).render();
-        new ToggleButton(gui, 3, 6, MessageUtils.plainFormat(autoPickupLabel),
+        new ToggleButton(gui, 3, 5, MessageUtils.plainFormat(autoPickupLabel),
                 MessageUtils.plainFormat(autoPickupDescription),
                 mine::isAutoPickup, mine::setAutoPickup, save(mine)).render();
+        new ToggleButton(gui, 3, 7, MessageUtils.plainFormat(autoSmeltLabel),
+                MessageUtils.plainFormat(autoSmeltDescription),
+                mine::isAutoSmelt, mine::setAutoSmelt, save(mine)).render();
         new ToggleButton(gui, 3, 8, MessageUtils.plainFormat(fortuneLabel),
                 MessageUtils.plainFormat(fortuneDescription),
                 mine::isFortuneEnabled, mine::setFortuneEnabled, save(mine)).render();

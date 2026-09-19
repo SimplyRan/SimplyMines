@@ -6,6 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import it.unimi.dsi.fastutil.Pair;
 import me.simplyran.simplymines.actions.IAction;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.smelting.SmeltRegistry;
+import me.simplyran.simplymines.utils.DropUtils;
 import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -58,17 +59,15 @@ public class ItemDropAction implements IAction {
         ItemStack drop = itemStack.clone();
         drop.setAmount(totalAmount);
 
-        if (mine.isAutoPickup()) {
-            HashMap<Integer, ItemStack> remaining = player.getInventory().addItem(drop);
+        if (mine.canAutoSmelt(player)) {
+            ItemStack smelted = SmeltRegistry.smelt(drop);
+            if (smelted != null) drop = smelted;
+        }
 
-            // Drop leftovers on the ground if inventory gets full
-            if (!remaining.isEmpty() && location.getWorld() != null) {
-                for (ItemStack leftover : remaining.values()) {
-                    location.getWorld().dropItem(location, leftover);
-                }
-            }
-        } else if (location.getWorld() != null) {
-            location.getWorld().dropItem(location, drop);
+        if (mine.canAutoPickup(player)) {
+            DropUtils.giveOrDrop(player, location, drop);
+        } else {
+            DropUtils.dropAt(location, drop);
         }
     }
 

@@ -25,6 +25,8 @@ public class GuiManager {
     private final ResetTimeGUI resetTimeGUI;
     private final ResetPercentageGUI resetPercentageGUI;
     private final MinEfficiencyGUI minEfficiencyGUI;
+    private final MinEnchantmentsGUI minEnchantmentsGUI;
+    private final AddEnchantmentGUI addEnchantmentGUI;
     private final ResetRequirementsGUI resetRequirementsGUI;
     private final MineRequirementsGUI mineRequirementsGUI;
     private final AddResetRequirementGUI addResetRequirementGUI;
@@ -53,6 +55,8 @@ public class GuiManager {
         this.resetTimeGUI = new ResetTimeGUI(configManager, plugin, mineManager, this);
         this.resetPercentageGUI = new ResetPercentageGUI(configManager, plugin, mineManager, this);
         this.minEfficiencyGUI = new MinEfficiencyGUI(configManager, plugin, mineManager, this);
+        this.minEnchantmentsGUI = new MinEnchantmentsGUI(configManager, plugin, mineManager, this);
+        this.addEnchantmentGUI = new AddEnchantmentGUI(configManager, plugin, this);
         this.resetRequirementsGUI = new ResetRequirementsGUI(configManager, plugin, mineManager, this);
         this.mineRequirementsGUI = new MineRequirementsGUI(configManager, plugin, mineManager, this);
         this.addResetRequirementGUI = new AddResetRequirementGUI(configManager, plugin, this);

@@ -8,6 +8,7 @@ import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.reset.IResetRequirement;
 import me.simplyran.simplymines.settings.MineSettings;
 import me.simplyran.simplymines.utils.ItemUtils;
+import me.simplyran.simplymines.utils.Permissions;
 import me.simplyran.simplymines.workload.IBlock;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import me.simplyran.simplymines.workload.blocks.*;
@@ -102,6 +103,17 @@ public class BasicMine {
 
     public boolean isAutoPickup()                 { return settings.isAutoPickup(); }
     public void    setAutoPickup(boolean v)       { settings.setAutoPickup(v); }
+
+    public boolean isAutoSmelt()                  { return settings.isAutoSmelt(); }
+    public void    setAutoSmelt(boolean v)        { settings.setAutoSmelt(v); }
+
+    public boolean canAutoPickup(@NotNull Player player) {
+        return isAutoPickup() && player.hasPermission(Permissions.USE_AUTO_PICKUP);
+    }
+
+    public boolean canAutoSmelt(@NotNull Player player) {
+        return isAutoSmelt() && player.hasPermission(Permissions.USE_AUTO_SMELT);
+    }
 
     @Nullable
     public Location getTeleportLocation()         { return settings.getTeleportLocation(); }

@@ -14,7 +14,9 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
+import me.simplyran.simplymines.utils.EnchantmentUtils;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
@@ -26,7 +28,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Hub listing every IMineRequirement attached to a mine (things a player
@@ -44,7 +48,13 @@ public class MineRequirementsGUI {
             "menus.requirements.mine-requirements.efficiency-disabled", "<white>Min Efficiency: <red>Disabled");
     private final ConfigData<String> efficiencyLore = ConfigFactory.newConfigData(
             "menus.requirements.mine-requirements.efficiency-lore", "<gray>Requires Level <white><level>");
-    private final ConfigData<String> permissionEnabled = ConfigFactory.newConfigData(
+    private final ConfigData<String> enchantmentsEnabled = ConfigFactory.newConfigData(
+            "menus.requirements.mine-requirements.enchantments-enabled", "<white>Min Enchantments: <green>Enabled");
+    private final ConfigData<String> enchantmentsDisabled = ConfigFactory.newConfigData(
+            "menus.requirements.mine-requirements.enchantments-disabled", "<white>Min Enchantments: <red>Disabled");
+    private final ConfigData<String> enchantmentLine = ConfigFactory.newConfigData(
+            "menus.requirements.mine-requirements.enchantment-line", "<gray>- <white><enchantment>");
+    private final ConfigData<String> permissionEnabled =ConfigFactory.newConfigData(
             "menus.requirements.mine-requirements.permission-enabled", "<white>Permission: <green>Enabled");
     private final ConfigData<String> permissionDisabled = ConfigFactory.newConfigData(
             "menus.requirements.mine-requirements.permission-disabled", "<white>Permission: <red>Disabled");
@@ -67,6 +77,9 @@ public class MineRequirementsGUI {
         configManager.registerLang(efficiencyEnabled);
         configManager.registerLang(efficiencyDisabled);
         configManager.registerLang(efficiencyLore);
+        configManager.registerLang(enchantmentsEnabled);
+        configManager.registerLang(enchantmentsDisabled);
+        configManager.registerLang(enchantmentLine);
         configManager.registerLang(permissionEnabled);
         configManager.registerLang(permissionDisabled);
         configManager.registerLang(permissionLore);
@@ -141,6 +154,31 @@ public class MineRequirementsGUI {
                             return;
                         }
                         guiManager.getMinEfficiencyGUI().open(player, mine);
+                    });
+        }
+
+        if (requirement instanceof EnchantmentMineRequirement enchantments) {
+            boolean enabled = enchantments.isEnabled();
+            List<Component> lore = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : enchantments.getEnchantments().entrySet()) {
+                lore.add(MessageUtils.format(enchantmentLine,
+                                "enchantment", EnchantmentUtils.displayName(entry.getKey(), entry.getValue()))
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+            }
+            lore.add(Component.empty());
+            lore.add(MessageUtils.format(MenuCommonText.LEFT_CLICK_EDIT).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+            lore.add(MessageUtils.format(MenuCommonText.SHIFT_RIGHT_CLICK_REMOVE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+
+            return ItemBuilder.from(Material.ENCHANTED_BOOK)
+                    .name(MessageUtils.format(enabled ? enchantmentsEnabled : enchantmentsDisabled).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                    .lore(lore)
+                    .asGuiItem(event -> {
+                        if (event.getClick() == ClickType.SHIFT_RIGHT) {
+                            mine.removeMineRequirement(enchantments);
+                            Bukkit.getScheduler().runTask(plugin, () -> open(player, mine));
+                            return;
+                        }
+                        guiManager.getMinEnchantmentsGUI().open(player, mine);
                     });
         }
 

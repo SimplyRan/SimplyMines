@@ -5,6 +5,7 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.smelting.SmeltRegistry;
 import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
 import org.bukkit.command.CommandSender;
@@ -57,6 +58,7 @@ public class ReloadSubCommand implements SubCommand {
         workloadRunnable.resetWorkloadDeque();
         mineManager.reloadMines();
         configManager.reloadConfig();
+        SmeltRegistry.rebuild();
         sender.sendMessage(MessageUtils.format(sender, reloaded));
 
     }

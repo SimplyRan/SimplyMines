@@ -20,3 +20,11 @@ commands:
       - simplymine
     description: SimplyMines
 
+permissions:
+  sm.use.autopickup:
+    description: Drops go straight into the inventory in mines with Auto Pickup enabled
+    default: true
+  sm.use.autosmelt:
+    description: Drops are smelted in mines with Auto Smelt enabled
+    default: true
+

@@ -11,6 +11,7 @@ import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
@@ -30,7 +31,13 @@ public class AddMineRequirementGUI {
             "menus.requirements.add-mine-requirement.min-efficiency-name", "<yellow>Min Efficiency");
     private final ConfigData<String> minEfficiencyLore = ConfigFactory.newConfigData(
             "menus.requirements.add-mine-requirement.min-efficiency-lore", "<gray>Requires a minimum tool efficiency level");
-    private final ConfigData<String> permissionUnavailable = ConfigFactory.newConfigData(
+    private final ConfigData<String> minEnchantmentsUnavailable = ConfigFactory.newConfigData(
+            "menus.requirements.add-mine-requirement.min-enchantments-unavailable", "<red>Min Enchantments (Already Added)");
+    private final ConfigData<String> minEnchantmentsName = ConfigFactory.newConfigData(
+            "menus.requirements.add-mine-requirement.min-enchantments-name", "<yellow>Min Enchantments");
+    private final ConfigData<String> minEnchantmentsLore = ConfigFactory.newConfigData(
+            "menus.requirements.add-mine-requirement.min-enchantments-lore", "<gray>Requires several enchantments at set levels");
+    private final ConfigData<String> permissionUnavailable =ConfigFactory.newConfigData(
             "menus.requirements.add-mine-requirement.permission-unavailable", "<red>Permission (Already Added)");
     private final ConfigData<String> permissionName = ConfigFactory.newConfigData(
             "menus.requirements.add-mine-requirement.permission-name", "<yellow>Permission");
@@ -50,6 +57,9 @@ public class AddMineRequirementGUI {
         configManager.registerLang(minEfficiencyUnavailable);
         configManager.registerLang(minEfficiencyName);
         configManager.registerLang(minEfficiencyLore);
+        configManager.registerLang(minEnchantmentsUnavailable);
+        configManager.registerLang(minEnchantmentsName);
+        configManager.registerLang(minEnchantmentsLore);
         configManager.registerLang(permissionUnavailable);
         configManager.registerLang(permissionName);
         configManager.registerLang(permissionLore);
@@ -70,6 +80,7 @@ public class AddMineRequirementGUI {
                         .asGuiItem(event -> guiManager.getMineRequirementsGUI().open(player, mine)));
 
         boolean hasEfficiency = mine.getMineRequirement(EfficiencyMineRequirement.class) != null;
+        boolean hasEnchantments = mine.getMineRequirement(EnchantmentMineRequirement.class) != null;
         boolean hasPermission = mine.getMineRequirement(PermissionMineRequirement.class) != null;
 
         gui.setItem(2, 3, hasEfficiency
@@ -84,7 +95,19 @@ public class AddMineRequirementGUI {
                     Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineRequirementsGUI().open(player, mine));
                 }));
 
-        gui.setItem(2, 5, hasPermission
+        gui.setItem(2, 5, hasEnchantments
+                ? unavailable(minEnchantmentsUnavailable)
+                : ItemBuilder.from(Material.ENCHANTED_BOOK)
+                .name(MessageUtils.format(minEnchantmentsName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                .lore(MessageUtils.format(minEnchantmentsLore).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                .asGuiItem(event -> {
+                    EnchantmentMineRequirement req = new EnchantmentMineRequirement(configManager);
+                    req.setEnabled(true);
+                    mine.addMineRequirement(req);
+                    Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMinEnchantmentsGUI().open(player, mine));
+                }));
+
+        gui.setItem(2, 7, hasPermission
                 ? unavailable(permissionUnavailable)
                 : ItemBuilder.from(Material.WRITABLE_BOOK)
                 .name(MessageUtils.format(permissionName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
