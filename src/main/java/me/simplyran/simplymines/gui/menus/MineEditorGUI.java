@@ -9,6 +9,7 @@ import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
+import me.simplyran.simplymines.objects.BoxedRegion;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -17,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -133,7 +135,18 @@ public class MineEditorGUI {
                         .lore(List.of(MessageUtils.format(teleportButtonLore)
                                 .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)))
                         .asGuiItem(event -> {
-                            if (mine.getTeleportLocation() == null) return;
+                            //If not set teleport loc, then teleport to corner
+                            if (mine.getTeleportLocation() == null) {
+                                BoxedRegion region = mine.getRegion();
+                                Location location = new Location(
+                                        region.getWorld(),
+                                        region.getMaxX(),
+                                        region.getMaxY(),
+                                        region.getMaxZ());
+                                event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                                player.teleport(location);
+                                return;
+                            }
                             event.getWhoClicked().closeInventory(InventoryCloseEvent.Reason.PLUGIN);
                             player.teleportAsync(mine.getTeleportLocation());
                         }));
