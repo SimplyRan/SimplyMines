@@ -232,7 +232,7 @@ public final class SimplyMines extends JavaPlugin {
         );
 
         getServer().getPluginManager().registerEvents(
-                new UpdateNotifyListener(configManager, updateChecker),
+                new UpdateNotifyListener(updateChecker),
                 this
         );
     }

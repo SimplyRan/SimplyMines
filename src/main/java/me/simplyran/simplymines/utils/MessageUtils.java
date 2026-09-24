@@ -29,6 +29,25 @@ public class MessageUtils {
     }
 
     public static Component format(@Nullable CommandSender sender,
+                                   @NotNull String raw,
+                                   @NotNull String... placeholderValuePairs) {
+
+        if (sender instanceof Player player && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            raw = PlaceholderAPI.setPlaceholders(player, raw);
+        }
+
+        TagResolver.Builder resolvers = TagResolver.builder();
+        for (int i = 0; i + 1 < placeholderValuePairs.length; i += 2) {
+            resolvers.resolver(Placeholder.unparsed(normalize(placeholderValuePairs[i]), placeholderValuePairs[i + 1]));
+        }
+
+        TagResolver builtResolvers = resolvers.build();
+
+        return MINI_MESSAGE.deserialize(raw, builtResolvers);
+    }
+
+
+    public static Component format(@Nullable CommandSender sender,
                                    @NotNull ConfigData<String> data,
                                    @NotNull String... placeholderValuePairs) {
         String raw = data.getValue();
