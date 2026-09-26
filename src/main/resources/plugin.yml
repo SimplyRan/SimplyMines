@@ -1,5 +1,5 @@
 name: SimplyMines
-version: '1.2.1'
+version: '1.2.2'
 main: me.simplyran.simplymines.SimplyMines
 api-version: '1.21'
 soft-depend:
@@ -27,4 +27,6 @@ permissions:
   sm.use.autosmelt:
     description: Drops are smelted in mines with Auto Smelt enabled
     default: true
-
+  sm.use.actionbar:
+    description: Shows the mine action bar (name, percentage left, time until reset) while inside a mine
+    default: true

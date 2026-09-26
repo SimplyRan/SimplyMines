@@ -14,6 +14,7 @@ public class ConfigManager {
     private final SimplyMines plugin;
     private final List<ConfigData<?>> registry = new ArrayList<>();
     private final LangManager langManager;
+    private final List<Runnable> reloadListeners = new ArrayList<>();
     private boolean initialized = false;
 
     public ConfigManager(@NotNull SimplyMines plugin) {
@@ -38,10 +39,18 @@ public class ConfigManager {
         langManager.register(data);
     }
 
+    /** Runs after config.yml and the lang file were reloaded, so listeners can re-read their values. */
+    public void addReloadListener(@NotNull Runnable listener) {
+        reloadListeners.add(listener);
+    }
+
     public void reloadConfig() {
         plugin.reloadConfig();
         loadConfigData();
         langManager.reloadLang();
+        for (Runnable listener : reloadListeners) {
+            listener.run();
+        }
     }
 
     private void loadConfigData() {

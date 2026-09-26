@@ -16,13 +16,13 @@ import java.util.List;
 public class VersionSubCommand implements SubCommand {
 
     private final ConfigData<String> versionCurrent = ConfigFactory.newConfigData(
-            "messages.version-current", "<gray>Running SimplyMines <white><current>");
+            "messages.version-current", "<#ffd166>SimplyMines <dark_gray>» <#8b9bb4>Running SimplyMines <white><current>");
     private final ConfigData<String> versionUpToDate = ConfigFactory.newConfigData(
-            "messages.version-up-to-date", "<green>You are running the latest version.");
+            "messages.version-up-to-date", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>You are running the latest version.");
     private final ConfigData<String> versionUpdateAvailable = ConfigFactory.newConfigData(
-            "messages.version-update-available", "<yellow>Update available: <white><latest>");
+            "messages.version-update-available", "<#ffd166>SimplyMines <dark_gray>» <#ffd166>Update available: <white><latest>");
     private final ConfigData<String> versionCheckFailed = ConfigFactory.newConfigData(
-            "messages.version-check-failed", "<red>Could not check for updates.");
+            "messages.version-check-failed", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Could not check for updates.");
 
     private final SimplyMines plugin;
     private final UpdateChecker updateChecker;

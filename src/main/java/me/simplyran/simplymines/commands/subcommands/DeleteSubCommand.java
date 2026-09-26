@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -17,17 +18,11 @@ public class DeleteSubCommand implements SubCommand {
 
     private final MineManager mineManager;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
-    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
-            "messages.mine-not-found", "<red>Mine <mine> not found!");
     private final ConfigData<String> mineDeleted = ConfigFactory.newConfigData(
-            "messages.mine-deleted", "<green>Mine <mine> has been deleted.");
+            "messages.mine-deleted", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mine <white><mine> <#7bd88f>has been deleted.");
 
     public DeleteSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.registerLang(missingMineName);
-        configManager.registerLang(mineNotFound);
         configManager.registerLang(mineDeleted);
     }
 
@@ -55,14 +50,14 @@ public class DeleteSubCommand implements SubCommand {
     @Override
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
         String mineName = args[1];
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
-            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_NOT_FOUND, "mine", mineName));
         } else {
             mineManager.deleteMine(mineName);
             sender.sendMessage(MessageUtils.format(sender, mineDeleted, "mine", mineName));

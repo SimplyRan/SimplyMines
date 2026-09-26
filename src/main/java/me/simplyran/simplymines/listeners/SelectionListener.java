@@ -21,9 +21,9 @@ public class SelectionListener implements Listener {
     private final SelectionManager selectionManager;
 
     private final ConfigData<String> selectedCorner1 = ConfigFactory.newConfigData(
-            "messages.selected-corner-1", "<green>Selected Corner 1 at <x>, <y>, <z>");
+            "messages.selected-corner-1", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Corner 1 set at <white><x>, <y>, <z>");
     private final ConfigData<String> selectedCorner2 = ConfigFactory.newConfigData(
-            "messages.selected-corner-2", "<green>Selected Corner 2 at <x>, <y>, <z>");
+            "messages.selected-corner-2", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Corner 2 set at <white><x>, <y>, <z>");
 
     public SelectionListener(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager){
         this.selectionManager = selectionManager;

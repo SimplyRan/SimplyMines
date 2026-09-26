@@ -8,6 +8,17 @@ max_workload: 20000000
 save_mines_seconds: 1800
 max_milles_per_tick: 2.5
 
+# Action bar shown to players standing inside a mine (mine name, % left, time until reset).
+# The text itself lives in lang/<lang>.yml (messages.actionbar-timed / actionbar-untimed).
+# Players need the sm.use.actionbar permission (true by default).
+actionbar:
+  enabled: true
+  # How often it refreshes, in ticks (20 = every second). Applied on /sm reload.
+  update_ticks: 20
+  # How many blocks away from a mine's edge (in every direction) players still see the bar.
+  # 0 = only while inside the mine. Max 128.
+  distance: 0
+
 # Where mines are stored. Pick ONE backend with 'type', then fill in that
 # backend's own settings section below. Sections for the other backends are
 # ignored, so you can leave them as-is.

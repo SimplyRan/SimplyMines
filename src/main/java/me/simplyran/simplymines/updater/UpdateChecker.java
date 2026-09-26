@@ -5,6 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.simplyran.simplymines.SimplyMines;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
@@ -25,7 +28,9 @@ public class UpdateChecker {
 
     private static final String PROJECT_SLUG = "simplymines";
     private static final String VERSIONS_URL = "https://api.modrinth.com/v2/project/" + PROJECT_SLUG + "/version";
-    private static final String PROJECT_PAGE_URL = "https://modrinth.com/plugin/" + PROJECT_SLUG;
+    public static final String PROJECT_PAGE_URL = "https://modrinth.com/plugin/" + PROJECT_SLUG;
+
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private final SimplyMines plugin;
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -61,11 +66,26 @@ public class UpdateChecker {
                     if (result != null) {
                         lastResult.set(result);
                         if (result.updateAvailable()) {
-                            plugin.getLogger().info("A new SimplyMines version is available: " + result.latestVersion()
-                                    + " (running " + result.currentVersion() + "). " + PROJECT_PAGE_URL);
+                            announceUpdate(result);
                         }
                     }
                 });
+    }
+
+    private void announceUpdate(@NotNull UpdateCheckResult result) {
+        String banner = """
+                <newline>\
+                <#ffd166>  A new SimplyMines update is available
+                <dark_gray>  ───────────────────────────────────────
+                <#8b9bb4>  Running:  <white><current>
+                <#8b9bb4>  Latest:   <#7bd88f><latest>
+                <#8b9bb4>  Download: <#ffd166><underlined><url></underlined>
+                <newline>""";
+
+        Bukkit.getConsoleSender().sendMessage(MINI_MESSAGE.deserialize(banner,
+                Placeholder.unparsed("current", result.currentVersion()),
+                Placeholder.unparsed("latest", result.latestVersion()),
+                Placeholder.unparsed("url", PROJECT_PAGE_URL)));
     }
 
     public Optional<UpdateCheckResult> getLastResult() {

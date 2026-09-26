@@ -1,106 +1,68 @@
 package me.simplyran.simplymines.gui.menus.actions;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.actions.impl.CommandAction;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
 import me.simplyran.simplymines.actions.impl.ItemDropAction;
-import me.simplyran.simplymines.factories.ConfigFactory;
-import me.simplyran.simplymines.gui.MenuCommonText;
-import me.simplyran.simplymines.managers.ConfigManager;
-import me.simplyran.simplymines.managers.GuiManager;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Menu;
+import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class AddBlockActionGUI {
+public class AddBlockActionGUI extends Menu {
 
-    private final ConfigData<String> title = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.title", "Add Action");
-    private final ConfigData<String> itemDropName = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.item-drop-name", "<yellow>Item Drop");
-    private final ConfigData<String> itemDropLore = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.item-drop-lore", "<gray>Drops an item when this block is mined");
-    private final ConfigData<String> commandName = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.command-name", "<yellow>Command");
-    private final ConfigData<String> commandLore = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.command-lore", "<gray>Runs a command as the player when this block is mined");
-    private final ConfigData<String> economyName = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.economy-name", "<yellow>Economy");
-    private final ConfigData<String> economyLore = ConfigFactory.newConfigData(
-            "menus.actions.add-block-action.economy-lore", "<gray>Grants a currency amount when this block is mined");
+    private static final String PATH = "menus.actions.add-block-action.";
 
-    private final SimplyMines plugin;
-    private final GuiManager guiManager;
+    private final ConfigData<String> title = lang(PATH + "title", "<dark_gray>Add Action");
+    private final ConfigData<String> itemDropName = lang(PATH + "item-drop-name", "<#ffd166>Item Drop");
+    private final ConfigData<String> itemDropLore = lang(PATH + "item-drop-lore", "<#8b9bb4>Drops an item when this block is mined");
+    private final ConfigData<String> commandName = lang(PATH + "command-name", "<#ffd166>Command");
+    private final ConfigData<String> commandLore = lang(PATH + "command-lore", "<#8b9bb4>Runs a command as the player when this block is mined");
+    private final ConfigData<String> economyName = lang(PATH + "economy-name", "<#ffd166>Economy");
+    private final ConfigData<String> economyLore = lang(PATH + "economy-lore", "<#8b9bb4>Grants a currency amount when this block is mined");
 
-    public AddBlockActionGUI(ConfigManager configManager, SimplyMines plugin, GuiManager guiManager) {
-        this.plugin = plugin;
-        this.guiManager = guiManager;
-
-        configManager.registerLang(title);
-        configManager.registerLang(itemDropName);
-        configManager.registerLang(itemDropLore);
-        configManager.registerLang(commandName);
-        configManager.registerLang(commandLore);
-        configManager.registerLang(economyName);
-        configManager.registerLang(economyLore);
+    public AddBlockActionGUI(MenuServices services) {
+        super(services);
     }
 
     public void open(Player player, String block, BasicMine mine) {
-        Gui gui = Gui.gui()
-                .rows(3)
-                .title(MessageUtils.format(title))
-                .disableAllInteractions()
-                .create();
+        Gui gui = createGui(3, MessageUtils.format(title),
+                () -> services.guiManager().getBlockActionsGUI().open(player, block, mine), null);
 
-        GuiUtils.fillBorder(gui);
+        gui.setItem(2, 3, Btn.of(Material.CHEST, itemDropName)
+                .lore(itemDropLore)
+                .onClick(event -> {
+                    ItemStack held = player.getInventory().getItemInMainHand();
+                    ItemStack itemStack = held.getType() == Material.AIR ? new ItemStack(Material.STONE) : held.clone();
+                    ItemDropAction action = new ItemDropAction(itemStack);
+                    mine.addAction(block, action);
+                    reopenLater(() -> services.guiManager().getEditItemDropActionGUI().open(player, block, mine, action));
+                })
+                .build());
 
-        gui.setItem(3, 1,
-                ItemBuilder.from(Material.ARROW)
-                        .name(MessageUtils.format(MenuCommonText.BACK).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
-                        .asGuiItem(event -> guiManager.getBlockActionsGUI().open(player, block, mine)));
+        gui.setItem(2, 5, Btn.of(Material.COMMAND_BLOCK, commandName)
+                .lore(commandLore)
+                .onClick(event -> {
+                    CommandAction action = new CommandAction("", null, new String[0]);
+                    mine.addAction(block, action);
+                    reopenLater(() -> services.guiManager().getEditCommandActionGUI().open(player, block, mine, action));
+                })
+                .build());
 
-        gui.setItem(2, 3,
-                ItemBuilder.from(Material.CHEST)
-                        .name(MessageUtils.format(itemDropName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(MessageUtils.format(itemDropLore).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> {
-                            ItemStack held = player.getInventory().getItemInMainHand();
-                            ItemStack itemStack = held.getType() == Material.AIR
-                                    ? new ItemStack(Material.STONE)
-                                    : held.clone();
-                            ItemDropAction action = new ItemDropAction(itemStack);
-                            mine.addAction(block, action);
-                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditItemDropActionGUI().open(player, block, mine, action));
-                        }));
-
-        gui.setItem(2, 5,
-                ItemBuilder.from(Material.COMMAND_BLOCK)
-                        .name(MessageUtils.format(commandName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(MessageUtils.format(commandLore).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> {
-                            CommandAction action = new CommandAction("", null, new String[0]);
-                            mine.addAction(block, action);
-                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditCommandActionGUI().open(player, block, mine, action));
-                        }));
-
-        gui.setItem(2, 7,
-                ItemBuilder.from(Material.GOLD_INGOT)
-                        .name(MessageUtils.format(economyName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(MessageUtils.format(economyLore).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> {
-                            EconomyAction action = new EconomyAction(SimplyMines.getEconomy(), 0);
-                            mine.addAction(block, action);
-                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getEditEconomyActionGUI().open(player, block, mine, action));
-                        }));
+        gui.setItem(2, 7, Btn.of(Material.GOLD_INGOT, economyName)
+                .lore(economyLore)
+                .onClick(event -> {
+                    EconomyAction action = new EconomyAction(SimplyMines.getEconomy(), 0);
+                    mine.addAction(block, action);
+                    reopenLater(() -> services.guiManager().getEditEconomyActionGUI().open(player, block, mine, action));
+                })
+                .build());
 
         gui.open(player);
     }

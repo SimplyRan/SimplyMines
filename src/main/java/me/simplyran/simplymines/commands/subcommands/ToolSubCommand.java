@@ -18,9 +18,9 @@ public class ToolSubCommand implements SubCommand {
     private final SelectionManager selectionManager;
 
     private final ConfigData<String> enabledTool = ConfigFactory.newConfigData(
-            "messages.enabled-tool", "<green>Enabled selection tool.");
+            "messages.enabled-tool", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Selection tool enabled.");
     private final ConfigData<String> disabledTool = ConfigFactory.newConfigData(
-            "messages.disabled-tool", "<red>Disabled selection tool.");
+            "messages.disabled-tool", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Selection tool disabled.");
 
     public ToolSubCommand(@NotNull SelectionManager selectionManager, @NotNull ConfigManager configManager) {
         this.selectionManager = selectionManager;

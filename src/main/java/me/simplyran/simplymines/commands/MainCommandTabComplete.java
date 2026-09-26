@@ -6,17 +6,16 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainCommandTabComplete implements TabCompleter {
-
 
     private final List<SubCommand> subCommands;
 
     public MainCommandTabComplete(@NotNull List<SubCommand> subCommands){
         this.subCommands = subCommands;
     }
-
 
     @Override
     public List<String> onTabComplete(@NonNull CommandSender sender,
@@ -25,13 +24,16 @@ public class MainCommandTabComplete implements TabCompleter {
                                       String[] args) {
 
         if (args.length <= 1) {
-            String input = args.length == 0 ? "" : args[0].toLowerCase();
+            String input = args.length == 0 ? "" : args[0];
 
-            return subCommands.stream()
+            List<String> names = new ArrayList<>();
+            names.add(MainCommand.HELP);
+            subCommands.stream()
                     .filter(sub -> sender.hasPermission(sub.getPermission()))
                     .map(SubCommand::getName)
-                    .filter(name -> name.toLowerCase().startsWith(input))
-                    .toList();
+                    .forEach(names::add);
+
+            return startingWith(names, input);
         }
 
         if (args.length == 2) {
@@ -39,10 +41,17 @@ public class MainCommandTabComplete implements TabCompleter {
                     .filter(sub -> sender.hasPermission(sub.getPermission()))
                     .filter(sub -> sub.getName().equalsIgnoreCase(args[0]))
                     .findFirst()
-                    .map(SubCommand::tabcomplete)
+                    .map(sub -> startingWith(sub.tabcomplete(), args[1]))
                     .orElse(List.of());
         }
 
         return List.of();
+    }
+
+    private static List<String> startingWith(List<String> options, String input) {
+        String lower = input.toLowerCase();
+        return options.stream()
+                .filter(option -> option.toLowerCase().startsWith(lower))
+                .toList();
     }
 }

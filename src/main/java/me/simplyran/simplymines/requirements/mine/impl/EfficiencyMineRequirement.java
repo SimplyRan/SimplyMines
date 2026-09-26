@@ -21,17 +21,17 @@ public class EfficiencyMineRequirement implements IMineRequirement {
     public final static String NAME = "efficiency_mine_requirement";
 
     private static final ConfigData<String> HIGHER_EFFICIENCY_LEVEL = ConfigFactory.newConfigData(
-            "messages.higher-efficiency-level", "<red>You need a tool with Efficiency <level> or higher to mine here.");
-    private static boolean registered = false;
+            "messages.higher-efficiency-level", "<#ef6f6c>You need a tool with Efficiency <level> or higher to mine here.");
+    private static ConfigManager registeredWith;
 
     private boolean enabled;
     @Getter @Setter int efficiencyLevel;
 
     public EfficiencyMineRequirement(@NotNull ConfigManager configManager, int efficiencyLevel) {
         this.efficiencyLevel = efficiencyLevel;
-        if (!registered) {
+        if (registeredWith != configManager) {
             configManager.registerLang(HIGHER_EFFICIENCY_LEVEL);
-            registered = true;
+            registeredWith = configManager;
         }
     }
 

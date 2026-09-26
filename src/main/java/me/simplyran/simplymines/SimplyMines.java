@@ -23,6 +23,7 @@ import me.simplyran.simplymines.placeholders.MinePlaceholder;
 import me.simplyran.simplymines.updater.UpdateChecker;
 import me.simplyran.simplymines.requirements.mine.MineRequirementRegistry;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.AttributeMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
@@ -40,6 +41,7 @@ public final class SimplyMines extends JavaPlugin {
 
     private WorkloadRunnable workloadRunnable;
     private RunnableManager runnableManager;
+    private ActionBarManager actionBarManager;
     private MineManager mineManager;
     private GuiManager guiManager;
     private SelectionManager selectionManager;
@@ -99,6 +101,9 @@ public final class SimplyMines extends JavaPlugin {
         //Creating RunnableManager - depending on mineManager
         this.runnableManager = new RunnableManager(mineManager, configManager);
 
+        //Creating ActionBarManager - depending on mineManager
+        this.actionBarManager = new ActionBarManager(this, mineManager, configManager);
+
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
 
@@ -117,6 +122,8 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 5 * 20, 20);
 
 
+        //Scheduling the action bar shown inside mines
+        actionBarManager.start();
 
         loadPlaceholders();
         registerListeners();
@@ -149,6 +156,7 @@ public final class SimplyMines extends JavaPlugin {
     public void onDisable() {
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
+        if (actionBarManager != null) actionBarManager.stop();
 
         getLogger().info("Saving All Mines...");
         //Drains pending async saves, saves everything sync, then closes the database.
@@ -187,6 +195,11 @@ public final class SimplyMines extends JavaPlugin {
         MineRequirementRegistry.register(
                 EnchantmentMineRequirement.NAME,
                 EnchantmentMineRequirement::deserialize
+        );
+
+        MineRequirementRegistry.register(
+                AttributeMineRequirement.NAME,
+                AttributeMineRequirement::deserialize
         );
 
         MineRequirementRegistry.register(
@@ -232,7 +245,7 @@ public final class SimplyMines extends JavaPlugin {
         );
 
         getServer().getPluginManager().registerEvents(
-                new UpdateNotifyListener(configManager, updateChecker),
+                new UpdateNotifyListener(updateChecker, configManager),
                 this
         );
     }

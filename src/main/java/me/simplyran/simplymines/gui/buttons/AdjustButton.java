@@ -1,34 +1,33 @@
 package me.simplyran.simplymines.gui.buttons;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Numbers;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.MessageUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.function.IntConsumer;
+import java.util.function.DoubleConsumer;
 
 public class AdjustButton {
 
     private final BaseGui gui;
     private final int row;
     private final int col;
-    private final Material material;
-    private final int amount;
+    private final ItemStack icon;
+    private final double amount;
     private final ConfigData<String> labelTemplate;
-    private final NamedTextColor color;
-    private final IntConsumer onClick;
+    private final TextColor color;
+    private final DoubleConsumer onClick;
 
-    public AdjustButton(BaseGui gui, int row, int col, Material material,
-                        int amount, ConfigData<String> labelTemplate, NamedTextColor color,
-                        IntConsumer onClick) {
+    public AdjustButton(BaseGui gui, int row, int col, ItemStack icon,
+                        double amount, ConfigData<String> labelTemplate, TextColor color,
+                        DoubleConsumer onClick) {
         this.gui = gui;
         this.row = row;
         this.col = col;
-        this.material = material;
+        this.icon = icon;
         this.amount = amount;
         this.labelTemplate = labelTemplate;
         this.color = color;
@@ -36,11 +35,10 @@ public class AdjustButton {
     }
 
     public void render() {
-        gui.setItem(row, col, ItemBuilder.from(material)
-                .amount(Math.clamp(amount, 1, 64))
-                .name(Component.text(MessageUtils.plainFormat(labelTemplate, "amount", String.valueOf(amount)))
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(color))
-                .asGuiItem(event -> onClick.accept(amount)));
+        gui.setItem(row, col, Btn.of(icon, MessageUtils.format(labelTemplate, "amount", Numbers.plain(amount)))
+                .color(color)
+                .amount((int) Math.round(amount))
+                .onClick(event -> onClick.accept(amount))
+                .build());
     }
 }

@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -17,18 +18,12 @@ public class ResetSubCommand implements SubCommand {
 
     private final MineManager mineManager;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
     private final ConfigData<String> mineReset = ConfigFactory.newConfigData(
-            "messages.mine-reset", "<green>Mine <mine> has been reset!");
-    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
-            "messages.mine-not-found", "<red>Mine <mine> not found!");
+            "messages.mine-reset", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mine <white><mine> <#7bd88f>has been reset.");
 
     public ResetSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.registerLang(missingMineName);
         configManager.registerLang(mineReset);
-        configManager.registerLang(mineNotFound);
     }
 
     @Override
@@ -55,7 +50,7 @@ public class ResetSubCommand implements SubCommand {
     @Override
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
@@ -66,7 +61,7 @@ public class ResetSubCommand implements SubCommand {
             mine.reset(true);
             sender.sendMessage(MessageUtils.format(sender, mineReset, "mine", mineName));
         } else {
-            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_NOT_FOUND, "mine", mineName));
         }
 
     }

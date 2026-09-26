@@ -115,6 +115,19 @@ public class BasicMine {
         return isAutoSmelt() && player.hasPermission(Permissions.USE_AUTO_SMELT);
     }
 
+    /** The teleport point, or a spot just above the middle of the mine when none is set (null if the world isn't loaded). */
+    @Nullable
+    public Location getTeleportTarget() {
+        Location teleport = getTeleportLocation();
+        if (teleport != null) return teleport;
+        World world = region.getWorld();
+        if (world == null) return null;
+        return new Location(world,
+                (region.getMinX() + region.getMaxX() + 1) / 2.0,
+                region.getMaxY() + 1,
+                (region.getMinZ() + region.getMaxZ() + 1) / 2.0);
+    }
+
     @Nullable
     public Location getTeleportLocation()         { return settings.getTeleportLocation(); }
     public void     setTeleportLocation(@Nullable Location v) { settings.setTeleportLocation(v); }
@@ -256,7 +269,7 @@ public class BasicMine {
     public void setPercentage(@NotNull String block, double percentage) {
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        addBlock(block, Math.round(percentage * 100.0) / 100.0);
+        addBlock(block, Math.round(percentage * 10000.0) / 10000.0);
     }
 
     public double getTotalPercentage() {

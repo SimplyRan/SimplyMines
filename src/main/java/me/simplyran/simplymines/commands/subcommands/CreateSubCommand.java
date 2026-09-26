@@ -1,6 +1,7 @@
 package me.simplyran.simplymines.commands.subcommands;
 
 import it.unimi.dsi.fastutil.Pair;
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.factories.MineFactory;
 import me.simplyran.simplymines.managers.ConfigManager;
@@ -17,7 +18,6 @@ import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.MessageUtils;
 import me.simplyran.simplymines.utils.MineNameValidator;
 import me.simplyran.simplymines.workload.WorkloadRunnable;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,12 +34,8 @@ public class CreateSubCommand implements SubCommand {
     private final GuiManager guiManager;
     private final WorkloadRunnable workloadRunnable;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
-    private final ConfigData<String> mineAlreadyExists = ConfigFactory.newConfigData(
-            "messages.mine-already-exists", "<red>Mine <mine> already exists.");
     private final ConfigData<String> noSelection = ConfigFactory.newConfigData(
-            "messages.no-selection", "<red>No Selection found! Use a Wooden Hoe to select 2 corners.");
+            "messages.no-selection", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>No selection found. Use a Wooden Hoe to select 2 corners.");
 
     public CreateSubCommand(@NotNull MineManager mineManager,
                             @NotNull ConfigManager configManager,
@@ -51,8 +47,6 @@ public class CreateSubCommand implements SubCommand {
         this.selectionManager = selectionManager;
         this.guiManager = guiManager;
         this.workloadRunnable = workloadRunnable;
-        configManager.registerLang(missingMineName);
-        configManager.registerLang(mineAlreadyExists);
         configManager.registerLang(noSelection);
     }
 
@@ -80,7 +74,7 @@ public class CreateSubCommand implements SubCommand {
     @Override
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
@@ -88,15 +82,13 @@ public class CreateSubCommand implements SubCommand {
         Player player = (Player) sender;
 
         if (!MineNameValidator.isValid(mineName)) {
-            //TODO maybe add to config
-            sender.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<red>Invalid mine name! Use only letters, numbers, - and _ (max 32 characters)."));
+        sender.sendMessage(MessageUtils.format(sender, CommandText.INVALID_MINE_NAME));
             return;
         }
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine != null) {
-            sender.sendMessage(MessageUtils.format(sender, mineAlreadyExists, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_ALREADY_EXISTS, "mine", mineName));
             return;
         }
         Pair<Location, Location> corners = selectionManager.getCorners(player.getUniqueId());

@@ -1,18 +1,16 @@
 package me.simplyran.simplymines.gui.buttons;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
 import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Palette;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -34,19 +32,19 @@ public class ToggleButton {
     private final BaseGui gui;
     private final int row;
     private final int col;
-    private final String label;
-    private final String description;
+    private final Component label;
+    private final Component description;
     private final BooleanSupplier getter;
     private final Consumer<Boolean> setter;
     private final Runnable onToggle;
 
-    public ToggleButton(BaseGui gui, int row, int col, String label,
+    public ToggleButton(BaseGui gui, int row, int col, Component label,
                         BooleanSupplier getter, Consumer<Boolean> setter,
                         Runnable onToggle) {
         this(gui, row, col, label, null, getter, setter, onToggle);
     }
 
-    public ToggleButton(BaseGui gui, int row, int col, String label, String description,
+    public ToggleButton(BaseGui gui, int row, int col, Component label, Component description,
                         BooleanSupplier getter, Consumer<Boolean> setter,
                         Runnable onToggle) {
         this.gui = gui;
@@ -63,24 +61,16 @@ public class ToggleButton {
         boolean state = getter.getAsBoolean();
         Material material = state ? Material.LIME_DYE : Material.RED_DYE;
 
-        List<Component> lore = new ArrayList<>();
+        Btn btn = Btn.of(material, label.colorIfAbsent(Palette.ACCENT.color())
+                .append(Component.text(": "))
+                .append(MessageUtils.format(state ? ENABLED_TEXT : DISABLED_TEXT)
+                        .colorIfAbsent(state ? Palette.SUCCESS.color() : Palette.DANGER.color())));
         if (description != null) {
-            lore.add(Component.text(description)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                    .color(NamedTextColor.GRAY));
+            btn.lore(description.colorIfAbsent(Palette.MUTED.color()));
         }
-        lore.add(MessageUtils.format(CLICK_TO_TOGGLE)
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                .colorIfAbsent(NamedTextColor.DARK_GRAY));
+        btn.lore(MessageUtils.format(CLICK_TO_TOGGLE).colorIfAbsent(NamedTextColor.DARK_GRAY));
 
-        gui.setItem(row, col, ItemBuilder.from(material)
-                .name(Component.text(label + ": ")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .color(NamedTextColor.YELLOW)
-                        .append(MessageUtils.format(state ? ENABLED_TEXT : DISABLED_TEXT)
-                                .colorIfAbsent(state ? NamedTextColor.GREEN : NamedTextColor.RED)))
-                .lore(lore)
-                .asGuiItem(event -> toggle()));
+        gui.setItem(row, col, btn.onClick(event -> toggle()).build());
     }
 
     private void toggle() {

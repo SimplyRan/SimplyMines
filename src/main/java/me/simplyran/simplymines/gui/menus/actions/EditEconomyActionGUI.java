@@ -1,104 +1,50 @@
 package me.simplyran.simplymines.gui.menus.actions;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
-import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.actions.impl.EconomyAction;
-import me.simplyran.simplymines.factories.ConfigFactory;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Menu;
 import me.simplyran.simplymines.gui.MenuCommonText;
-import me.simplyran.simplymines.gui.buttons.AdjustButton;
-import me.simplyran.simplymines.managers.ConfigManager;
-import me.simplyran.simplymines.managers.GuiManager;
-import me.simplyran.simplymines.managers.MineManager;
+import me.simplyran.simplymines.gui.MenuServices;
+import me.simplyran.simplymines.gui.Numbers;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 
-public class EditEconomyActionGUI {
+public class EditEconomyActionGUI extends Menu {
 
-    private final ConfigData<String> title = ConfigFactory.newConfigData(
-            "menus.actions.edit-economy.title", "Edit Economy Action");
-    private final ConfigData<String> amountDisplayName = ConfigFactory.newConfigData(
-            "menus.actions.edit-economy.amount-display-name", "<white>Amount: <amount>");
+    private static final String PATH = "menus.actions.edit-economy.";
 
-    private final SimplyMines plugin;
-    private final MineManager mineManager;
-    private final GuiManager guiManager;
+    private final ConfigData<String> title = lang(PATH + "title", "<dark_gray>Edit Economy Action");
+    private final ConfigData<String> amountDisplayName = lang(PATH + "amount-display-name", "<#ffd166>Amount: <white><amount>");
 
-    public EditEconomyActionGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
-        this.plugin = plugin;
-        this.mineManager = mineManager;
-        this.guiManager = guiManager;
-
-        configManager.registerLang(title);
-        configManager.registerLang(amountDisplayName);
+    public EditEconomyActionGUI(MenuServices services) {
+        super(services);
     }
 
     public void open(Player player, String block, BasicMine mine, EconomyAction action) {
-        Gui gui = Gui.gui()
-                .rows(4)
-                .title(MessageUtils.format(title))
-                .disableAllInteractions()
-                .create();
+        Runnable back = () -> services.guiManager().getBlockActionsGUI().open(player, block, mine);
+        Runnable self = () -> open(player, block, mine, action);
+        Gui gui = createGui(5, MessageUtils.format(title), back, () -> services.mineManager().saveMineAsync(mine));
 
-        gui.setCloseGuiAction(event -> {
-            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            mineManager.saveMineAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
-        });
-
-        GuiUtils.fillBorder(gui);
-
-        gui.setItem(4, 1,
-                ItemBuilder.from(Material.ARROW)
-                        .name(MessageUtils.format(MenuCommonText.BACK).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
-                        .asGuiItem(event -> player.closeInventory()));
-
-        gui.setItem(1, 7,
-                ItemBuilder.from(Material.BARRIER)
-                        .name(MessageUtils.format(MenuCommonText.REMOVE_ACTION).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> {
-                            mine.removeAction(block, action);
-                            mineManager.saveMineAsync(mine);
-                            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getBlockActionsGUI().open(player, block, mine));
-                        }));
+        gui.setItem(2, 7, Btn.of(Material.BARRIER, MenuCommonText.REMOVE_ACTION)
+                .onClick(event -> {
+                    mine.removeAction(block, action);
+                    services.mineManager().saveMineAsync(mine);
+                    reopenLater(back);
+                })
+                .build());
 
         renderDisplay(gui, action);
-
-        new AdjustButton(gui, 2, 2, Material.RED_DYE, 100, MenuCommonText.ADJUST_REMOVE_AMOUNT, NamedTextColor.RED,
-                delta -> adjustAmount(gui, action, -delta)).render();
-        new AdjustButton(gui, 2, 3, Material.RED_DYE, 10, MenuCommonText.ADJUST_REMOVE_AMOUNT, NamedTextColor.RED,
-                delta -> adjustAmount(gui, action, -delta)).render();
-        new AdjustButton(gui, 2, 4, Material.RED_DYE, 1, MenuCommonText.ADJUST_REMOVE_AMOUNT, NamedTextColor.RED,
-                delta -> adjustAmount(gui, action, -delta)).render();
-
-        new AdjustButton(gui, 2, 6, Material.LIME_DYE, 1, MenuCommonText.ADJUST_ADD_AMOUNT, NamedTextColor.GREEN,
-                delta -> adjustAmount(gui, action, delta)).render();
-        new AdjustButton(gui, 2, 7, Material.LIME_DYE, 10, MenuCommonText.ADJUST_ADD_AMOUNT, NamedTextColor.GREEN,
-                delta -> adjustAmount(gui, action, delta)).render();
-        new AdjustButton(gui, 2, 8, Material.LIME_DYE, 100, MenuCommonText.ADJUST_ADD_AMOUNT, NamedTextColor.GREEN,
-                delta -> adjustAmount(gui, action, delta)).render();
-
-        new AdjustButton(gui, 3, 2, Material.RED_DYE, 10, MenuCommonText.ADJUST_REMOVE_PERCENT, NamedTextColor.RED,
-                delta -> adjustChance(gui, action, -delta / 100.0)).render();
-        new AdjustButton(gui, 3, 3, Material.RED_DYE, 5, MenuCommonText.ADJUST_REMOVE_PERCENT, NamedTextColor.RED,
-                delta -> adjustChance(gui, action, -delta / 100.0)).render();
-        new AdjustButton(gui, 3, 4, Material.RED_DYE, 1, MenuCommonText.ADJUST_REMOVE_PERCENT, NamedTextColor.RED,
-                delta -> adjustChance(gui, action, -delta / 100.0)).render();
-
-        new AdjustButton(gui, 3, 6, Material.LIME_DYE, 1, MenuCommonText.ADJUST_ADD_PERCENT, NamedTextColor.GREEN,
-                delta -> adjustChance(gui, action, delta / 100.0)).render();
-        new AdjustButton(gui, 3, 7, Material.LIME_DYE, 5, MenuCommonText.ADJUST_ADD_PERCENT, NamedTextColor.GREEN,
-                delta -> adjustChance(gui, action, delta / 100.0)).render();
-        new AdjustButton(gui, 3, 8, Material.LIME_DYE, 10, MenuCommonText.ADJUST_ADD_PERCENT, NamedTextColor.GREEN,
-                delta -> adjustChance(gui, action, delta / 100.0)).render();
+        adjusters(gui, 3, new int[]{1, 10, 100}, MenuCommonText.ADJUST_REMOVE_AMOUNT, MenuCommonText.ADJUST_ADD_AMOUNT,
+                delta -> adjustAmount(gui, action, delta),
+                typeValueButton(player, self, value -> adjustAmount(gui, action, value - action.getAmount())));
+        adjusters(gui, 4, new int[]{1, 5, 10}, MenuCommonText.ADJUST_REMOVE_PERCENT, MenuCommonText.ADJUST_ADD_PERCENT,
+                delta -> adjustChance(gui, action, delta / 100.0),
+                typeValueButton(player, self, value -> adjustChance(gui, action, value / 100.0 - action.getChance())));
 
         gui.open(player);
     }
@@ -110,19 +56,16 @@ public class EditEconomyActionGUI {
     }
 
     private void adjustChance(Gui gui, EconomyAction action, double delta) {
-        action.setChance(action.getChance() + delta);
+        action.setChance(Math.clamp(action.getChance() + delta, 0, 1));
         renderDisplay(gui, action);
         gui.update();
     }
 
     private void renderDisplay(Gui gui, EconomyAction action) {
-        int chancePercent = (int) Math.round(action.getChance() * 100);
-        gui.setItem(1, 5,
-                ItemBuilder.from(Material.GOLD_INGOT)
-                        .name(MessageUtils.format(amountDisplayName, "amount", String.valueOf(action.getAmount()))
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", String.valueOf(chancePercent))
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).colorIfAbsent(NamedTextColor.WHITE))
-                        .asGuiItem());
+        String chancePercent = Numbers.percent(action.getChance());
+        gui.setItem(2, 5, Btn.of(Material.GOLD_INGOT, amountDisplayName, "amount", String.valueOf(action.getAmount()))
+                .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", chancePercent)
+                        .colorIfAbsent(NamedTextColor.WHITE))
+                .build());
     }
 }

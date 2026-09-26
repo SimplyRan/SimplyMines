@@ -20,17 +20,17 @@ public class PermissionMineRequirement implements IMineRequirement {
     public final static String NAME = "permission_mine_requirement";
 
     private static final ConfigData<String> NO_PERMISSION_MINE = ConfigFactory.newConfigData(
-            "messages.no-permission-mine", "<red>You don't have permission to mine here.");
-    private static boolean registered = false;
+            "messages.no-permission-mine", "<#ef6f6c>You don't have permission to mine here.");
+    private static ConfigManager registeredWith;
 
     private boolean enabled;
     @Getter @Setter private String permission;
 
     public PermissionMineRequirement(@NotNull ConfigManager configManager, @NotNull String permission) {
         this.permission = permission;
-        if (!registered) {
+        if (registeredWith != configManager) {
             configManager.registerLang(NO_PERMISSION_MINE);
-            registered = true;
+            registeredWith = configManager;
         }
     }
 
