@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -7,7 +8,6 @@ import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.factories.ConfigFactory;
 import me.simplyran.simplymines.utils.MessageUtils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -16,18 +16,16 @@ import java.util.List;
 
 public class SaveSubCommand implements SubCommand {
 
+    private final ConfigData<String> mineSaved = ConfigFactory.newConfigData(
+            "messages.mine-saved", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Saved <white><mine> <#7bd88f>to disk.");
+
     private final MineManager mineManager;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
-    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
-            "messages.mine-not-found", "<red>Mine <mine> not found!");
 
     public SaveSubCommand(@NotNull MineManager mineManager,
                           @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.registerLang(missingMineName);
-        configManager.registerLang(mineNotFound);
+        configManager.registerLang(mineSaved);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class SaveSubCommand implements SubCommand {
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
@@ -64,12 +62,12 @@ public class SaveSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
-            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_NOT_FOUND, "mine", mineName));
             return;
         }
 
         mineManager.saveMineAsync(mine);
-        sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Saved to disk " + mineName + "!"));
+        sender.sendMessage(MessageUtils.format(sender, mineSaved, "mine", mineName));
     }
 }
 

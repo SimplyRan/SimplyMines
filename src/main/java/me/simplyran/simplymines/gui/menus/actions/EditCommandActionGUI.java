@@ -31,9 +31,9 @@ public class EditCommandActionGUI extends Menu {
     private final ConfigData<String> commandDisplayName = lang(PATH + "command-display-name", "<#ffd166>Command");
     private final ConfigData<String> commandDisplayLine = lang(PATH + "command-display-line", "<white><command>");
 
-    private final ConfigData<String> promptCommand = lang("messages.action-edit-prompt-command", "<yellow>Type the command in chat (without leading /), or 'cancel'.");
-    private final ConfigData<String> commandNotRegistered = lang("messages.action-edit-command-not-registered", "<red>Warning: '<command>' is not a registered command, it will not run.");
-    private final ConfigData<String> commandSet = lang("messages.action-edit-command-set", "<green>Command set to <command>");
+    private final ConfigData<String> promptCommand = lang("messages.action-edit-prompt-command", "<#ffd166>Type the command in chat (without leading /), or 'cancel'.");
+    private final ConfigData<String> commandNotRegistered = lang("messages.action-edit-command-not-registered", "<#ef6f6c>Warning: '<command>' is not a registered command, it will not run.");
+    private final ConfigData<String> commandSet = lang("messages.action-edit-command-set", "<#7bd88f>Command set to <command>");
 
     public EditCommandActionGUI(MenuServices services) {
         super(services);

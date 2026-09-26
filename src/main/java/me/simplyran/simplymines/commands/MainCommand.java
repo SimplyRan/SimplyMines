@@ -23,14 +23,16 @@ import java.util.List;
 
 public class MainCommand implements CommandExecutor {
 
+    static final String HELP = "help";
+
     private final GuiManager guiManager;
 
     private final ConfigData<String> onlyPlayers = ConfigFactory.newConfigData(
-            "messages.only-players", "<red>Only players can use this command.");
+            "messages.only-players", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Only players can use this command.");
     private final ConfigData<String> unknownSubcommand = ConfigFactory.newConfigData(
-            "messages.unknown-subcommand", "<red>Unknown subcommand: <yellow><input>");
+            "messages.unknown-subcommand", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Unknown subcommand <white><input><#ef6f6c>. Try <#ffd166>/<label> help<#ef6f6c>.");
     private final ConfigData<String> noPermission = ConfigFactory.newConfigData(
-            "messages.no-permission", "<red>You do not have permission to use this command.");
+            "messages.no-permission", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You don't have permission to do that.");
 
     @Getter private final List<SubCommand> subCommands;
 
@@ -45,6 +47,7 @@ public class MainCommand implements CommandExecutor {
         configManager.registerLang(onlyPlayers);
         configManager.registerLang(unknownSubcommand);
         configManager.registerLang(noPermission);
+        CommandText.register(configManager);
 
         this.subCommands = new ArrayList<>();
 
@@ -64,50 +67,49 @@ public class MainCommand implements CommandExecutor {
         subCommands.add(new VersionSubCommand(configManager, plugin, updateChecker));
     }
 
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender,
                              @NotNull Command command,
                              @NotNull String label,
                              String[] args) {
 
-        if (args.length > 0){
-            String subCommandName = args[0];
-            boolean foundCmd = false;
-
-            for (SubCommand subCommand : subCommands){
-                if (subCommand.getName().equals(subCommandName)
-                        && sender.hasPermission(subCommand.getPermission())){
-                    if (!subCommand.isPlayerOnly()) subCommand.preform(sender, args, label);
-                    else if (sender instanceof Player){
-                        subCommand.preform(sender, args, label);
-                    }
-                    else {
-                        sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
-                    }
-                    foundCmd = true;
-                    break;
-                }
+        if (args.length == 0) {
+            if (sender instanceof Player player && sender.hasPermission("simplymines.admin")) {
+                guiManager.getMainMenuGUI().open(player);
+            } else {
+                sendHelp(sender, label);
             }
-            if (!foundCmd){
-                sender.sendMessage(MessageUtils.format(sender, unknownSubcommand, "input", subCommandName));
-                return true;
-            }
-
+            return true;
         }
-        else {
-            if (!(sender instanceof Player player)) {
-                sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
-                return true;
-            }
-            if (!sender.hasPermission("simplymines.admin")) {
-                sender.sendMessage(MessageUtils.format(sender, noPermission));
-                return true;
-            }
-            guiManager.getMainMenuGUI().open(player);
 
+        String name = args[0];
+        if (name.equalsIgnoreCase(HELP)) {
+            sendHelp(sender, label);
+            return true;
+        }
+
+        SubCommand subCommand = subCommands.stream()
+                .filter(sub -> sub.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+
+        if (subCommand == null) {
+            sender.sendMessage(MessageUtils.format(sender, unknownSubcommand, "input", name, "label", label));
+        } else if (!sender.hasPermission(subCommand.getPermission())) {
+            sender.sendMessage(MessageUtils.format(sender, noPermission));
+        } else if (subCommand.isPlayerOnly() && !(sender instanceof Player)) {
+            sender.sendMessage(MessageUtils.format(sender, onlyPlayers));
+        } else {
+            subCommand.preform(sender, args, label);
         }
         return true;
     }
 
+    private void sendHelp(CommandSender sender, String label) {
+        if (subCommands.stream().noneMatch(sub -> sender.hasPermission(sub.getPermission()))) {
+            sender.sendMessage(MessageUtils.format(sender, noPermission));
+            return;
+        }
+        CommandText.sendHelp(sender, label, subCommands);
+    }
 }

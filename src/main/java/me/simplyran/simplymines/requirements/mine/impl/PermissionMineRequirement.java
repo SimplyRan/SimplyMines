@@ -20,7 +20,7 @@ public class PermissionMineRequirement implements IMineRequirement {
     public final static String NAME = "permission_mine_requirement";
 
     private static final ConfigData<String> NO_PERMISSION_MINE = ConfigFactory.newConfigData(
-            "messages.no-permission-mine", "<red>You don't have permission to mine here.");
+            "messages.no-permission-mine", "<#ef6f6c>You don't have permission to mine here.");
     private static boolean registered = false;
 
     private boolean enabled;

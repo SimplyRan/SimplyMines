@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 public class WarnUtils {
 
     private final ConfigData<String> warnGlobal = ConfigFactory.newConfigData(
-            "messages.warn-global", "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!");
+            "messages.warn-global", "<#ffd166><mine> <#8b9bb4>resets in <#ef6f6c><seconds>s<#8b9bb4> (server-wide)!");
     private final ConfigData<String> warnNear = ConfigFactory.newConfigData(
-            "messages.warn-near", "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!");
+            "messages.warn-near", "<#ffd166><mine> <#8b9bb4>resets nearby in <#ef6f6c><seconds>s<#8b9bb4>!");
 
     public WarnUtils(@NotNull ConfigManager configManager) {
         configManager.registerLang(warnGlobal);

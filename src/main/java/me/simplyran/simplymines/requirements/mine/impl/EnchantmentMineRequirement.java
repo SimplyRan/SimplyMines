@@ -28,7 +28,7 @@ public class EnchantmentMineRequirement implements IMineRequirement {
     private static final int MAX_LEVEL = 255;
 
     private static final ConfigData<String> MISSING_ENCHANTMENTS = ConfigFactory.newConfigData(
-            "messages.missing-enchantments", "<red>You need a tool with <enchantments> to mine here.");
+            "messages.missing-enchantments", "<#ef6f6c>You need a tool with <enchantments> to mine here.");
     private static boolean registered = false;
 
     private boolean enabled;

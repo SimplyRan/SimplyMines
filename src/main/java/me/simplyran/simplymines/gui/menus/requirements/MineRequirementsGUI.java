@@ -9,9 +9,12 @@ import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.requirements.mine.IMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.AttributeMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
+import me.simplyran.simplymines.gui.Numbers;
+import me.simplyran.simplymines.utils.AttributeUtils;
 import me.simplyran.simplymines.utils.EnchantmentUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
@@ -38,6 +41,9 @@ public class MineRequirementsGUI extends Menu {
     private final ConfigData<String> enchantmentsEnabled = lang(PATH + "enchantments-enabled", "<white>Min Enchantments: <#7bd88f>Enabled");
     private final ConfigData<String> enchantmentsDisabled = lang(PATH + "enchantments-disabled", "<white>Min Enchantments: <#ef6f6c>Disabled");
     private final ConfigData<String> enchantmentLine = lang(PATH + "enchantment-line", "<#8b9bb4>- <white><enchantment>");
+    private final ConfigData<String> attributesEnabled = lang(PATH + "attributes-enabled", "<white>Min Attributes: <#7bd88f>Enabled");
+    private final ConfigData<String> attributesDisabled = lang(PATH + "attributes-disabled", "<white>Min Attributes: <#ef6f6c>Disabled");
+    private final ConfigData<String> attributeLine = lang(PATH + "attribute-line", "<#8b9bb4>- <white><attribute> <#8b9bb4>min <white><value>");
     private final ConfigData<String> permissionEnabled = lang(PATH + "permission-enabled", "<white>Permission: <#7bd88f>Enabled");
     private final ConfigData<String> permissionDisabled = lang(PATH + "permission-disabled", "<white>Permission: <#ef6f6c>Disabled");
     private final ConfigData<String> permissionLore = lang(PATH + "permission-lore", "<#8b9bb4>Node: <white><node>");
@@ -81,6 +87,19 @@ public class MineRequirementsGUI extends Menu {
                     lines,
                     () -> services.guiManager().getMinEnchantmentsGUI().open(player, mine),
                     () -> remove(player, mine, enchantments));
+        }
+
+        if (requirement instanceof AttributeMineRequirement attributes) {
+            List<Component> lines = new ArrayList<>();
+            for (Map.Entry<String, Double> entry : attributes.getAttributes().entrySet()) {
+                lines.add(MessageUtils.format(attributeLine,
+                        "attribute", AttributeUtils.displayName(entry.getKey()),
+                        "value", Numbers.plain(entry.getValue())));
+            }
+            return editableItem(Btn.of(Material.BLAZE_POWDER, attributes.isEnabled() ? attributesEnabled : attributesDisabled),
+                    lines,
+                    () -> services.guiManager().getMinAttributesGUI().open(player, mine),
+                    () -> remove(player, mine, attributes));
         }
 
         if (requirement instanceof PermissionMineRequirement permission) {

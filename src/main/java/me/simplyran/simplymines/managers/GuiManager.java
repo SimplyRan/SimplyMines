@@ -28,6 +28,9 @@ public class GuiManager {
     private final MinEfficiencyGUI minEfficiencyGUI;
     private final MinEnchantmentsGUI minEnchantmentsGUI;
     private final AddEnchantmentGUI addEnchantmentGUI;
+    private final MinAttributesGUI minAttributesGUI;
+    private final AddAttributeGUI addAttributeGUI;
+    private final EditAttributeGUI editAttributeGUI;
     private final ResetRequirementsGUI resetRequirementsGUI;
     private final MineRequirementsGUI mineRequirementsGUI;
     private final AddResetRequirementGUI addResetRequirementGUI;
@@ -60,6 +63,9 @@ public class GuiManager {
         this.minEfficiencyGUI = new MinEfficiencyGUI(services);
         this.minEnchantmentsGUI = new MinEnchantmentsGUI(services);
         this.addEnchantmentGUI = new AddEnchantmentGUI(services);
+        this.minAttributesGUI = new MinAttributesGUI(services);
+        this.addAttributeGUI = new AddAttributeGUI(services);
+        this.editAttributeGUI = new EditAttributeGUI(services);
         this.resetRequirementsGUI = new ResetRequirementsGUI(services);
         this.mineRequirementsGUI = new MineRequirementsGUI(services);
         this.addResetRequirementGUI = new AddResetRequirementGUI(services);

@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -18,17 +19,11 @@ public class SetTeleportSubCommand implements SubCommand {
 
     private final MineManager mineManager;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
-    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
-            "messages.mine-not-found", "<red>Mine <mine> not found!");
     private final ConfigData<String> teleportSet = ConfigFactory.newConfigData(
-            "messages.teleport-set", "<green>Teleport location for <mine> has been set to your current position.");
+            "messages.teleport-set", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleport point for <white><mine> <#7bd88f>set to your position.");
 
     public SetTeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.registerLang(missingMineName);
-        configManager.registerLang(mineNotFound);
         configManager.registerLang(teleportSet);
     }
 
@@ -57,7 +52,7 @@ public class SetTeleportSubCommand implements SubCommand {
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
@@ -67,7 +62,7 @@ public class SetTeleportSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
-            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_NOT_FOUND, "mine", mineName));
             return;
         }
         mine.setTeleportLocation(player.getLocation());

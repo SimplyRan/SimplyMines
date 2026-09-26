@@ -1,71 +1,74 @@
 messages:
-  only-players: "<red>Only players can use this command."
-  no-permission: "<red>You do not have permission to use this command."
+  only-players: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Only players can use this command."
+  no-permission: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You don't have permission to do that."
 
-  no-permission-reload: "<red>You do not have permission to reload."
-  reloaded: "<green>Mines and Config have been reloaded!"
+  reloaded: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mines and config reloaded."
 
-  unknown-subcommand: "<red>Unknown subcommand: <yellow><input>"
-  usage: "<red>Usage: /<label> [reload|reset|create|delete|disable|enable|move|teleport|setteleport] [mine name]"
+  unknown-subcommand: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Unknown subcommand <white><input><#ef6f6c>. Try <#ffd166>/<label> help<#ef6f6c>."
 
-  no-permission-reset: "<red>You do not have permission to reset mines."
-  mine-reset: "<green>Mine <mine> has been reset!"
-  mine-not-found: "<red>Mine <mine> not found!"
+  mine-reset: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mine <white><mine> <#7bd88f>has been reset."
+  mine-not-found: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Mine <white><mine> <#ef6f6c>was not found."
 
-  no-permission-create: "<red>You do not have permission to create mines."
-  only-players-create: "<red>Only players can create mines."
-  mine-already-exists: "<red>Mine <mine> already exists."
-  no-selection: "<red>No Selection found! Use a Wooden Hoe to select 2 corners."
+  mine-already-exists: "<#ef6f6c>Mine <white><mine> <#ef6f6c>already exists."
+  no-selection: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>No selection found. Use a Wooden Hoe to select 2 corners."
 
-  selected-corner-1: "<green>Selected Corner 1 at <x>, <y>, <z>"
-  selected-corner-2: "<green>Selected Corner 2 at <x>, <y>, <z>"
+  selected-corner-1: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Corner 1 set at <white><x>, <y>, <z>"
+  selected-corner-2: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Corner 2 set at <white><x>, <y>, <z>"
 
-  no-permission-delete: "<red>You do not have permission to delete mines."
-  mine-deleted: "<green>Mine <mine> has been deleted."
+  mine-deleted: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mine <white><mine> <#7bd88f>has been deleted."
 
-  no-permission-disable: "<red>You do not have permission to disable mines."
-  mine-disabled: "<red>Disabled <mine>."
+  mine-disabled: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Disabled <white><mine><#ef6f6c>."
 
-  no-permission-enable: "<red>You do not have permission to enable mines."
-  mine-enabled: "<green>Enabled <mine>."
+  mine-enabled: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Enabled <white><mine><#7bd88f>."
 
-  no-permission-move: "<red>You do not have permission to move mines."
-  mine-moved: "<green>Mine <mine> has been moved."
+  mine-moved: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mine <white><mine> <#7bd88f>has been moved."
 
-  no-permission-setteleport: "<red>You do not have permission to set mine teleport locations."
-  teleport-set: "<green>Teleport location for <mine> has been set to your current position."
+  teleport-set: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleport point for <white><mine> <#7bd88f>set to your position."
 
-  no-permission-teleport: "<red>You do not have permission to teleport to mines."
-  no-teleport-location: "<red>Mine <mine> does not have a teleport location set."
-  mine-teleported: "<green>Teleported to <mine>."
+  no-permission-teleport: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You do not have permission to teleport to mines."
+  no-teleport-location: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Mine <white><mine> <#ef6f6c>has no teleport point set."
+  mine-teleported: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleported to <white><mine><#7bd88f>."
 
-  warn-global: "<yellow><mine> <gray>resets in <red><seconds>s<gray> (server-wide)!"
-  warn-near: "<yellow><mine> <gray>resets nearby in <red><seconds>s<gray>!"
+  warn-global: "<#ffd166><mine> <#8b9bb4>resets in <#ef6f6c><seconds>s<#8b9bb4> (server-wide)!"
+  warn-near: "<#ffd166><mine> <#8b9bb4>resets nearby in <#ef6f6c><seconds>s<#8b9bb4>!"
 
-  only-players-can-tool: "<green>Only players can use tool"
-  disabled-tool: "<red>Disabled selection tool."
-  enabled-tool: "<green>Enabled selection tool."
-  no-permission-tool: "<red>no permission to toggle tool."
+  disabled-tool: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Selection tool disabled."
+  enabled-tool: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Selection tool enabled."
 
-  missing-mine-name: "<red>You need to specify a mine name!"
+  higher-efficiency-level: "<#ef6f6c>You need a tool with Efficiency <level> or higher to mine here."
+  missing-enchantments: "<#ef6f6c>You need a tool with <enchantments> to mine here."
+  missing-attributes: "<#ef6f6c>You need a tool with <attributes> to mine here."
+  no-permission-mine: "<#ef6f6c>You don't have permission to mine here."
 
-  higher-efficiency-level: "<red>You need a tool with Efficiency <level> or higher to mine here."
-  missing-enchantments: "<red>You need a tool with <enchantments> to mine here."
-  no-permission-mine: "<red>You don't have permission to mine here."
+  action-edit-prompt-command: "<#ffd166>Type the command in chat (without leading /), or 'cancel'."
+  action-edit-command-not-registered: "<#ef6f6c>Warning: '<command>' is not a registered command, it will not run."
+  action-edit-command-set: "<#7bd88f>Command set to <command>"
+  action-edit-item-drop-must-hold: "<#ef6f6c>You must be holding an item."
 
-  action-edit-prompt-command: "<yellow>Type the command in chat (without leading /), or 'cancel'."
-  action-edit-command-not-registered: "<red>Warning: '<command>' is not a registered command, it will not run."
-  action-edit-command-set: "<green>Command set to <command>"
-  action-edit-item-drop-must-hold: "<red>You must be holding an item."
+  update-available: "<#ffd166>SimplyMines <dark_gray>» <#8b9bb4>An update is available: <#7bd88f><latest> <dark_gray>(<white>you're on <current><dark_gray>)"
+  update-click: "<#8b9bb4>» <#ffd166><underlined>Click here to update!"
+  update-hover: "<#8b9bb4>Click to open the download page"
+  version-current: "<#ffd166>SimplyMines <dark_gray>» <#8b9bb4>Running SimplyMines <white><current>"
+  version-up-to-date: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>You are running the latest version."
+  version-update-available: "<#ffd166>SimplyMines <dark_gray>» <#ffd166>Update available: <white><latest>"
+  version-check-failed: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Could not check for updates."
 
-  update-available: "<yellow>[SimplyMines] Update available: <latest> (you're on <current>)."
-  version-current: "<gray>Running SimplyMines <white><current>"
-  version-up-to-date: "<green>You are running the latest version."
-  version-update-available: "<yellow>Update available: <white><latest>"
-  version-check-failed: "<red>Could not check for updates."
+  attribute-requirement-prompt-key: "<#ffd166>Type the attribute key as namespace:key (e.g. myplugin:speed), or 'cancel'."
+  attribute-requirement-invalid-key: "<#ef6f6c>That is not a valid key. Use the form namespace:key with lowercase letters, numbers, _ - . /"
+  attribute-requirement-key-added: "<#7bd88f>Added <attribute>. Set its minimum in the next menu."
+  attribute-requirement-detect-none: "<#ef6f6c>Hold a tool that has custom attribute values first."
+  attribute-requirement-detected: "<#7bd88f>Added <count> attribute(s) from your held tool."
 
-  permission-requirement-prompt-node: "<yellow>Type the permission node in chat, or 'cancel'."
-  permission-requirement-node-set: "<green>Permission node set to <node>"
+  permission-requirement-prompt-node: "<#ffd166>Type the permission node in chat, or 'cancel'."
+  permission-requirement-node-set: "<#7bd88f>Permission node set to <node>"
+
+  invalid-mine-name: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Invalid mine name. Use only letters, numbers, - and _ (max 32 characters)."
+  command-usage: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Usage: <white>/<label> <sub> <#ffd166><args>"
+  help-header: "<#ffd166>SimplyMines <dark_gray>» <#8b9bb4>Commands <dark_gray>(click one to fill it in)"
+  help-line: " <dark_gray>▸ <#ffd166>/<label> <sub> <#8b9bb4><args><dark_gray> - <white><description>"
+  help-hover: "<#8b9bb4>Click to use <#ffd166>/<label> <sub>"
+  mine-renamed: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Renamed <white><old> <#7bd88f>to <white><new><#7bd88f>."
+  mine-saved: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Saved <white><mine> <#7bd88f>to disk."
 
 menus:
   common:
@@ -189,12 +192,23 @@ menus:
       all-blocks-lore: "<#8b9bb4>   <material>: <white><percent>%"
 
   requirements:
+    add-attribute:
+      title: "<dark_gray>Add Attribute"
+      attribute-name: "<#ffd166><attribute>"
+      attribute-lore: "<#8b9bb4>Click to require this attribute"
+      custom-name: "<#ffd166>Custom Attribute"
+      custom-lore: "<#8b9bb4>Type a key from another plugin, e.g. myplugin:speed"
+      detect-name: "<#ffd166>Detect From Held Tool"
+      detect-lore: "<#8b9bb4>Adds every custom value on the tool in your hand"
     add-enchantment:
       title: "<dark_gray>Add Enchantment"
       enchantment-name: "<#ffd166><enchantment>"
       enchantment-lore: "<#8b9bb4>Click to require this enchantment"
     add-mine-requirement:
       title: "<dark_gray>Add Mine Requirement"
+      min-attributes-unavailable: "<#ef6f6c>Min Attributes (Already Added)"
+      min-attributes-name: "<#ffd166>Min Attributes"
+      min-attributes-lore: "<#8b9bb4>Requires tool attributes at set values"
       min-efficiency-unavailable: "<#ef6f6c>Min Efficiency (Already Added)"
       min-efficiency-name: "<#ffd166>Min Efficiency"
       min-efficiency-lore: "<#8b9bb4>Requires a minimum tool efficiency level"
@@ -212,6 +226,20 @@ menus:
       percent-reset-unavailable: "<#ef6f6c>Percent Reset (Already Added)"
       percent-reset-name: "<#ffd166>Percent Reset"
       percent-reset-lore: "<#8b9bb4>Resets once enough of the mine is broken"
+    edit-attribute:
+      title: "<dark_gray>Edit Attribute"
+      adjust-remove: "Remove <amount>"
+      adjust-add: "Add <amount>"
+      display-name: "<#ffd166><attribute>: <white><value>"
+      key-lore: "<#8b9bb4>Key: <white><id>"
+      held-lore: "<#8b9bb4>Your held tool has: <white><value>"
+    min-attributes:
+      title: "<dark_gray>Min Attributes"
+      toggle-label: "Min Attributes"
+      add-attribute: "<#7bd88f>Add Attribute"
+      attribute-name: "<#ffd166><attribute>"
+      minimum-lore: "<#8b9bb4>Required Minimum: <white><value>"
+      key-lore: "<#8b9bb4>Key: <white><id>"
     min-efficiency:
       title: "<dark_gray>Min Efficiency"
       adjust-remove-levels: "Remove <amount> Level"
@@ -236,6 +264,9 @@ menus:
       enchantments-enabled: "<white>Min Enchantments: <#7bd88f>Enabled"
       enchantments-disabled: "<white>Min Enchantments: <#ef6f6c>Disabled"
       enchantment-line: "<#8b9bb4>- <white><enchantment>"
+      attributes-enabled: "<white>Min Attributes: <#7bd88f>Enabled"
+      attributes-disabled: "<white>Min Attributes: <#ef6f6c>Disabled"
+      attribute-line: "<#8b9bb4>- <white><attribute> <#8b9bb4>min <white><value>"
       permission-enabled: "<white>Permission: <#7bd88f>Enabled"
       permission-disabled: "<white>Permission: <#ef6f6c>Disabled"
       permission-lore: "<#8b9bb4>Node: <white><node>"

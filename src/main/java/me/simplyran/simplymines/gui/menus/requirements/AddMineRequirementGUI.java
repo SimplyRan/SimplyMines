@@ -7,6 +7,7 @@ import me.simplyran.simplymines.gui.Menu;
 import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.requirements.mine.impl.AttributeMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
@@ -25,6 +26,9 @@ public class AddMineRequirementGUI extends Menu {
     private final ConfigData<String> minEnchantmentsUnavailable = lang(PATH + "min-enchantments-unavailable", "<#ef6f6c>Min Enchantments (Already Added)");
     private final ConfigData<String> minEnchantmentsName = lang(PATH + "min-enchantments-name", "<#ffd166>Min Enchantments");
     private final ConfigData<String> minEnchantmentsLore = lang(PATH + "min-enchantments-lore", "<#8b9bb4>Requires several enchantments at set levels");
+    private final ConfigData<String> minAttributesUnavailable = lang(PATH + "min-attributes-unavailable", "<#ef6f6c>Min Attributes (Already Added)");
+    private final ConfigData<String> minAttributesName = lang(PATH + "min-attributes-name", "<#ffd166>Min Attributes");
+    private final ConfigData<String> minAttributesLore = lang(PATH + "min-attributes-lore", "<#8b9bb4>Requires tool attributes at set values");
     private final ConfigData<String> permissionUnavailable = lang(PATH + "permission-unavailable", "<#ef6f6c>Permission (Already Added)");
     private final ConfigData<String> permissionName = lang(PATH + "permission-name", "<#ffd166>Permission");
     private final ConfigData<String> permissionLore = lang(PATH + "permission-lore", "<#8b9bb4>Requires a permission node");
@@ -39,9 +43,10 @@ public class AddMineRequirementGUI extends Menu {
 
         boolean hasEfficiency = mine.getMineRequirement(EfficiencyMineRequirement.class) != null;
         boolean hasEnchantments = mine.getMineRequirement(EnchantmentMineRequirement.class) != null;
+        boolean hasAttributes = mine.getMineRequirement(AttributeMineRequirement.class) != null;
         boolean hasPermission = mine.getMineRequirement(PermissionMineRequirement.class) != null;
 
-        gui.setItem(2, 3, hasEfficiency
+        gui.setItem(2, 2, hasEfficiency
                 ? unavailable(minEfficiencyUnavailable)
                 : Btn.of(Material.GOLDEN_PICKAXE, minEfficiencyName)
                 .lore(minEfficiencyLore)
@@ -53,7 +58,7 @@ public class AddMineRequirementGUI extends Menu {
                 })
                 .build());
 
-        gui.setItem(2, 5, hasEnchantments
+        gui.setItem(2, 4, hasEnchantments
                 ? unavailable(minEnchantmentsUnavailable)
                 : Btn.of(Material.ENCHANTED_BOOK, minEnchantmentsName)
                 .lore(minEnchantmentsLore)
@@ -65,7 +70,19 @@ public class AddMineRequirementGUI extends Menu {
                 })
                 .build());
 
-        gui.setItem(2, 7, hasPermission
+        gui.setItem(2, 6, hasAttributes
+                ? unavailable(minAttributesUnavailable)
+                : Btn.of(Material.BLAZE_POWDER, minAttributesName)
+                .lore(minAttributesLore)
+                .onClick(event -> {
+                    AttributeMineRequirement req = new AttributeMineRequirement(services.configManager());
+                    req.setEnabled(true);
+                    mine.addMineRequirement(req);
+                    reopenLater(() -> services.guiManager().getMinAttributesGUI().open(player, mine));
+                })
+                .build());
+
+        gui.setItem(2, 8, hasPermission
                 ? unavailable(permissionUnavailable)
                 : Btn.of(Material.WRITABLE_BOOK, permissionName)
                 .lore(permissionLore)

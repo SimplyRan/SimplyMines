@@ -1,5 +1,6 @@
 package me.simplyran.simplymines.commands.subcommands;
 
+import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
 import me.simplyran.simplymines.managers.MineManager;
@@ -19,22 +20,16 @@ public class TeleportSubCommand implements SubCommand {
 
     private final MineManager mineManager;
 
-    private final ConfigData<String> missingMineName = ConfigFactory.newConfigData(
-            "messages.missing-mine-name", "<red>You need to specify a mine name!");
     private final ConfigData<String> noPermissionTeleport = ConfigFactory.newConfigData(
-            "messages.no-permission-teleport", "<red>You do not have permission to teleport to mines.");
-    private final ConfigData<String> mineNotFound = ConfigFactory.newConfigData(
-            "messages.mine-not-found", "<red>Mine <mine> not found!");
+            "messages.no-permission-teleport", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You do not have permission to teleport to mines.");
     private final ConfigData<String> noTeleportLocation = ConfigFactory.newConfigData(
-            "messages.no-teleport-location", "<red>Mine <mine> does not have a teleport location set.");
+            "messages.no-teleport-location", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Mine <white><mine> <#ef6f6c>has no teleport point set.");
     private final ConfigData<String> mineTeleported = ConfigFactory.newConfigData(
-            "messages.mine-teleported", "<green>Teleported to <mine>.");
+            "messages.mine-teleported", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleported to <white><mine><#7bd88f>.");
 
     public TeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
         this.mineManager = mineManager;
-        configManager.registerLang(missingMineName);
         configManager.registerLang(noPermissionTeleport);
-        configManager.registerLang(mineNotFound);
         configManager.registerLang(noTeleportLocation);
         configManager.registerLang(mineTeleported);
     }
@@ -64,7 +59,7 @@ public class TeleportSubCommand implements SubCommand {
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
         if (args.length < 2) {
-            sender.sendMessage(MessageUtils.format(sender, missingMineName, "sub", getName(), "label", mainCommandName));
+            CommandText.sendUsage(sender, mainCommandName, getName());
             return;
         }
 
@@ -79,7 +74,7 @@ public class TeleportSubCommand implements SubCommand {
 
         BasicMine mine = mineManager.getMine(mineName);
         if (mine == null) {
-            sender.sendMessage(MessageUtils.format(sender, mineNotFound, "mine", mineName));
+            sender.sendMessage(MessageUtils.format(sender, CommandText.MINE_NOT_FOUND, "mine", mineName));
             return;
         }
         Location teleportLocation = mine.getTeleportLocation();

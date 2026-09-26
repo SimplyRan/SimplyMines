@@ -23,7 +23,7 @@ public class EditItemDropActionGUI extends Menu {
     private final ConfigData<String> setHeldLore1 = lang(PATH + "set-held-lore-1", "<#8b9bb4>Click while holding an item");
     private final ConfigData<String> setHeldLore2 = lang(PATH + "set-held-lore-2", "<dark_gray>(or click an item in your inventory below)");
 
-    private final ConfigData<String> mustHoldItem = lang("messages.action-edit-item-drop-must-hold", "<red>You must be holding an item.");
+    private final ConfigData<String> mustHoldItem = lang("messages.action-edit-item-drop-must-hold", "<#ef6f6c>You must be holding an item.");
 
     public EditItemDropActionGUI(MenuServices services) {
         super(services);

@@ -26,8 +26,8 @@ public class PermissionRequirementGUI extends Menu {
     private final ConfigData<String> currentNodeLore = lang(PATH + "current-node-lore", "<white><node>");
     private final ConfigData<String> toggleLabel = lang(PATH + "toggle-label", "Permission Requirement");
 
-    private final ConfigData<String> promptNode = lang("messages.permission-requirement-prompt-node", "<yellow>Type the permission node in chat, or 'cancel'.");
-    private final ConfigData<String> nodeSet = lang("messages.permission-requirement-node-set", "<green>Permission node set to <node>");
+    private final ConfigData<String> promptNode = lang("messages.permission-requirement-prompt-node", "<#ffd166>Type the permission node in chat, or 'cancel'.");
+    private final ConfigData<String> nodeSet = lang("messages.permission-requirement-node-set", "<#7bd88f>Permission node set to <node>");
 
     public PermissionRequirementGUI(MenuServices services) {
         super(services);

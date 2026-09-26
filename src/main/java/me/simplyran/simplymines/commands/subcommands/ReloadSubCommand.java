@@ -21,7 +21,7 @@ public class ReloadSubCommand implements SubCommand {
     private final ConfigManager configManager;
 
     private final ConfigData<String> reloaded = ConfigFactory.newConfigData(
-            "messages.reloaded", "<green>Mines and Config have been reloaded!");
+            "messages.reloaded", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mines and config reloaded.");
 
     public ReloadSubCommand(@NotNull MineManager mineManager,
                             @NotNull WorkloadRunnable workloadRunnable,

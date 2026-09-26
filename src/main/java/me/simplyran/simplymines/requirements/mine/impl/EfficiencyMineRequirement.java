@@ -21,7 +21,7 @@ public class EfficiencyMineRequirement implements IMineRequirement {
     public final static String NAME = "efficiency_mine_requirement";
 
     private static final ConfigData<String> HIGHER_EFFICIENCY_LEVEL = ConfigFactory.newConfigData(
-            "messages.higher-efficiency-level", "<red>You need a tool with Efficiency <level> or higher to mine here.");
+            "messages.higher-efficiency-level", "<#ef6f6c>You need a tool with Efficiency <level> or higher to mine here.");
     private static boolean registered = false;
 
     private boolean enabled;

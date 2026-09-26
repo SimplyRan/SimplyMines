@@ -23,6 +23,7 @@ import me.simplyran.simplymines.placeholders.MinePlaceholder;
 import me.simplyran.simplymines.updater.UpdateChecker;
 import me.simplyran.simplymines.requirements.mine.MineRequirementRegistry;
 import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
+import me.simplyran.simplymines.requirements.mine.impl.AttributeMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.EnchantmentMineRequirement;
 import me.simplyran.simplymines.requirements.mine.impl.PermissionMineRequirement;
 import me.simplyran.simplymines.requirements.reset.ResetRequirementRegistry;
@@ -190,6 +191,11 @@ public final class SimplyMines extends JavaPlugin {
         );
 
         MineRequirementRegistry.register(
+                AttributeMineRequirement.NAME,
+                AttributeMineRequirement::deserialize
+        );
+
+        MineRequirementRegistry.register(
                 PermissionMineRequirement.NAME,
                 PermissionMineRequirement::deserialize
         );
@@ -232,7 +238,7 @@ public final class SimplyMines extends JavaPlugin {
         );
 
         getServer().getPluginManager().registerEvents(
-                new UpdateNotifyListener(updateChecker),
+                new UpdateNotifyListener(updateChecker, configManager),
                 this
         );
     }

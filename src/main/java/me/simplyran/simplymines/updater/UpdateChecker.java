@@ -75,11 +75,11 @@ public class UpdateChecker {
     private void announceUpdate(@NotNull UpdateCheckResult result) {
         String banner = """
                 <newline>\
-                <gradient:#00E5FF:#7C4DFF><bold>  A NEW SIMPLYMINES UPDATE IS AVAILABLE  </bold></gradient>
-                <dark_gray>  ───────────────────────────────────────</dark_gray>
-                <gray>  Running:  <white><bold><current></bold></white>
-                <gray>  Latest:   <green><bold><latest></bold></green>
-                <gray>  Download: <aqua><underlined><url></underlined></aqua>
+                <#ffd166>  A new SimplyMines update is available
+                <dark_gray>  ───────────────────────────────────────
+                <#8b9bb4>  Running:  <white><current>
+                <#8b9bb4>  Latest:   <#7bd88f><latest>
+                <#8b9bb4>  Download: <#ffd166><underlined><url></underlined>
                 <newline>""";
 
         Bukkit.getConsoleSender().sendMessage(MINI_MESSAGE.deserialize(banner,

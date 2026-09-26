@@ -85,23 +85,23 @@ public abstract class Menu {
     protected void adjusters(Gui gui, int row, int[] steps, ConfigData<String> removeLabel, ConfigData<String> addLabel,
                              IntConsumer onDelta, GuiItem middle) {
         double[] wide = Arrays.stream(steps).asDoubleStream().toArray();
-        adjustRow(gui, row, wide, Material.RED_DYE, Material.LIME_DYE, removeLabel, addLabel,
+        adjustRow(gui, row, wide, removeLabel, addLabel,
                 delta -> onDelta.accept((int) delta), middle);
     }
 
-    /** Same layout with pink/green dye, so the small steps read as secondary. */
+    /** Same layout for the small steps. */
     protected void fineAdjusters(Gui gui, int row, double[] steps, ConfigData<String> removeLabel, ConfigData<String> addLabel,
                                  DoubleConsumer onDelta, GuiItem middle) {
-        adjustRow(gui, row, steps, Material.PINK_DYE, Material.GREEN_DYE, removeLabel, addLabel, onDelta, middle);
+        adjustRow(gui, row, steps, removeLabel, addLabel, onDelta, middle);
     }
 
-    private void adjustRow(Gui gui, int row, double[] steps, Material down, Material up,
+    private void adjustRow(Gui gui, int row, double[] steps,
                            ConfigData<String> removeLabel, ConfigData<String> addLabel,
                            DoubleConsumer onDelta, GuiItem middle) {
         for (int i = 0; i < steps.length; i++) {
-            new AdjustButton(gui, row, 4 - i, down, steps[i], removeLabel, Palette.DANGER.color(),
+            new AdjustButton(gui, row, 4 - i, Heads.minus(), steps[i], removeLabel, Palette.DANGER.color(),
                     amount -> onDelta.accept(-amount)).render();
-            new AdjustButton(gui, row, 6 + i, up, steps[i], addLabel, Palette.SUCCESS.color(),
+            new AdjustButton(gui, row, 6 + i, Heads.plus(), steps[i], addLabel, Palette.SUCCESS.color(),
                     onDelta).render();
         }
         if (middle != null) gui.setItem(row, 5, middle);
