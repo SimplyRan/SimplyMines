@@ -2,6 +2,7 @@ package me.simplyran.simplymines.managers;
 
 import me.simplyran.simplymines.SimplyMines;
 import me.simplyran.simplymines.objects.ConfigData;
+import me.simplyran.simplymines.utils.MessageUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ public class LangManager {
         registry.add(data);
         if (initialized) {
             applyValue(data, true);
+            MessageUtils.precompile(data);
         }
     }
 
@@ -62,6 +64,11 @@ public class LangManager {
             persistMissingKeys();
         }
 
+        // Recompile every message now so reload pays the parsing cost, not the first player to hit it.
+        MessageUtils.clearCache();
+        for (ConfigData<String> data : registry) {
+            MessageUtils.precompile(data);
+        }
         initialized = true;
     }
 
