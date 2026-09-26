@@ -256,7 +256,7 @@ public class BasicMine {
     public void setPercentage(@NotNull String block, double percentage) {
         if (percentage < 0) percentage = 0;
         if (percentage > 1) percentage = 1;
-        addBlock(block, Math.round(percentage * 100.0) / 100.0);
+        addBlock(block, Math.round(percentage * 10000.0) / 10000.0);
     }
 
     public double getTotalPercentage() {

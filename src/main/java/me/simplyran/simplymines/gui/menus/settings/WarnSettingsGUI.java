@@ -1,88 +1,46 @@
 package me.simplyran.simplymines.gui.menus.settings;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
-import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.factories.ConfigFactory;
-import me.simplyran.simplymines.gui.MenuCommonText;
-import me.simplyran.simplymines.managers.ConfigManager;
-import me.simplyran.simplymines.managers.GuiManager;
-import me.simplyran.simplymines.managers.MineManager;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Menu;
+import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 
 /**
  * Hub menu linking to Warn Seconds and Warn Distance settings.
  */
-public class WarnSettingsGUI {
+public class WarnSettingsGUI extends Menu {
 
-    private final ConfigData<String> title = ConfigFactory.newConfigData(
-            "menus.settings.warn-settings.title", "Warn Settings");
-    private final ConfigData<String> warnSecondsName = ConfigFactory.newConfigData(
-            "menus.settings.warn-settings.warn-seconds-name", "<yellow>Warn Seconds");
-    private final ConfigData<String> warnDistanceName = ConfigFactory.newConfigData(
-            "menus.settings.warn-settings.warn-distance-name", "<yellow>Warn Distance");
-    private final ConfigData<String> warnDistanceLore = ConfigFactory.newConfigData(
-            "menus.settings.warn-settings.warn-distance-lore", "<white><amount> Blocks");
+    private static final String PATH = "menus.settings.warn-settings.";
 
-    private final SimplyMines plugin;
-    private final GuiManager guiManager;
-    private final MineManager mineManager;
+    private final ConfigData<String> title = lang(PATH + "title", "<dark_gray>Warn Settings");
+    private final ConfigData<String> warnSecondsName = lang(PATH + "warn-seconds-name", "<#ffd166>Warn Seconds");
+    private final ConfigData<String> warnSecondsLore = lang(PATH + "warn-seconds-lore", "<#8b9bb4>Choose when reset warnings are sent");
+    private final ConfigData<String> warnDistanceName = lang(PATH + "warn-distance-name", "<#ffd166>Warn Distance");
+    private final ConfigData<String> warnDistanceLore = lang(PATH + "warn-distance-lore", "<#8b9bb4>Current: <white><amount> blocks");
 
-    public WarnSettingsGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
-        this.plugin = plugin;
-        this.guiManager = guiManager;
-        this.mineManager = mineManager;
-
-        configManager.registerLang(title);
-        configManager.registerLang(warnSecondsName);
-        configManager.registerLang(warnDistanceName);
-        configManager.registerLang(warnDistanceLore);
+    public WarnSettingsGUI(MenuServices services) {
+        super(services);
     }
 
     public void open(Player player, BasicMine mine) {
-        Gui gui = Gui.gui()
-                .rows(3)
-                .title(MessageUtils.format(title))
-                .disableAllInteractions()
-                .create();
+        Gui gui = createGui(3, MessageUtils.format(title),
+                () -> services.guiManager().getMineEditorGUI().open(player, mine.getName()),
+                () -> services.mineManager().saveMineAsync(mine));
 
-        gui.setCloseGuiAction(event -> {
-            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
-            mineManager.saveMineAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
-        });
+        gui.setItem(2, 4, Btn.of(Material.BELL, warnSecondsName)
+                .lore(warnSecondsLore)
+                .onClick(event -> services.guiManager().getWarnSecondsGUI().open(player, mine))
+                .build());
 
-        GuiUtils.fillBorder(gui);
-
-        gui.setItem(3, 1,
-                ItemBuilder.from(Material.ARROW)
-                        .name(MessageUtils.format(MenuCommonText.BACK)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .colorIfAbsent(NamedTextColor.WHITE))
-                        .asGuiItem(event -> player.closeInventory()));
-
-        gui.setItem(2, 4,
-                ItemBuilder.from(Material.REDSTONE_TORCH)
-                        .name(MessageUtils.format(warnSecondsName)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> guiManager.getWarnSecondsGUI().open(player, mine)));
-
-        gui.setItem(2, 6,
-                ItemBuilder.from(Material.SPYGLASS)
-                        .name(MessageUtils.format(warnDistanceName)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .lore(MessageUtils.format(warnDistanceLore, "amount", String.valueOf(mine.getWarnDistance()))
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                        .asGuiItem(event -> guiManager.getWarnDistanceGUI().open(player, mine)));
+        gui.setItem(2, 6, Btn.of(Material.SPYGLASS, warnDistanceName)
+                .lore(warnDistanceLore, "amount", String.valueOf(mine.getWarnDistance()))
+                .onClick(event -> services.guiManager().getWarnDistanceGUI().open(player, mine))
+                .build());
 
         gui.open(player);
     }

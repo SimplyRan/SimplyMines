@@ -1,191 +1,94 @@
 package me.simplyran.simplymines.gui.menus.settings;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
-import me.simplyran.simplymines.SimplyMines;
-import me.simplyran.simplymines.factories.ConfigFactory;
-import me.simplyran.simplymines.gui.MenuCommonText;
+import me.simplyran.simplymines.gui.Btn;
+import me.simplyran.simplymines.gui.Menu;
+import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.gui.buttons.ToggleButton;
-import me.simplyran.simplymines.managers.ConfigManager;
-import me.simplyran.simplymines.managers.GuiManager;
-import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.utils.GuiUtils;
 import me.simplyran.simplymines.utils.MessageUtils;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 /**
  * All of a mine's on/off settings in one place, grouped by topic,
  * so the editor hub stays a clean navigation menu.
  */
-public class MineSettingsGUI {
+public class MineSettingsGUI extends Menu {
 
-    private final ConfigData<String> title = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.title", "Settings: <mine>");
+    private static final String PATH = "menus.settings.mine-settings.";
 
-    private final ConfigData<String> generalSectionLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.general-section-label", "<gold>General");
-    private final ConfigData<String> miningSectionLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.mining-section-label", "<gold>Mining");
-    private final ConfigData<String> resetWarningsSectionLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.reset-warnings-section-label", "<gold>Reset & Warnings");
+    private final ConfigData<String> title = lang(PATH + "title", "<dark_gray>Settings: <#ffd166><mine>");
 
-    private final ConfigData<String> mineEnabledLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.mine-enabled-label", "Mine Enabled");
-    private final ConfigData<String> mineEnabledDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.mine-enabled-description", "Master switch - disabled mines never reset.");
-    private final ConfigData<String> teleportPlayersLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.teleport-players-label", "Teleport Players");
-    private final ConfigData<String> teleportPlayersDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.teleport-players-description", "Teleport players out of the mine before a reset.");
+    private final ConfigData<String> generalSectionLabel = lang(PATH + "general-section-label", "<#ffd166>General");
+    private final ConfigData<String> miningSectionLabel = lang(PATH + "mining-section-label", "<#ffd166>Mining");
+    private final ConfigData<String> resetSectionLabel = lang(PATH + "reset-warnings-section-label", "<#ffd166>Reset");
+    private final ConfigData<String> warningsSectionLabel = lang(PATH + "warnings-section-label", "<#ffd166>Warnings");
 
-    private final ConfigData<String> normalDropsLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.normal-drops-label", "Normal Drops");
-    private final ConfigData<String> normalDropsDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.normal-drops-description", "Broken blocks drop their vanilla items.");
-    private final ConfigData<String> autoPickupLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.auto-pickup-label", "Auto Pickup");
-    private final ConfigData<String> autoPickupDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.auto-pickup-description", "Drops go straight into the player's inventory.");
-    private final ConfigData<String> autoSmeltLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.auto-smelt-label", "Auto Smelt");
-    private final ConfigData<String> autoSmeltDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.auto-smelt-description", "Drops are smelted like in a furnace.");
-    private final ConfigData<String> fortuneLabel =ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.fortune-label", "Fortune");
-    private final ConfigData<String> fortuneDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.fortune-description", "Fortune on the tool multiplies item drops.");
+    private final ConfigData<String> mineEnabledLabel = lang(PATH + "mine-enabled-label", "Mine Enabled");
+    private final ConfigData<String> mineEnabledDescription = lang(PATH + "mine-enabled-description", "Master switch - disabled mines never reset.");
+    private final ConfigData<String> teleportPlayersLabel = lang(PATH + "teleport-players-label", "Teleport Players");
+    private final ConfigData<String> teleportPlayersDescription = lang(PATH + "teleport-players-description", "Teleport players out of the mine before a reset.");
 
-    private final ConfigData<String> replaceModeLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.replace-mode-label", "Replace Mode");
-    private final ConfigData<String> replaceModeDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.replace-mode-description", "Reset overwrites every block, not just air.");
-    private final ConfigData<String> usePhysicsLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.use-physics-label", "Use Physics");
-    private final ConfigData<String> usePhysicsDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.use-physics-description", "Placed blocks trigger physics updates.");
-    private final ConfigData<String> warnGlobalLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.warn-global-label", "Warn Global");
-    private final ConfigData<String> warnGlobalDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.warn-global-description", "Broadcast reset warnings to the whole server.");
-    private final ConfigData<String> warnNearLabel = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.warn-near-label", "Warn Near");
-    private final ConfigData<String> warnNearDescription = ConfigFactory.newConfigData(
-            "menus.settings.mine-settings.warn-near-description", "Warn only players near the mine before a reset.");
+    private final ConfigData<String> normalDropsLabel = lang(PATH + "normal-drops-label", "Normal Drops");
+    private final ConfigData<String> normalDropsDescription = lang(PATH + "normal-drops-description", "Broken blocks drop their vanilla items.");
+    private final ConfigData<String> autoPickupLabel = lang(PATH + "auto-pickup-label", "Auto Pickup");
+    private final ConfigData<String> autoPickupDescription = lang(PATH + "auto-pickup-description", "Drops go straight into the player's inventory.");
+    private final ConfigData<String> autoSmeltLabel = lang(PATH + "auto-smelt-label", "Auto Smelt");
+    private final ConfigData<String> autoSmeltDescription = lang(PATH + "auto-smelt-description", "Drops are smelted like in a furnace.");
+    private final ConfigData<String> fortuneLabel = lang(PATH + "fortune-label", "Fortune");
+    private final ConfigData<String> fortuneDescription = lang(PATH + "fortune-description", "Fortune on the tool multiplies item drops.");
 
-    private final SimplyMines plugin;
-    private final MineManager mineManager;
-    private final GuiManager guiManager;
+    private final ConfigData<String> replaceModeLabel = lang(PATH + "replace-mode-label", "Replace Mode");
+    private final ConfigData<String> replaceModeDescription = lang(PATH + "replace-mode-description", "Reset overwrites every block, not just air.");
+    private final ConfigData<String> usePhysicsLabel = lang(PATH + "use-physics-label", "Use Physics");
+    private final ConfigData<String> usePhysicsDescription = lang(PATH + "use-physics-description", "Placed blocks trigger physics updates.");
+    private final ConfigData<String> warnGlobalLabel = lang(PATH + "warn-global-label", "Warn Global");
+    private final ConfigData<String> warnGlobalDescription = lang(PATH + "warn-global-description", "Broadcast reset warnings to the whole server.");
+    private final ConfigData<String> warnNearLabel = lang(PATH + "warn-near-label", "Warn Near");
+    private final ConfigData<String> warnNearDescription = lang(PATH + "warn-near-description", "Warn only players near the mine before a reset.");
 
-    public MineSettingsGUI(ConfigManager configManager, SimplyMines plugin, MineManager mineManager, GuiManager guiManager) {
-        this.plugin = plugin;
-        this.mineManager = mineManager;
-        this.guiManager = guiManager;
-
-        configManager.registerLang(title);
-        configManager.registerLang(generalSectionLabel);
-        configManager.registerLang(miningSectionLabel);
-        configManager.registerLang(resetWarningsSectionLabel);
-        configManager.registerLang(mineEnabledLabel);
-        configManager.registerLang(mineEnabledDescription);
-        configManager.registerLang(teleportPlayersLabel);
-        configManager.registerLang(teleportPlayersDescription);
-        configManager.registerLang(normalDropsLabel);
-        configManager.registerLang(normalDropsDescription);
-        configManager.registerLang(autoPickupLabel);
-        configManager.registerLang(autoPickupDescription);
-        configManager.registerLang(autoSmeltLabel);
-        configManager.registerLang(autoSmeltDescription);
-        configManager.registerLang(fortuneLabel);
-        configManager.registerLang(fortuneDescription);
-        configManager.registerLang(replaceModeLabel);
-        configManager.registerLang(replaceModeDescription);
-        configManager.registerLang(usePhysicsLabel);
-        configManager.registerLang(usePhysicsDescription);
-        configManager.registerLang(warnGlobalLabel);
-        configManager.registerLang(warnGlobalDescription);
-        configManager.registerLang(warnNearLabel);
-        configManager.registerLang(warnNearDescription);
+    public MineSettingsGUI(MenuServices services) {
+        super(services);
     }
 
     public void open(Player player, BasicMine mine) {
-        Gui gui = Gui.gui()
-                .rows(5)
-                .title(MessageUtils.format(title, "mine", mine.getName()))
-                .disableAllInteractions()
-                .create();
+        Gui gui = createGui(6, MessageUtils.format(title, "mine", mine.getName()),
+                () -> services.guiManager().getMineEditorGUI().open(player, mine.getName()),
+                () -> services.mineManager().saveMineAsync(mine));
 
-        gui.setCloseGuiAction(event -> {
-            if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
-                    || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
-            mineManager.saveMineAsync(mine);
-            Bukkit.getScheduler().runTask(plugin, () -> guiManager.getMineEditorGUI().open(player, mine.getName()));
-        });
+        sectionLabel(gui, 2, Material.NETHER_STAR, generalSectionLabel);
+        toggle(gui, mine, 2, 4, mineEnabledLabel, mineEnabledDescription, mine::isEnabled, mine::setEnabled);
+        toggle(gui, mine, 2, 5, teleportPlayersLabel, teleportPlayersDescription, mine::isTeleportPlayers, mine::setTeleportPlayers);
 
-        GuiUtils.fillBorder(gui);
+        sectionLabel(gui, 3, Material.IRON_PICKAXE, miningSectionLabel);
+        toggle(gui, mine, 3, 4, normalDropsLabel, normalDropsDescription, mine::isNormalDropsEnabled, mine::setNormalDropsEnabled);
+        toggle(gui, mine, 3, 5, autoPickupLabel, autoPickupDescription, mine::isAutoPickup, mine::setAutoPickup);
+        toggle(gui, mine, 3, 6, autoSmeltLabel, autoSmeltDescription, mine::isAutoSmelt, mine::setAutoSmelt);
+        toggle(gui, mine, 3, 7, fortuneLabel, fortuneDescription, mine::isFortuneEnabled, mine::setFortuneEnabled);
 
-        gui.setItem(5, 1,
-                ItemBuilder.from(Material.ARROW)
-                        .name(MessageUtils.format(MenuCommonText.BACK)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .colorIfAbsent(NamedTextColor.WHITE))
-                        .asGuiItem(event -> player.closeInventory()));
+        sectionLabel(gui, 4, Material.TNT, resetSectionLabel);
+        toggle(gui, mine, 4, 4, replaceModeLabel, replaceModeDescription, mine::isReplaceMode, mine::setReplaceMode);
+        toggle(gui, mine, 4, 5, usePhysicsLabel, usePhysicsDescription, mine::isUsePhysics, mine::setUsePhysics);
 
-        sectionLabel(gui, 2, 2, Material.NETHER_STAR, generalSectionLabel);
-        new ToggleButton(gui, 2, 4, MessageUtils.plainFormat(mineEnabledLabel),
-                MessageUtils.plainFormat(mineEnabledDescription),
-                mine::isEnabled, mine::setEnabled, save(mine)).render();
-        new ToggleButton(gui, 2, 6, MessageUtils.plainFormat(teleportPlayersLabel),
-                MessageUtils.plainFormat(teleportPlayersDescription),
-                mine::isTeleportPlayers, mine::setTeleportPlayers, save(mine)).render();
-
-        sectionLabel(gui, 3, 2, Material.IRON_PICKAXE, miningSectionLabel);
-        new ToggleButton(gui, 3, 4, MessageUtils.plainFormat(normalDropsLabel),
-                MessageUtils.plainFormat(normalDropsDescription),
-                mine::isNormalDropsEnabled, mine::setNormalDropsEnabled, save(mine)).render();
-        new ToggleButton(gui, 3, 5, MessageUtils.plainFormat(autoPickupLabel),
-                MessageUtils.plainFormat(autoPickupDescription),
-                mine::isAutoPickup, mine::setAutoPickup, save(mine)).render();
-        new ToggleButton(gui, 3, 7, MessageUtils.plainFormat(autoSmeltLabel),
-                MessageUtils.plainFormat(autoSmeltDescription),
-                mine::isAutoSmelt, mine::setAutoSmelt, save(mine)).render();
-        new ToggleButton(gui, 3, 8, MessageUtils.plainFormat(fortuneLabel),
-                MessageUtils.plainFormat(fortuneDescription),
-                mine::isFortuneEnabled, mine::setFortuneEnabled, save(mine)).render();
-
-        sectionLabel(gui, 4, 2, Material.TNT, resetWarningsSectionLabel);
-        new ToggleButton(gui, 4, 4, MessageUtils.plainFormat(replaceModeLabel),
-                MessageUtils.plainFormat(replaceModeDescription),
-                mine::isReplaceMode, mine::setReplaceMode, save(mine)).render();
-        new ToggleButton(gui, 4, 5, MessageUtils.plainFormat(usePhysicsLabel),
-                MessageUtils.plainFormat(usePhysicsDescription),
-                mine::isUsePhysics, mine::setUsePhysics, save(mine)).render();
-        new ToggleButton(gui, 4, 7, MessageUtils.plainFormat(warnGlobalLabel),
-                MessageUtils.plainFormat(warnGlobalDescription),
-                mine::isWarnGlobal, mine::setWarnGlobal, save(mine)).render();
-        new ToggleButton(gui, 4, 8, MessageUtils.plainFormat(warnNearLabel),
-                MessageUtils.plainFormat(warnNearDescription),
-                mine::isWarnNear, mine::setWarnNear, save(mine)).render();
+        sectionLabel(gui, 5, Material.BELL, warningsSectionLabel);
+        toggle(gui, mine, 5, 4, warnGlobalLabel, warnGlobalDescription, mine::isWarnGlobal, mine::setWarnGlobal);
+        toggle(gui, mine, 5, 5, warnNearLabel, warnNearDescription, mine::isWarnNear, mine::setWarnNear);
 
         gui.open(player);
     }
 
-    private Runnable save(BasicMine mine) {
-        return () -> mineManager.saveMineAsync(mine);
+    private void toggle(Gui gui, BasicMine mine, int row, int col, ConfigData<String> label, ConfigData<String> description,
+                        BooleanSupplier getter, Consumer<Boolean> setter) {
+        new ToggleButton(gui, row, col, MessageUtils.format(label), MessageUtils.format(description),
+                getter, setter, () -> services.mineManager().saveMineAsync(mine)).render();
     }
 
-    private void sectionLabel(Gui gui, int row, int col, Material icon, ConfigData<String> label) {
-        gui.setItem(row, col,
-                ItemBuilder.from(icon)
-                        .name(MessageUtils.format(label)
-                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                .decorate(TextDecoration.BOLD))
-                        .asGuiItem());
+    private void sectionLabel(Gui gui, int row, Material icon, ConfigData<String> label) {
+        gui.setItem(row, 2, Btn.of(icon, MessageUtils.format(label)).build());
     }
 }
