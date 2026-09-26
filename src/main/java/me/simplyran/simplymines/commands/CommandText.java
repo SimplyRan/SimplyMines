@@ -47,11 +47,11 @@ public final class CommandText {
         entry("reassign", "[mine]", "Move a mine to your current selection");
         entry("enable", "[mine]", "Enable a mine");
         entry("disable", "[mine]", "Disable a mine");
-        entry("teleport", "[mine]", "Teleport to a mine");
+        entry("teleport", "[mine]", "Open the teleport menu, or teleport to a mine");
         entry("setteleport", "[mine]", "Set a mine's teleport point to where you stand");
         entry("save", "[mine]", "Save a mine to storage");
         entry("tool", "", "Toggle the selection tool");
-        entry("reload", "", "Reload config, lang and mines");
+        entry("reload", "[mines|config]", "Reload config, lang and mines");
         entry("version", "", "Show the plugin version and check for updates");
     }
 

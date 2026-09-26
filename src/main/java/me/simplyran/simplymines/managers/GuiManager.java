@@ -16,6 +16,7 @@ public class GuiManager {
 
     private final MainMenuGUI mainMenuGUI;
     private final MineEditorGUI mineEditorGUI;
+    private final MineTeleportGUI mineTeleportGUI;
     private final MineSettingsGUI mineSettingsGUI;
     private final ResetSettingsGUI resetSettingsGUI;
     private final WarnSettingsGUI warnSettingsGUI;
@@ -51,6 +52,7 @@ public class GuiManager {
 
         this.mainMenuGUI = new MainMenuGUI(services);
         this.mineEditorGUI = new MineEditorGUI(services);
+        this.mineTeleportGUI = new MineTeleportGUI(services);
         this.mineSettingsGUI = new MineSettingsGUI(services);
         this.resetSettingsGUI = new ResetSettingsGUI(services);
         this.warnSettingsGUI = new WarnSettingsGUI(services);

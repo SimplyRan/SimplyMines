@@ -6,6 +6,7 @@ import me.simplyran.simplymines.gui.Btn;
 import me.simplyran.simplymines.gui.Menu;
 import me.simplyran.simplymines.gui.MenuCommonText;
 import me.simplyran.simplymines.gui.MenuServices;
+import me.simplyran.simplymines.gui.Numbers;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.MessageUtils;
@@ -91,12 +92,12 @@ public class EditItemDropActionGUI extends Menu {
     }
 
     private void renderDisplay(Gui gui, ItemDropAction action) {
-        int chancePercent = (int) Math.round(action.getChance() * 100);
+        String chancePercent = Numbers.percent(action.getChance());
         gui.setItem(2, 5, Btn.of(action.getItemStack())
                 .amount(action.getAmount())
                 .lore(MessageUtils.format(MenuCommonText.AMOUNT_LORE, "amount", String.valueOf(action.getAmount()))
                         .colorIfAbsent(NamedTextColor.WHITE))
-                .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", String.valueOf(chancePercent))
+                .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", chancePercent)
                         .colorIfAbsent(NamedTextColor.WHITE))
                 .build());
     }

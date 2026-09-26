@@ -59,7 +59,7 @@ public class MainCommand implements CommandExecutor {
         subCommands.add(new ReassignSubCommand(mineManager, configManager, selectionManager));
         subCommands.add(new EnableSubCommand(mineManager, configManager));
         subCommands.add(new DisableSubCommand(mineManager, configManager));
-        subCommands.add(new TeleportSubCommand(mineManager, configManager));
+        subCommands.add(new TeleportSubCommand(mineManager, configManager, guiManager));
         subCommands.add(new SetTeleportSubCommand(mineManager, configManager));
         subCommands.add(new SaveSubCommand(mineManager, configManager));
         subCommands.add(new EditSubCommand(mineManager, configManager, guiManager));

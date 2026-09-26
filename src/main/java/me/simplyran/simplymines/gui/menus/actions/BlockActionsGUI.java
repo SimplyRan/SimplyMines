@@ -10,6 +10,7 @@ import me.simplyran.simplymines.gui.Btn;
 import me.simplyran.simplymines.gui.Menu;
 import me.simplyran.simplymines.gui.MenuCommonText;
 import me.simplyran.simplymines.gui.MenuServices;
+import me.simplyran.simplymines.gui.Numbers;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.MessageUtils;
@@ -51,8 +52,8 @@ public class BlockActionsGUI extends Menu {
     }
 
     private GuiItem buildItem(Player player, String block, BasicMine mine, IAction action) {
-        int chancePercent = (int) Math.round(action.getChance() * 100);
-        Component chanceLore = white(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", String.valueOf(chancePercent)));
+        String chancePercent = Numbers.percent(action.getChance());
+        Component chanceLore = white(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", chancePercent));
         Runnable remove = () -> {
             mine.removeAction(block, action);
             services.mineManager().saveMineAsync(mine);

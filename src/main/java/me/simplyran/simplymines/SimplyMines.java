@@ -41,6 +41,7 @@ public final class SimplyMines extends JavaPlugin {
 
     private WorkloadRunnable workloadRunnable;
     private RunnableManager runnableManager;
+    private ActionBarManager actionBarManager;
     private MineManager mineManager;
     private GuiManager guiManager;
     private SelectionManager selectionManager;
@@ -100,6 +101,9 @@ public final class SimplyMines extends JavaPlugin {
         //Creating RunnableManager - depending on mineManager
         this.runnableManager = new RunnableManager(mineManager, configManager);
 
+        //Creating ActionBarManager - depending on mineManager
+        this.actionBarManager = new ActionBarManager(this, mineManager, configManager);
+
         //Creating SelectingManager
         this.selectionManager = new SelectionManager();
 
@@ -118,6 +122,8 @@ public final class SimplyMines extends JavaPlugin {
                 .scheduleSyncRepeatingTask(this, runnableManager, 5 * 20, 20);
 
 
+        //Scheduling the action bar shown inside mines
+        actionBarManager.start();
 
         loadPlaceholders();
         registerListeners();
@@ -150,6 +156,7 @@ public final class SimplyMines extends JavaPlugin {
     public void onDisable() {
         getServer().getScheduler().cancelTask(workloadTaskID);
         getServer().getScheduler().cancelTask(runnableManagerTaskID);
+        if (actionBarManager != null) actionBarManager.stop();
 
         getLogger().info("Saving All Mines...");
         //Drains pending async saves, saves everything sync, then closes the database.

@@ -9,7 +9,6 @@ import me.simplyran.simplymines.gui.MenuCommonText;
 import me.simplyran.simplymines.gui.MenuServices;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
-import me.simplyran.simplymines.requirements.mine.impl.EfficiencyMineRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.PercentResetRequirement;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
 import me.simplyran.simplymines.utils.ItemUtils;
@@ -39,8 +38,6 @@ public class MainMenuGUI extends Menu {
     private final ConfigData<String> teleportPlayersFalse = lang(LORE + "teleport-players-false", "<#8b9bb4>Teleport Players: <#ef6f6c>No");
     private final ConfigData<String> resetPercentageEnabled = lang(LORE + "reset-percentage-enabled", "<#8b9bb4>Reset At Percentage: <#7bd88f><percent>% left (Enabled)");
     private final ConfigData<String> resetPercentageDisabled = lang(LORE + "reset-percentage-disabled", "<#8b9bb4>Reset At Percentage: <#ef6f6c>Disabled");
-    private final ConfigData<String> minEfficiencyEnabled = lang(LORE + "min-efficiency-enabled", "<#8b9bb4>Min Efficiency: <#7bd88f>Level <level> (Enabled)");
-    private final ConfigData<String> minEfficiencyDisabled = lang(LORE + "min-efficiency-disabled", "<#8b9bb4>Min Efficiency: <#ef6f6c>Disabled");
 
     public MainMenuGUI(MenuServices services) {
         super(services);
@@ -71,13 +68,6 @@ public class MainMenuGUI extends Menu {
             btn.lore(resetPercentageEnabled, "percent", String.valueOf(percent.getResetAtPercentage()));
         } else {
             btn.lore(resetPercentageDisabled);
-        }
-
-        EfficiencyMineRequirement efficiency = mine.getMineRequirement(EfficiencyMineRequirement.class);
-        if (efficiency != null && efficiency.isEnabled()) {
-            btn.lore(minEfficiencyEnabled, "level", String.valueOf(efficiency.getEfficiencyLevel()));
-        } else {
-            btn.lore(minEfficiencyDisabled);
         }
 
         btn.lore(MenuCommonText.MATERIALS_HEADER);

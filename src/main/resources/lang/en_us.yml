@@ -3,6 +3,8 @@ messages:
   no-permission: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You don't have permission to do that."
 
   reloaded: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mines and config reloaded."
+  reloaded-mines: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Mines reloaded."
+  reloaded-config: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Config and lang reloaded."
 
   unknown-subcommand: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Unknown subcommand <white><input><#ef6f6c>. Try <#ffd166>/<label> help<#ef6f6c>."
 
@@ -27,10 +29,18 @@ messages:
 
   no-permission-teleport: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You do not have permission to teleport to mines."
   no-teleport-location: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Mine <white><mine> <#ef6f6c>has no teleport point set."
+  no-teleportable-mines: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>There are no mines you can teleport to."
   mine-teleported: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleported to <white><mine><#7bd88f>."
 
   warn-global: "<#ffd166><mine> <#8b9bb4>resets in <#ef6f6c><seconds>s<#8b9bb4> (server-wide)!"
   warn-near: "<#ffd166><mine> <#8b9bb4>resets nearby in <#ef6f6c><seconds>s<#8b9bb4>!"
+
+  # Action bar shown while standing inside a mine. Placeholders:
+  #   <mine> <percent_left> <blocks_left> <blocks_broken> <blocks_total> <time_left> <reset_time>
+  # (<time_left> and <reset_time> only exist in the "timed" version, used by mines with a time reset.)
+  # PlaceholderAPI placeholders work too, but are a little slower than plain ones.
+  actionbar-timed: "<#ffd166><mine> <dark_gray>| <#8b9bb4>Left <#7bd88f><percent_left>% <dark_gray>(<white><blocks_left><dark_gray>/<white><blocks_total><dark_gray>) | <#8b9bb4>Reset <#ef6f6c><time_left>"
+  actionbar-untimed: "<#ffd166><mine> <dark_gray>| <#8b9bb4>Left <#7bd88f><percent_left>% <dark_gray>(<white><blocks_left><dark_gray>/<white><blocks_total><dark_gray>)"
 
   disabled-tool: "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>Selection tool disabled."
   enabled-tool: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Selection tool enabled."
@@ -67,6 +77,20 @@ messages:
   help-header: "<#ffd166>SimplyMines <dark_gray>» <#8b9bb4>Commands <dark_gray>(click one to fill it in)"
   help-line: " <dark_gray>▸ <#ffd166>/<label> <sub> <#8b9bb4><args><dark_gray> - <white><description>"
   help-hover: "<#8b9bb4>Click to use <#ffd166>/<label> <sub>"
+  help-description-create: "Create a mine from your selection"
+  help-description-edit: "Open the mine editor"
+  help-description-reset: "Reset a mine now"
+  help-description-delete: "Delete a mine"
+  help-description-rename: "Rename a mine"
+  help-description-reassign: "Move a mine to your current selection"
+  help-description-enable: "Enable a mine"
+  help-description-disable: "Disable a mine"
+  help-description-teleport: "Open the teleport menu, or teleport to a mine"
+  help-description-setteleport: "Set a mine's teleport point to where you stand"
+  help-description-save: "Save a mine to storage"
+  help-description-tool: "Toggle the selection tool"
+  help-description-reload: "Reload config, lang and mines"
+  help-description-version: "Show the plugin version and check for updates"
   mine-renamed: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Renamed <white><old> <#7bd88f>to <white><new><#7bd88f>."
   mine-saved: "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Saved <white><mine> <#7bd88f>to disk."
 
@@ -97,6 +121,15 @@ menus:
     toggle-disabled: "Disabled"
     click-to-toggle: "Click to toggle"
 
+  mine-teleport:
+    title: "<dark_gray>Mine Teleport"
+    mine-item:
+      world: "<#8b9bb4>World: <white><world>"
+      location: "<#8b9bb4>Location: <white><x>, <y>, <z>"
+      location-corner: "<#8b9bb4>Location: <white><x>, <y>, <z> <dark_gray>(above mine)"
+      size: "<#8b9bb4>Size: <white><blocks> blocks"
+      click: "<#7bd88f>Click to teleport"
+
   main-menu:
     title: "<dark_gray>Select Mine"
     mine-item:
@@ -113,14 +146,12 @@ menus:
         teleport-players-false: "<#8b9bb4>Teleport Players: <#ef6f6c>No"
         reset-percentage-enabled: "<#8b9bb4>Reset At Percentage: <#7bd88f><percent>% left (Enabled)"
         reset-percentage-disabled: "<#8b9bb4>Reset At Percentage: <#ef6f6c>Disabled"
-        min-efficiency-enabled: "<#8b9bb4>Min Efficiency: <#7bd88f>Level <level> (Enabled)"
-        min-efficiency-disabled: "<#8b9bb4>Min Efficiency: <#ef6f6c>Disabled"
 
   mine-editor:
     title: "<dark_gray>Editing <#ffd166><mine>"
     info-button-name: "<#ffd166><mine>"
     teleport-button-name: "<#c792ea>Teleport To Mine"
-    teleport-button-lore: "<#8b9bb4>Goes to the teleport point, or the mine corner if none is set"
+    teleport-button-lore: "<#8b9bb4>Goes to the teleport point, or above the mine if none is set"
     settings-button-name: "<#ffd166>Mine Settings"
     settings-button-lore: "<#8b9bb4>Drops, pickup, physics and more"
     edit-blocks-name: "<#ffd166>Edit Blocks"

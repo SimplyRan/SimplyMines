@@ -3,6 +3,7 @@ package me.simplyran.simplymines.commands.subcommands;
 import me.simplyran.simplymines.commands.CommandText;
 import me.simplyran.simplymines.commands.SubCommand;
 import me.simplyran.simplymines.managers.ConfigManager;
+import me.simplyran.simplymines.managers.GuiManager;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TeleportSubCommand implements SubCommand {
 
     private final MineManager mineManager;
+    private final GuiManager guiManager;
 
     private final ConfigData<String> noPermissionTeleport = ConfigFactory.newConfigData(
             "messages.no-permission-teleport", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>You do not have permission to teleport to mines.");
@@ -27,8 +29,13 @@ public class TeleportSubCommand implements SubCommand {
     private final ConfigData<String> mineTeleported = ConfigFactory.newConfigData(
             "messages.mine-teleported", "<#ffd166>SimplyMines <dark_gray>» <#7bd88f>Teleported to <white><mine><#7bd88f>.");
 
-    public TeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager) {
+    private final ConfigData<String> noTeleportableMines = ConfigFactory.newConfigData(
+            "messages.no-teleportable-mines", "<#ffd166>SimplyMines <dark_gray>» <#ef6f6c>There are no mines you can teleport to.");
+
+    public TeleportSubCommand(@NotNull MineManager mineManager, @NotNull ConfigManager configManager, @NotNull GuiManager guiManager) {
         this.mineManager = mineManager;
+        this.guiManager = guiManager;
+        configManager.registerLang(noTeleportableMines);
         configManager.registerLang(noPermissionTeleport);
         configManager.registerLang(noTeleportLocation);
         configManager.registerLang(mineTeleported);
@@ -58,12 +65,15 @@ public class TeleportSubCommand implements SubCommand {
     @Override
     public void preform(@NotNull CommandSender sender, @NonNull @NotNull String[] args, String mainCommandName) {
 
+        Player player = (Player) sender;
+
         if (args.length < 2) {
-            CommandText.sendUsage(sender, mainCommandName, getName());
+            if (!guiManager.getMineTeleportGUI().open(player)) {
+                sender.sendMessage(MessageUtils.format(sender, noTeleportableMines));
+            }
             return;
         }
 
-        Player player = (Player) sender;
         String mineName = args[1];
 
         if (!player.hasPermission(getPermission()+ "." + mineName)) {

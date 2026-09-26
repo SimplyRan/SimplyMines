@@ -75,8 +75,8 @@ public class BlocksGUI extends Menu {
                     .lore(actionsCountLore, "amount", String.valueOf(mine.getActions(material.getKey()).size()));
 
             for (IAction action : mine.getActions(material.getKey())) {
-                int chancePercent = (int) Math.round(action.getChance() * 100);
-                btn.lore(actionLine, "action", actionLabel(action), "percent", String.valueOf(chancePercent));
+                String chancePercent = Numbers.percent(action.getChance());
+                btn.lore(actionLine, "action", actionLabel(action), "percent", chancePercent);
             }
 
             gui.addItem(btn

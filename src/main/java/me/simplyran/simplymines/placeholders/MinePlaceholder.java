@@ -4,6 +4,8 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.simplyran.simplymines.managers.MineManager;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.requirements.reset.impl.TimeResetRequirement;
+import me.simplyran.simplymines.utils.TimeUtils;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -113,7 +115,7 @@ public class MinePlaceholder extends PlaceholderExpansion {
                 return String.valueOf(Math.max(0, secondsLeft));
             }
 
-            return formatMMSS(secondsLeft);
+            return TimeUtils.formatMMSS(secondsLeft);
         }
 
         String sub = null;
@@ -141,9 +143,9 @@ public class MinePlaceholder extends PlaceholderExpansion {
             case "timeleft" -> timeResetRequirement == null
                     ? null : String.valueOf(Math.max(0, secondsUntilReset(timeResetRequirement)));
             case "timeleft_formatted" -> timeResetRequirement == null
-                    ? null : formatMMSS(secondsUntilReset(timeResetRequirement));
+                    ? null : TimeUtils.formatMMSS(secondsUntilReset(timeResetRequirement));
             case "timeleft_hms" -> timeResetRequirement == null
-                    ? null : formatHMS(secondsUntilReset(timeResetRequirement));
+                    ? null : TimeUtils.formatHMS(secondsUntilReset(timeResetRequirement));
             case "resettime" -> timeResetRequirement == null
                     ? null : String.valueOf(timeResetRequirement.getResetTime());
             case "enabled" -> String.valueOf(mine.isEnabled());
@@ -159,8 +161,9 @@ public class MinePlaceholder extends PlaceholderExpansion {
 
     @Nullable
     private BasicMine findMineAt(@NotNull Player player) {
+        Location location = player.getLocation();
         for (BasicMine mine : mineManager.getMines()) {
-            if (mine.isInsideMine(player.getLocation())) {
+            if (mine.isInsideMine(location)) {
                 return mine;
             }
         }
@@ -169,26 +172,6 @@ public class MinePlaceholder extends PlaceholderExpansion {
 
 
     private long secondsUntilReset(@NotNull TimeResetRequirement timeResetRequirement) {
-        long now = System.currentTimeMillis() / 1000;
-        return timeResetRequirement.getResetTime() - (now - timeResetRequirement.getLastReset());
-    }
-
-    private String formatMMSS(long totalSeconds) {
-        long clamped = Math.max(0, totalSeconds);
-        long minutes = clamped / 60;
-        long seconds = clamped % 60;
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    private String formatHMS(long totalSeconds) {
-        long clamped = Math.max(0, totalSeconds);
-        long hours = clamped / 3600;
-        long minutes = (clamped % 3600) / 60;
-        long seconds = clamped % 60;
-        if (hours > 0) {
-            return String.format("%d:%02d:%02d", hours, minutes, seconds);
-        }
-        return String.format("%02d:%02d", minutes, seconds);
+        return timeResetRequirement.secondsUntilReset(System.currentTimeMillis() / 1000);
     }
 }
-

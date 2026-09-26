@@ -6,6 +6,7 @@ import me.simplyran.simplymines.gui.Btn;
 import me.simplyran.simplymines.gui.Menu;
 import me.simplyran.simplymines.gui.MenuCommonText;
 import me.simplyran.simplymines.gui.MenuServices;
+import me.simplyran.simplymines.gui.Numbers;
 import me.simplyran.simplymines.gui.buttons.ToggleButton;
 import me.simplyran.simplymines.objects.BasicMine;
 import me.simplyran.simplymines.objects.ConfigData;
@@ -102,14 +103,14 @@ public class EditCommandActionGUI extends Menu {
     }
 
     private void renderDisplay(Gui gui, CommandAction action) {
-        int chancePercent = (int) Math.round(action.getChance() * 100);
+        String chancePercent = Numbers.percent(action.getChance());
         String commandLine = action.getCommandName().isEmpty()
                 ? MessageUtils.plainFormat(MenuCommonText.NOT_SET)
                 : action.getCommandName() + " " + String.join(" ", action.getArgs());
 
         gui.setItem(2, 5, Btn.of(Material.COMMAND_BLOCK, commandDisplayName)
                 .lore(commandDisplayLine, "command", commandLine.trim())
-                .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", String.valueOf(chancePercent))
+                .lore(MessageUtils.format(MenuCommonText.CHANCE_LORE, "percent", chancePercent)
                         .colorIfAbsent(NamedTextColor.WHITE))
                 .build());
     }

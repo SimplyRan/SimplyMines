@@ -29,16 +29,16 @@ public class EnchantmentMineRequirement implements IMineRequirement {
 
     private static final ConfigData<String> MISSING_ENCHANTMENTS = ConfigFactory.newConfigData(
             "messages.missing-enchantments", "<#ef6f6c>You need a tool with <enchantments> to mine here.");
-    private static boolean registered = false;
+    private static ConfigManager registeredWith;
 
     private boolean enabled;
     private final Map<String, Integer> enchantments = new LinkedHashMap<>();
     private final Map<String, Enchantment> resolved = new HashMap<>();
 
     public EnchantmentMineRequirement(@NotNull ConfigManager configManager) {
-        if (!registered) {
+        if (registeredWith != configManager) {
             configManager.registerLang(MISSING_ENCHANTMENTS);
-            registered = true;
+            registeredWith = configManager;
         }
     }
 

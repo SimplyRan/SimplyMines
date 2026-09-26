@@ -28,7 +28,7 @@ public class WarnUtils {
         TimeResetRequirement timeReq = mine.getResetRequirement(TimeResetRequirement.class);
         if (timeReq == null) return;
 
-        long secondsUntilReset = timeReq.getResetTime() - (now - timeReq.getLastReset());
+        long secondsUntilReset = timeReq.secondsUntilReset(now);
         if (secondsUntilReset <= 0) return;
 
         int seconds = (int) secondsUntilReset;

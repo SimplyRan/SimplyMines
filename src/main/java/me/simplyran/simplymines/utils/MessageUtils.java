@@ -53,7 +53,15 @@ public class MessageUtils {
     private static final Pattern LENGTH_DEPENDENT_TAGS =
             Pattern.compile("<\\s*(gradient|rainbow|transition)\\b", Pattern.CASE_INSENSITIVE);
 
+    /** A PlaceholderAPI placeholder: {@code %identifier_params%}. A lone '%' (e.g. "<percent>%") doesn't match. */
+    private static final Pattern PAPI_PLACEHOLDER = Pattern.compile("%[A-Za-z0-9]+_[^%]+%");
+
     private MessageUtils() {}
+
+    /** Whether the text contains something PlaceholderAPI would replace, i.e. its output depends on the player. */
+    public static boolean hasPlaceholderApi(@NotNull String raw) {
+        return raw.indexOf('%') >= 0 && PAPI_PLACEHOLDER.matcher(raw).find();
+    }
 
     /**
      * A message parsed ahead of time. {@code raw} is remembered so a changed value invalidates the entry.
@@ -95,7 +103,7 @@ public class MessageUtils {
 
         // PlaceholderAPI output depends on the player, so these can't be precompiled.
         if (sender instanceof Player player
-                && raw.indexOf('%') >= 0
+                && hasPlaceholderApi(raw)
                 && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             return parse(data, PlaceholderAPI.setPlaceholders(player, raw), buildResolvers(placeholderValuePairs));
         }

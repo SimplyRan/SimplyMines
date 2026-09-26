@@ -135,10 +135,13 @@ public abstract class Menu {
                 .build();
     }
 
+    /** Typed values beyond this are rejected: they overflow int casts and make no sense for any setting. */
+    private static final double MAX_TYPED_VALUE = 1_000_000_000d;
+
     private static Double parseNumber(String input) {
         try {
             double value = Double.parseDouble(input.trim().replace(',', '.').replace("%", ""));
-            return Double.isFinite(value) ? value : null;
+            return Double.isFinite(value) && Math.abs(value) <= MAX_TYPED_VALUE ? value : null;
         } catch (NumberFormatException e) {
             return null;
         }
@@ -170,7 +173,8 @@ public abstract class Menu {
             if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW
                     || event.getReason() == InventoryCloseEvent.Reason.PLUGIN) return;
             if (onClose != null) onClose.run();
-            reopenLater(onBack);
+            // Only a manual close goes back; death, teleport or disconnect must not pop the parent menu open again.
+            if (event.getReason() == InventoryCloseEvent.Reason.PLAYER) reopenLater(onBack);
         });
 
         gui.setItem(rows, 1, Btn.of(Material.ARROW, MenuCommonText.BACK)

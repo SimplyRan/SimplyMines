@@ -30,7 +30,7 @@ public class MineEditorGUI extends Menu {
     private final ConfigData<String> title = lang(PATH + "title", "<dark_gray>Editing <#ffd166><mine>");
     private final ConfigData<String> infoButtonName = lang(PATH + "info-button-name", "<#ffd166><mine>");
     private final ConfigData<String> teleportButtonName = lang(PATH + "teleport-button-name", "<#c792ea>Teleport To Mine");
-    private final ConfigData<String> teleportButtonLore = lang(PATH + "teleport-button-lore", "<#8b9bb4>Goes to the teleport point, or the mine corner if none is set");
+    private final ConfigData<String> teleportButtonLore = lang(PATH + "teleport-button-lore", "<#8b9bb4>Goes to the teleport point, or above the mine if none is set");
     private final ConfigData<String> settingsButtonName = lang(PATH + "settings-button-name", "<#ffd166>Mine Settings");
     private final ConfigData<String> settingsButtonLore = lang(PATH + "settings-button-lore", "<#8b9bb4>Drops, pickup, physics and more");
     private final ConfigData<String> editBlocksName = lang(PATH + "edit-blocks-name", "<#ffd166>Edit Blocks");
@@ -100,13 +100,8 @@ public class MineEditorGUI extends Menu {
     private void teleport(Player player, BasicMine mine) {
         player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-        // No teleport location set: fall back to the mine's corner.
-        if (mine.getTeleportLocation() == null) {
-            BoxedRegion region = mine.getRegion();
-            player.teleport(new Location(region.getWorld(), region.getMaxX(), region.getMaxY(), region.getMaxZ()));
-            return;
-        }
-        player.teleportAsync(mine.getTeleportLocation());
+        Location target = mine.getTeleportTarget();
+        if (target != null) player.teleportAsync(target);
     }
 
     private GuiItem buildInfo(BasicMine mine, String mineName) {

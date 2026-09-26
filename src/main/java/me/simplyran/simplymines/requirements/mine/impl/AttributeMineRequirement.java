@@ -34,7 +34,7 @@ public class AttributeMineRequirement implements IMineRequirement {
 
     private static final ConfigData<String> MISSING_ATTRIBUTES = ConfigFactory.newConfigData(
             "messages.missing-attributes", "<#ef6f6c>You need a tool with <attributes> to mine here.");
-    private static boolean registered = false;
+    private static ConfigManager registeredWith;
 
     private boolean enabled;
     private final Map<String, Double> attributes = new LinkedHashMap<>();
@@ -44,9 +44,9 @@ public class AttributeMineRequirement implements IMineRequirement {
     private record Resolved(Attribute vanilla, NamespacedKey custom) {}
 
     public AttributeMineRequirement(@NotNull ConfigManager configManager) {
-        if (!registered) {
+        if (registeredWith != configManager) {
             configManager.registerLang(MISSING_ATTRIBUTES);
-            registered = true;
+            registeredWith = configManager;
         }
     }
 

@@ -32,12 +32,14 @@ public class TimeResetRequirement implements IResetRequirement {
 
 
 
+    /** Seconds until this requirement is satisfied, given the current time in epoch seconds. */
+    public long secondsUntilReset(long nowSeconds) {
+        return resetTime - (nowSeconds - lastReset);
+    }
+
     @Override
     public boolean isSatisfied() {
-        long now = System.currentTimeMillis() / 1000;
-        long secondsUntilReset = resetTime - (now - lastReset);
-
-        return secondsUntilReset <= 0;
+        return secondsUntilReset(System.currentTimeMillis() / 1000) <= 0;
     }
 
     @Override
