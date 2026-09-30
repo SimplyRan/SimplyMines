@@ -1,6 +1,5 @@
 package me.simplyran.simplymines.gui;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.GuiItem;
 import me.simplyran.simplymines.objects.ConfigData;
 import me.simplyran.simplymines.utils.MessageUtils;
@@ -15,35 +14,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** Fluent builder for menu items; strips default italics from every name and lore line. */
 public final class Btn {
 
-    private final ItemBuilder builder;
+    private final ItemStack stack;
     private final Component name;
     private final List<Component> lore = new ArrayList<>();
     private TextColor color;
     private Consumer<InventoryClickEvent> onClick;
 
-    private Btn(ItemBuilder builder, Component name) {
-        this.builder = builder;
+    private Btn(ItemStack stack, Component name) {
+        this.stack = stack;
         this.name = name;
     }
 
     public static Btn of(Material material, ConfigData<String> name, String... placeholders) {
-        return new Btn(ItemBuilder.from(material), MessageUtils.format(name, placeholders));
+        return new Btn(new ItemStack(material), MessageUtils.format(name, placeholders));
     }
 
     public static Btn of(Material material, Component name) {
-        return new Btn(ItemBuilder.from(material), name);
+        return new Btn(new ItemStack(material), name);
     }
 
     /** Keeps the item's own display name. */
     public static Btn of(ItemStack item) {
-        return new Btn(ItemBuilder.from(item), null);
+        return new Btn(item.clone(), null);
     }
 
     public static Btn of(ItemStack item, Component name) {
-        return new Btn(ItemBuilder.from(item), name);
+        return new Btn(item.clone(), name);
     }
 
     public Btn color(TextColor color) {
@@ -52,7 +50,7 @@ public final class Btn {
     }
 
     public Btn amount(int amount) {
-        builder.amount(Math.clamp(amount, 1, 64));
+        stack.setAmount(Math.clamp(amount, 1, 64));
         return this;
     }
 
@@ -76,11 +74,13 @@ public final class Btn {
     }
 
     public GuiItem build() {
-        if (name != null) {
-            builder.name(noItalic(color == null ? name : name.colorIfAbsent(color)));
+        if (name != null || !lore.isEmpty()) {
+            stack.editMeta(meta -> {
+                if (name != null) meta.displayName(noItalic(color == null ? name : name.colorIfAbsent(color)));
+                if (!lore.isEmpty()) meta.lore(lore);
+            });
         }
-        if (!lore.isEmpty()) builder.lore(lore);
-        return onClick == null ? builder.asGuiItem() : builder.asGuiItem(onClick::accept);
+        return onClick == null ? new GuiItem(stack) : new GuiItem(stack, onClick::accept);
     }
 
     private static Component noItalic(Component component) {

@@ -1,10 +1,9 @@
 package me.simplyran.simplymines.utils;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
 import dev.triumphteam.gui.guis.GuiItem;
+import me.simplyran.simplymines.gui.Btn;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 
 public final class GuiUtils {
@@ -67,9 +66,6 @@ public final class GuiUtils {
     }
 
     private static GuiItem borderItem(Material material) {
-        return ItemBuilder.from(material)
-                .name(Component.text(" ")
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE))
-                .asGuiItem();
+        return Btn.of(material, Component.text(" ")).build();
     }
 }
